@@ -104,8 +104,15 @@ class AdminController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy()
-    {
-        Auth::logout();
-        return redirect()->route('admin.login');
+{
+    $user = Auth::user(); // get currently authenticated user
+
+    if ($user) {
+        $user->last_seen = null; // Set last_seen to null so they appear offline immediately
+        $user->save();
     }
+
+    Auth::logout(); // Logout user
+    return redirect()->route('admin.login'); // Redirect to login
+}
 }

@@ -27,6 +27,33 @@ class User extends Authenticatable
         'password',
         'mobile',
         'image',
+
+        // Added fields from the extended schema
+        'user_type',
+        'user_code',
+        'headquarter',
+        'date_of_birth',
+        'joining_date',
+        'emergency_contact_no',
+        'gender',
+        'marital_status',
+        'designation',
+        'role_rights',
+        'reporting_to',
+        'is_self_sale',
+        'is_multi_day_start_end_allowed',
+        'is_allow_tracking',
+        'address',
+        'state',
+        'district',
+        'tehsil',
+        'city',
+        'latitude',
+        'longitude',
+        'pincode',
+        'depo',
+        'postal_address',
+        'status',
     ];
 
     /**
@@ -39,6 +66,10 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $casts = [
+    'last_seen' => 'datetime',
+];
+
     /**
      * Get the attributes that should be cast.
      *
@@ -49,6 +80,11 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'date_of_birth' => 'date',
+            'joining_date' => 'date',
+            'is_self_sale' => 'boolean',
+            'is_multi_day_start_end_allowed' => 'boolean',
+            'is_allow_tracking' => 'boolean',
         ];
     }
 }

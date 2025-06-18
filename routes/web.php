@@ -16,16 +16,14 @@ Route::prefix('admin')->group(function () {
 
     // Public routes (still behind 'web' middleware implicitly)
     Route::get('login', [AdminController::class, 'create'])->name('admin.login');
-
     Route::post('login', [AdminController::class, 'store'])->name('auth.login.request');
 
-   // Admin Logout
+    // Admin Logout
     Route::get('logout', [AdminController::class, 'destroy'])->name('admin.logout');
 
+    // Protected routes using 'admin' middleware and 'last_seen' middleware
+    Route::middleware(['admin', 'last_seen'])->group(function () {
 
-    // Protected routes using 'admin' middleware
-    Route::middleware(['admin'])->group(function () {
-        
         // Display Dashboard Page On Success Login
         Route::get('dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
         
@@ -41,7 +39,7 @@ Route::prefix('admin')->group(function () {
         // Customers CRUD
         Route::resource('customers', CustomerController::class);
 
-        // Toggle Route
+        // Toggle Route (for activating/deactivating users)
         Route::post('/users/{user}/toggle', [UserController::class, 'toggle'])->name('users.toggle');
         
     });

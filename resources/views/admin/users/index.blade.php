@@ -1,49 +1,48 @@
 @extends('admin.layout.layout')
 
 @section('content')
-    <main class="app-main">
-        <!-- Page Header -->
-        <div class="app-content-header">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <h3 class="mb-0">Users</h3>
-                    </div>
-                    <div class="col-sm-6">
-                        <ol class="breadcrumb float-sm-end">
-                            <li class="breadcrumb-item"><a href="#">User Management</a></li>
-                            <li class="breadcrumb-item active">Users</li>
-                        </ol>
-                    </div>
+<main class="app-main">
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h3 class="mb-0">Users</h3>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-end">
+                        <li class="breadcrumb-item"><a href="#">User Management</a></li>
+                        <li class="breadcrumb-item active">Users</li>
+                    </ol>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Page Content -->
-        <div class="app-content">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-12">
+    <div class="app-content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h3 class="card-title">User Control Panel</h3>
+                            @can('create_users')
+                                <a href="{{ route('users.create') }}" class="btn btn-primary float-end" style="max-width: 150px;">
+                                    Add New User
+                                </a>
+                            @endcan
+                        </div>
 
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h3 class="card-title">User Control Panel</h3>
-                                @can('create_users')
-                                    <a href="{{ route('users.create') }}" class="btn btn-primary float-end" style="max-width: 150px;">
-                                        Add New User
-                                    </a>
-                                @endcan
-                            </div>
+                        <div class="card-body">
+                            @if (session('success'))
+                                <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
+                                    <strong>Success:</strong> {{ session('success') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            @endif
 
-                            <div class="card-body">
-                                @if (session('success'))
-                                    <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
-                                        <strong>Success: </strong> {{ session('success') }}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    </div>
-                                @endif
-
-                                @can('view_users')
+                            @can('view_users')
+                            @php $loggedInUserId = Auth::id(); @endphp
+                            <div class="table-responsive">
                                 <table id="users" class="table table-bordered table-striped align-middle">
                                     <thead class="table-light">
                                         <tr>
@@ -51,17 +50,33 @@
                                             <th>Name</th>
                                             <th>Email</th>
                                             <th>Status</th>
+                                            <th>Online</th>
                                             <th>Roles</th>
                                             <th>Permissions</th>
                                             <th>Created</th>
+                                            <th>User Code</th>
+                                            <th>Mobile</th>
+                                            <th>Designation</th>
+                                            <th>Reporting To</th>
+                                            <th>HQ</th>
+                                            <th>State</th>
+                                            <th>City</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @forelse ($users as $user)
-                                            <tr>
+                                            @php
+                                                $isOnline = $user->last_seen && \Carbon\Carbon::parse($user->last_seen)->gt(now()->subMinutes(5));
+                                            @endphp
+                                            <tr class="{{ $user->id === $loggedInUserId ? 'table-primary' : '' }}">
                                                 <td>{{ $loop->iteration }}</td>
-                                                <td>{{ $user->name }}</td>
+                                                <td>
+                                                    {{ $user->name }}
+                                                    @if ($user->id === $loggedInUserId)
+                                                        <span class="badge bg-success ms-1">You</span>
+                                                    @endif
+                                                </td>
                                                 <td>{{ $user->email }}</td>
                                                 <td>
                                                     @if ($user->is_active)
@@ -69,6 +84,11 @@
                                                     @else
                                                         <span class="badge bg-secondary">Inactive</span>
                                                     @endif
+                                                </td>
+                                                <td>
+                                                    <span class="badge {{ $isOnline ? 'bg-success' : 'bg-secondary' }}">
+    {{ $user->last_seen ? ($isOnline ? 'Online' : 'Offline') : 'Offline' }}
+</span>
                                                 </td>
                                                 <td>
                                                     @if ($user->roles && count($user->roles))
@@ -87,20 +107,28 @@
                                                     </button>
                                                 </td>
                                                 <td>{{ $user->created_at->format('Y-m-d') }}</td>
+                                                <td>{{ $user->user_code ?? '-' }}</td>
+                                                <td>{{ $user->mobile ?? '-' }}</td>
+                                                <td>{{ $user->designation ?? '-' }}</td>
+                                                <td>{{ $user->reporting_to ?? '-' }}</td>
+                                                <td>{{ $user->headquarter ?? '-' }}</td>
+                                                <td>{{ $user->state ?? '-' }}</td>
+                                                <td>{{ $user->city ?? '-' }}</td>
                                                 <td>
                                                     @can('view_users')
-                                                        <a href="{{ route('users.show', $user) }}" class="text-info me-2"
-                                                            title="View User"><i class="fas fa-eye"></i></a>
+                                                        <a href="{{ route('users.show', $user) }}" class="text-info me-2" title="View User">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
                                                     @endcan
 
                                                     @can('edit_users')
-                                                        <a href="{{ route('users.edit', $user) }}" class="text-warning me-2"
-                                                            title="Edit User"><i class="fas fa-edit"></i></a>
+                                                        <a href="{{ route('users.edit', $user) }}" class="text-warning me-2" title="Edit User">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
                                                     @endcan
 
                                                     @can('toggle_users')
-                                                        <form action="{{ route('users.toggle', $user) }}" method="POST"
-                                                            class="d-inline">
+                                                        <form action="{{ route('users.toggle', $user) }}" method="POST" class="d-inline">
                                                             @csrf
                                                             <button type="submit"
                                                                 class="btn btn-link p-0 me-2 {{ $user->is_active ? 'text-danger' : 'text-success' }}"
@@ -111,75 +139,71 @@
                                                     @endcan
 
                                                     @can('delete_users')
-                                                        <form action="{{ route('users.destroy', $user) }}" method="POST"
-                                                            class="d-inline"
+                                                        <form action="{{ route('users.destroy', $user) }}" method="POST" class="d-inline"
                                                             onsubmit="return confirm('Are you sure to delete this user?')">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="btn btn-link p-0 text-danger"
-                                                                title="Delete User">
+                                                            <button type="submit" class="btn btn-link p-0 text-danger" title="Delete User">
                                                                 <i class="fas fa-trash"></i>
                                                             </button>
                                                         </form>
                                                     @endcan
                                                 </td>
                                             </tr>
-
-                                            <!-- Permissions Modal -->
-                                            <div class="modal fade" id="permissionsModal{{ $user->id }}" tabindex="-1"
-                                                aria-labelledby="permissionsModalLabel{{ $user->id }}"
-                                                aria-hidden="true">
-                                                <div class="modal-dialog modal-dialog-scrollable">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title"
-                                                                id="permissionsModalLabel{{ $user->id }}">
-                                                                Permissions for {{ $user->name }}
-                                                            </h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                                aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            @if ($user->roles->count())
-                                                                @foreach ($user->roles as $role)
-                                                                    <div class="mb-3">
-                                                                        <strong>{{ $role->name }}</strong>
-                                                                        @php $permissions = $role->permissions; @endphp
-                                                                        @if ($permissions->count())
-                                                                            <ul class="list-group mt-1">
-                                                                                @foreach ($permissions as $permission)
-                                                                                    <li class="list-group-item">
-                                                                                        {{ $permission->name }}
-                                                                                    </li>
-                                                                                @endforeach
-                                                                            </ul>
-                                                                        @else
-                                                                            <p class="text-muted">No permissions for this role.</p>
-                                                                        @endif
-                                                                    </div>
-                                                                @endforeach
-                                                            @else
-                                                                <p class="text-muted">This user has no roles assigned.</p>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
                                         @empty
                                             <tr>
-                                                <td colspan="8" class="text-center text-muted">No users found.</td>
+                                                <td colspan="16" class="text-center text-muted">No users found.</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
                                 </table>
-                                {{-- Pagination removed --}}
-                                @endcan
                             </div>
+                            @endcan
                         </div>
-
                     </div>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
+
+    <!-- Permissions Modals -->
+    @foreach ($users as $user)
+        <div class="modal fade" id="permissionsModal{{ $user->id }}" tabindex="-1"
+            aria-labelledby="permissionsModalLabel{{ $user->id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="permissionsModalLabel{{ $user->id }}">
+                            Permissions for {{ $user->name }}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        @if ($user->roles->count())
+                            @foreach ($user->roles as $role)
+                                <div class="mb-3">
+                                    <strong>{{ $role->name }}</strong>
+                                    @php $permissions = $role->permissions; @endphp
+                                    @if ($permissions->count())
+                                        <ul class="list-group mt-1">
+                                            @foreach ($permissions as $permission)
+                                                <li class="list-group-item">
+                                                    {{ $permission->name }}
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @else
+                                        <p class="text-muted">No permissions for this role.</p>
+                                    @endif
+                                </div>
+                            @endforeach
+                        @else
+                            <p class="text-muted">This user has no roles assigned.</p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+</main>
 @endsection

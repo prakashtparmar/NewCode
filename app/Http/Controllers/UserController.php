@@ -49,21 +49,42 @@ class UserController extends Controller
     /**
      * Store a newly created user in the database.
      */
+    // public function store(StoreUserRequest $request)
+    // {
+    //     $data = $request->validated();
+
+    //     if (!empty($data['password'])) {
+    //         $data['password'] = bcrypt($data['password']);
+    //     }
+
+    //     $user = User::create($data);
+
+    //     // Assign roles and permissions
+    //     // $user->syncRoles($request->input('roles', []));
+    //     $user->syncRoles($request->roles); // Sync roles with the user
+    //     return redirect()->route('users.index')->with('success', 'User created successfully.');
+    // }
+
     public function store(StoreUserRequest $request)
-    {
-        $data = $request->validated();
+{
+    $data = $request->validated();
 
-        if (!empty($data['password'])) {
-            $data['password'] = bcrypt($data['password']);
-        }
-
-        $user = User::create($data);
-
-        // Assign roles and permissions
-        // $user->syncRoles($request->input('roles', []));
-        $user->syncRoles($request->roles); // Sync roles with the user
-        return redirect()->route('users.index')->with('success', 'User created successfully.');
+    if (!empty($data['password'])) {
+        $data['password'] = bcrypt($data['password']);
     }
+
+    // Optional: Handle file upload for image
+    if ($request->hasFile('image')) {
+        $data['image'] = $request->file('image')->store('users', 'public');
+    }
+
+    $user = User::create($data);
+
+    $user->syncRoles($request->roles);
+
+    return redirect()->route('users.index')->with('success', 'User created successfully.');
+}
+
 
     /**
      * Display a specific user's details.
@@ -88,24 +109,47 @@ class UserController extends Controller
     /**
      * Update a specific user in the database.
      */
+    // public function update(UpdateUserRequest $request, User $user)
+    // {
+    //     $data = $request->validated();
+
+    //     if (!empty($data['password'])) {
+    //         $data['password'] = bcrypt($data['password']);
+    //     } else {
+    //         unset($data['password']);
+    //     }
+
+    //     $user->update($data);
+
+    //     // Sync roles and permissions
+    //     $user->syncRoles($request->input('roles', []));
+    //     $user->syncPermissions($request->input('permissions', []));
+
+    //     return redirect()->route('users.index')->with('success', 'User updated successfully.');
+    // }
+
     public function update(UpdateUserRequest $request, User $user)
-    {
-        $data = $request->validated();
+{
+    $data = $request->validated();
 
-        if (!empty($data['password'])) {
-            $data['password'] = bcrypt($data['password']);
-        } else {
-            unset($data['password']);
-        }
-
-        $user->update($data);
-
-        // Sync roles and permissions
-        $user->syncRoles($request->input('roles', []));
-        $user->syncPermissions($request->input('permissions', []));
-
-        return redirect()->route('users.index')->with('success', 'User updated successfully.');
+    if (!empty($data['password'])) {
+        $data['password'] = bcrypt($data['password']);
+    } else {
+        unset($data['password']);
     }
+
+    if ($request->hasFile('image')) {
+        $data['image'] = $request->file('image')->store('users', 'public');
+    }
+
+    $user->update($data);
+
+    $user->syncRoles($request->input('roles', []));
+    $user->syncPermissions($request->input('permissions', []));
+
+    return redirect()->route('users.index')->with('success', 'User updated successfully.');
+}
+
 
     /**
      * Delete a specific user.
