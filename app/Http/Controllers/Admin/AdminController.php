@@ -26,9 +26,27 @@ class AdminController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        return view('admin.dashboard');
-    }
+{
+    $totalUsers = User::count();
+    $totalRoles = \Spatie\Permission\Models\Role::count();
+    $totalPermissions = \Spatie\Permission\Models\Permission::count();
+    $totalCustomers = \App\Models\Customer::count();
+
+    // Define online timeout (e.g. 10 minutes ago)
+    $onlineTimeout = now()->subMinutes(10);
+
+    // Fetch users who are online by last_seen timestamp
+    $onlineUsers = User::where('last_seen', '>=', $onlineTimeout)->get();
+
+    return view('admin.dashboard', compact(
+        'totalUsers',
+        'totalRoles',
+        'totalPermissions',
+        'totalCustomers',
+        'onlineUsers'
+    ));
+}
+
 
     /**
      * Show the form for creating a new resource.
