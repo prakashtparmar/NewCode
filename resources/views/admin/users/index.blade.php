@@ -60,6 +60,8 @@
                                             <th>Reporting To</th>
                                             <th>HQ</th>
                                             <th>State</th>
+                                            <th>District</th>
+                                            <th>Tehsil</th>
                                             <th>City</th>
                                             <th>Actions</th>
                                         </tr>
@@ -87,8 +89,8 @@
                                                 </td>
                                                 <td>
                                                     <span class="badge {{ $isOnline ? 'bg-success' : 'bg-secondary' }}">
-    {{ $user->last_seen ? ($isOnline ? 'Online' : 'Offline') : 'Offline' }}
-</span>
+                                                        {{ $user->last_seen ? ($isOnline ? 'Online' : 'Offline') : 'Offline' }}
+                                                    </span>
                                                 </td>
                                                 <td>
                                                     @if ($user->roles && count($user->roles))
@@ -112,8 +114,11 @@
                                                 <td>{{ $user->designation ?? '-' }}</td>
                                                 <td>{{ $user->reporting_to ?? '-' }}</td>
                                                 <td>{{ $user->headquarter ?? '-' }}</td>
-                                                <td>{{ $user->state ?? '-' }}</td>
-                                                <td>{{ $user->city ?? '-' }}</td>
+                                                <td>{{ $user->state->name ?? '-' }}</td>
+<td>{{ $user->district->name ?? '-' }}</td>
+<td>{{ $user->tehsil->name ?? '-' }}</td>
+<td>{{ $user->city->name ?? '-' }}</td>
+
                                                 <td>
                                                     @can('view_users')
                                                         <a href="{{ route('users.show', $user) }}" class="text-info me-2" title="View User">
@@ -152,7 +157,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="16" class="text-center text-muted">No users found.</td>
+                                                <td colspan="18" class="text-center text-muted">No users found.</td>
                                             </tr>
                                         @endforelse
                                     </tbody>

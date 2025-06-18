@@ -270,5 +270,220 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 
+{{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    const getDistrictsUrl = "{!! url('admin/get-districts') !!}/";
+    const getCitiesUrl = "{!! url('admin/get-cities') !!}/";
+    const getTehsilsUrl = "{!! url('admin/get-tehsils') !!}/";
+
+    $(document).ready(function() {
+        $('#state').on('change', function() {
+            let stateID = $(this).val();
+            $('#district').html('<option value="">Loading...</option>');
+            if (stateID) {
+                $.get(getDistrictsUrl + stateID)
+                    .done(function(data) {
+                        let options = '<option value="">Select District</option>';
+                        data.forEach(d => {
+                            options += `<option value="${d.id}" ${d.id == '{{ old('district_id', $user->district_id ?? '') }}' ? 'selected' : ''}>${d.name}</option>`;
+                        });
+                        $('#district').html(options).trigger('change');
+                    })
+                    .fail(function() {
+                        alert('Failed to load districts');
+                        $('#district').html('<option value="">Select District</option>');
+                    });
+            } else {
+                $('#district').html('<option value="">Select District</option>');
+            }
+        });
+
+        $('#district').on('change', function() {
+            let districtID = $(this).val();
+            $('#city').html('<option value="">Loading...</option>');
+            if (districtID) {
+                $.get(getCitiesUrl + districtID)
+                    .done(function(data) {
+                        let options = '<option value="">Select City</option>';
+                        data.forEach(c => {
+                            options += `<option value="${c.id}" ${c.id == '{{ old('city_id', $user->city_id ?? '') }}' ? 'selected' : ''}>${c.name}</option>`;
+                        });
+                        $('#city').html(options).trigger('change');
+                    })
+                    .fail(function() {
+                        alert('Failed to load cities');
+                        $('#city').html('<option value="">Select City</option>');
+                    });
+            }
+        });
+
+        $('#city').on('change', function() {
+            let cityID = $(this).val();
+            $('#tehsil').html('<option value="">Loading...</option>');
+            if (cityID) {
+                $.get(getTehsilsUrl + cityID)
+                    .done(function(data) {
+                        let options = '<option value="">Select Tehsil</option>';
+                        data.forEach(t => {
+                            options += `<option value="${t.id}" ${t.id == '{{ old('tehsil_id', $user->tehsil_id ?? '') }}' ? 'selected' : ''}>${t.name}</option>`;
+                        });
+                        $('#tehsil').html(options);
+                    })
+                    .fail(function() {
+                        alert('Failed to load tehsils');
+                        $('#tehsil').html('<option value="">Select Tehsil</option>');
+                    });
+            }
+        });
+
+        // 🧠 Pre-fill logic for edit mode
+        @if (isset($user))
+            const preSelectedState = "{{ old('state_id', $user->state_id ?? '') }}";
+            const preSelectedDistrict = "{{ old('district_id', $user->district_id ?? '') }}";
+            const preSelectedCity = "{{ old('city_id', $user->city_id ?? '') }}";
+            const preSelectedTehsil = "{{ old('tehsil_id', $user->tehsil_id ?? '') }}";
+
+            if (preSelectedState) {
+                $('#state').val(preSelectedState).trigger('change');
+                setTimeout(() => {
+                    $('#district').val(preSelectedDistrict).trigger('change');
+                    setTimeout(() => {
+                        $('#city').val(preSelectedCity).trigger('change');
+                        setTimeout(() => {
+                            $('#tehsil').val(preSelectedTehsil);
+                        }, 800);
+                    }, 800);
+                }, 800);
+            }
+        @endif
+    });
+</script> --}}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    const getDistrictsUrl = "{!! url('admin/get-districts') !!}/";
+    const getCitiesUrl = "{!! url('admin/get-cities') !!}/";
+    const getTehsilsUrl = "{!! url('admin/get-tehsils') !!}/";
+    const getPincodesUrl = "{!! url('admin/get-pincodes') !!}/";
+
+    $(document).ready(function () {
+        $('#state').on('change', function () {
+            let stateID = $(this).val();
+            $('#district').html('<option value="">Loading...</option>');
+            if (stateID) {
+                $.get(getDistrictsUrl + stateID)
+                    .done(function (data) {
+                        let options = '<option value="">Select District</option>';
+                        data.forEach(d => {
+                            options += `<option value="${d.id}" ${d.id == '{{ old('district_id', $user->district_id ?? '') }}' ? 'selected' : ''}>${d.name}</option>`;
+                        });
+                        $('#district').html(options).trigger('change');
+                    })
+                    .fail(function () {
+                        alert('Failed to load districts');
+                        $('#district').html('<option value="">Select District</option>');
+                    });
+            } else {
+                $('#district').html('<option value="">Select District</option>');
+            }
+        });
+
+        $('#district').on('change', function () {
+            let districtID = $(this).val();
+            $('#city').html('<option value="">Loading...</option>');
+            if (districtID) {
+                $.get(getCitiesUrl + districtID)
+                    .done(function (data) {
+                        let options = '<option value="">Select City</option>';
+                        data.forEach(c => {
+                            options += `<option value="${c.id}" ${c.id == '{{ old('city_id', $user->city_id ?? '') }}' ? 'selected' : ''}>${c.name}</option>`;
+                        });
+                        $('#city').html(options).trigger('change');
+                    })
+                    .fail(function () {
+                        alert('Failed to load cities');
+                        $('#city').html('<option value="">Select City</option>');
+                    });
+            }
+        });
+
+        $('#city').on('change', function () {
+            let cityID = $(this).val();
+            $('#tehsil').html('<option value="">Loading...</option>');
+            $('#pincode').html('<option value="">Loading...</option>');
+            if (cityID) {
+                // Load Tehsils
+                $.get(getTehsilsUrl + cityID)
+                    .done(function (data) {
+                        let options = '<option value="">Select Tehsil</option>';
+                        data.forEach(t => {
+                            options += `<option value="${t.id}" ${t.id == '{{ old('tehsil_id', $user->tehsil_id ?? '') }}' ? 'selected' : ''}>${t.name}</option>`;
+                        });
+                        $('#tehsil').html(options);
+                    })
+                    .fail(function () {
+                        alert('Failed to load tehsils');
+                        $('#tehsil').html('<option value="">Select Tehsil</option>');
+                    });
+
+                // Load Pincodes
+                $.get(getPincodesUrl + cityID)
+                    .done(function (data) {
+                        let options = '<option value="">Select Pincode</option>';
+                        const selectedPincode = '{{ old('pincode_id', $user->pincode_id ?? '') }}';
+                        data.forEach(p => {
+                            options += `<option value="${p.id}" ${p.id == selectedPincode ? 'selected' : ''}>${p.pincode}</option>`;
+                        });
+                        $('#pincode').html(options);
+                    })
+                    .fail(function () {
+                        alert('Failed to load pincodes');
+                        $('#pincode').html('<option value="">Select Pincode</option>');
+                    });
+            } else {
+                $('#tehsil').html('<option value="">Select Tehsil</option>');
+                $('#pincode').html('<option value="">Select Pincode</option>');
+            }
+        });
+
+        // 🧠 Pre-fill logic for edit mode
+        @if (isset($user))
+            const preSelectedState = "{{ old('state_id', $user->state_id ?? '') }}";
+            const preSelectedDistrict = "{{ old('district_id', $user->district_id ?? '') }}";
+            const preSelectedCity = "{{ old('city_id', $user->city_id ?? '') }}";
+            const preSelectedTehsil = "{{ old('tehsil_id', $user->tehsil_id ?? '') }}";
+            const preSelectedPincode = "{{ old('pincode_id', $user->pincode_id ?? '') }}";
+
+            if (preSelectedState) {
+                $('#state').val(preSelectedState).trigger('change');
+                setTimeout(() => {
+                    $('#district').val(preSelectedDistrict).trigger('change');
+                    setTimeout(() => {
+                        $('#city').val(preSelectedCity).trigger('change');
+                        setTimeout(() => {
+                            $('#tehsil').val(preSelectedTehsil);
+
+                            // Load Pincodes and pre-select
+                            $.get(getPincodesUrl + preSelectedCity)
+                                .done(function (data) {
+                                    let options = '<option value="">Select Pincode</option>';
+                                    data.forEach(p => {
+                                        options += `<option value="${p.id}" ${p.id == preSelectedPincode ? 'selected' : ''}>${p.pincode}</option>`;
+                                    });
+                                    $('#pincode').html(options);
+                                })
+                                .fail(function () {
+                                    $('#pincode').html('<option value="">Select Pincode</option>');
+                                });
+
+                        }, 800);
+                    }, 800);
+                }, 800);
+            }
+        @endif
+    });
+</script>
 
 

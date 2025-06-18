@@ -25,7 +25,7 @@
     <div class="app-content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-md-12"> {{-- Full-width --}}
                     <div class="card card-primary card-outline mb-4">
 
                         {{-- Card Header --}}
@@ -79,9 +79,11 @@
                                     <label class="form-label">Assign Permissions</label>
                                     <div class="row">
                                         @foreach ($permissions as $permission)
-                                            <div class="form-check col-md-4">
-                                                <input type="checkbox" class="form-check-input" name="permissions[{{ $permission->name }}]" value="{{ $permission->name }}" 
-                                                {{ $role->hasPermissionTo($permission->name) ? 'checked' : '' }}>
+                                            <div class="form-check col-md-3 mb-2"> {{-- 4 per row on medium screens --}}
+                                                <input type="checkbox" class="form-check-input"
+                                                       name="permissions[{{ $permission->name }}]"
+                                                       value="{{ $permission->name }}"
+                                                       {{ $role->hasPermissionTo($permission->name) ? 'checked' : '' }}>
                                                 <label class="form-check-label">{{ $permission->name }}</label>
                                             </div>
                                         @endforeach

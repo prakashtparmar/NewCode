@@ -24,7 +24,12 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             TripSeeder::class,
             CustomerSeeder::class,
-            
+            StateSeeder::class,
+            DistrictSeeder::class,
+            CitySeeder::class,
+            TehsilSeeder::class,
+            PincodeSeeder::class,
+
         ]);
 
 

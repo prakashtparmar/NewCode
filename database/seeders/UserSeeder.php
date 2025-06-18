@@ -6,17 +6,26 @@ use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\State;
+use App\Models\District;
+use App\Models\City;
+use App\Models\Tehsil;
+use App\Models\Pincode;
 use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
     public function run(): void
     {
+        // Helper to get foreign keys by name or create dummy if missing
+        $getStateId = fn($name) => State::firstWhere('name', $name)?->id;
+        $getDistrictId = fn($name) => District::firstWhere('name', $name)?->id;
+        $getCityId = fn($name) => City::firstWhere('name', $name)?->id;
+        $getTehsilId = fn($name) => Tehsil::firstWhere('name', $name)?->id;
+
         // Create a default admin user
         $adminUser = User::firstOrCreate(
             ['email' => 'admin@example.com'],
@@ -40,16 +49,18 @@ class UserSeeder extends Seeder
                 'is_multi_day_start_end_allowed' => true,
                 'is_allow_tracking' => true,
                 'address' => '123 Admin Street',
-                'state' => 'Admin State',
-                'district' => 'Admin District',
-                'tehsil' => 'Admin Tehsil',
-                'city' => 'Admin City',
+                'state_id' => $getStateId('Admin State'),
+                'district_id' => $getDistrictId('Admin District'),
+                'tehsil_id' => $getTehsilId('Admin Tehsil'),
+                'city_id' => $getCityId('Admin City'),
                 'latitude' => '28.6139',
                 'longitude' => '77.2090',
-                'pincode' => '110001',
+                'pincode_id' => Pincode::firstWhere('Pincode', '560002')?->id,
                 'depo' => 'Central Depot',
                 'postal_address' => 'P.O. Box 123',
                 'status' => 'Active',
+                'role_rights' => null,
+                'is_active' => true,
             ]
         );
 
@@ -88,16 +99,18 @@ class UserSeeder extends Seeder
                 'is_multi_day_start_end_allowed' => false,
                 'is_allow_tracking' => true,
                 'address' => '456 Manager Lane',
-                'state' => 'Punjab',
-                'district' => 'Ludhiana',
-                'tehsil' => 'Samrala',
-                'city' => 'Ludhiana',
+                'state_id' => $getStateId('Punjab'),
+                'district_id' => $getDistrictId('Ludhiana'),
+                'tehsil_id' => $getTehsilId('Samrala'),
+                'city_id' => $getCityId('Ludhiana'),
                 'latitude' => '30.9000',
                 'longitude' => '75.8500',
-                'pincode' => '141001',
+                'pincode_id' => Pincode::firstWhere('Pincode', '560003')?->id,
                 'depo' => 'Depot A',
                 'postal_address' => 'P.O. Box 456',
                 'status' => 'Active',
+                'role_rights' => null,
+                'is_active' => true,
             ]
         );
 
@@ -124,16 +137,18 @@ class UserSeeder extends Seeder
                 'is_multi_day_start_end_allowed' => true,
                 'is_allow_tracking' => true,
                 'address' => '789 Executive Road',
-                'state' => 'Karnataka',
-                'district' => 'Bangalore',
-                'tehsil' => 'Bangalore South',
-                'city' => 'Bangalore',
+                'state_id' => $getStateId('Karnataka'),
+                'district_id' => $getDistrictId('Bangalore'),
+                'tehsil_id' => $getTehsilId('Bangalore South'),
+                'city_id' => $getCityId('Bangalore'),
                 'latitude' => '12.9716',
                 'longitude' => '77.5946',
-                'pincode' => '560001',
+                'pincode_id' => Pincode::firstWhere('Pincode', '560001')?->id,
                 'depo' => 'Depot B',
                 'postal_address' => 'P.O. Box 789',
                 'status' => 'Active',
+                'role_rights' => null,
+                'is_active' => true,
             ]
         );
 

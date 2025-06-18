@@ -91,10 +91,10 @@
                                                     @endforeach
                                                 </td>
                                                 <td>
-                                                    @foreach ($user->getPermissionNames() as $permission)
-                                                        <span class="badge bg-info">{{ $permission }}</span>
-                                                    @endforeach
-                                                </td>
+    @foreach ($user->getAllPermissionsList() as $permission)
+        <span class="badge bg-info">{{ $permission }}</span>
+    @endforeach
+</td>
                                                 <td>{{ $user->last_seen ? $user->last_seen->diffForHumans() : 'N/A' }}</td>
                                             </tr>
                                         @empty

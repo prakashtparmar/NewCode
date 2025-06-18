@@ -9,6 +9,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use App\Models\State;
+use App\Models\District;
+use App\Models\City;
+use App\Models\Tehsil;
+use App\Models\Pincode;
 
 class UserController extends Controller
 {
@@ -29,8 +34,10 @@ class UserController extends Controller
         Session::put('page', 'dashboard');
 
         // $users = User::with(['roles', 'permissions'])->latest()->paginate(10);
-        $users = User::with(['roles', 'permissions'])->latest()->get();
-        
+        // $users = User::with(['roles', 'permissions'])->latest()->get();
+        $users = User::with(['roles', 'permissions', 'state', 'district', 'tehsil', 'city'])->latest()->get();
+
+
 
         return view('admin.users.index', compact('users'));
     }
@@ -42,10 +49,10 @@ class UserController extends Controller
     {
         return view('admin.users.create', [
             'roles' => Role::all(),
-            'permissions' => Permission::all()
+            'permissions' => Permission::all(),
+            'states' => State::all(), // ✅ Add this
         ]);
     }
-
     /**
      * Store a newly created user in the database.
      */
@@ -66,24 +73,24 @@ class UserController extends Controller
     // }
 
     public function store(StoreUserRequest $request)
-{
-    $data = $request->validated();
+    {
+        $data = $request->validated();
 
-    if (!empty($data['password'])) {
-        $data['password'] = bcrypt($data['password']);
+        if (!empty($data['password'])) {
+            $data['password'] = bcrypt($data['password']);
+        }
+
+        // Optional: Handle file upload for image
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('users', 'public');
+        }
+
+        $user = User::create($data);
+
+        $user->syncRoles($request->roles);
+
+        return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
-
-    // Optional: Handle file upload for image
-    if ($request->hasFile('image')) {
-        $data['image'] = $request->file('image')->store('users', 'public');
-    }
-
-    $user = User::create($data);
-
-    $user->syncRoles($request->roles);
-
-    return redirect()->route('users.index')->with('success', 'User created successfully.');
-}
 
 
     /**
@@ -97,14 +104,29 @@ class UserController extends Controller
     /**
      * Show the form to edit an existing user.
      */
+    // public function edit(User $user)
+    // {
+    //     return view('admin.users.edit', [
+    //         'user' => $user,
+    //         'roles' => Role::all(),
+    //         'permissions' => Permission::all()
+    //     ]);
+    // }
+
     public function edit(User $user)
     {
         return view('admin.users.edit', [
             'user' => $user,
             'roles' => Role::all(),
-            'permissions' => Permission::all()
+            'permissions' => Permission::all(),
+            'states' => State::all(),
+            'districts' => District::where('state_id', $user->state_id)->get(),
+            'cities' => City::where('district_id', $user->district_id)->get(),
+            'tehsils' => Tehsil::where('city_id', $user->city_id)->get(),
+            'pincodes' => Pincode::where('city_id', $user->city_id)->get(),
         ]);
     }
+
 
     /**
      * Update a specific user in the database.
@@ -129,26 +151,27 @@ class UserController extends Controller
     // }
 
     public function update(UpdateUserRequest $request, User $user)
-{
-    $data = $request->validated();
+    {
+        
+        $data = $request->validated();
 
-    if (!empty($data['password'])) {
-        $data['password'] = bcrypt($data['password']);
-    } else {
-        unset($data['password']);
+        if (!empty($data['password'])) {
+            $data['password'] = bcrypt($data['password']);
+        } else {
+            unset($data['password']);
+        }
+
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('users', 'public');
+        }
+
+        $user->update($data);
+
+        $user->syncRoles($request->input('roles', []));
+        $user->syncPermissions($request->input('permissions', []));
+
+        return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
-
-    if ($request->hasFile('image')) {
-        $data['image'] = $request->file('image')->store('users', 'public');
-    }
-
-    $user->update($data);
-
-    $user->syncRoles($request->input('roles', []));
-    $user->syncPermissions($request->input('permissions', []));
-
-    return redirect()->route('users.index')->with('success', 'User updated successfully.');
-}
 
 
     /**
@@ -171,4 +194,29 @@ class UserController extends Controller
 
         return redirect()->route('users.index')->with('success', 'User status updated.');
     }
+
+
+    public function getDistricts($state_id)
+    {
+        $districts = District::where('state_id', $state_id)->get();
+        return response()->json($districts);
+    }
+
+    public function getCities($district_id)
+    {
+        $cities = City::where('district_id', $district_id)->get();
+        return response()->json($cities);
+    }
+
+    public function getTehsils($city_id)
+    {
+        $tehsils = Tehsil::where('city_id', $city_id)->get();
+        return response()->json($tehsils);
+    }
+
+    public function getPincodes($city_id)
+{
+    $pincodes = Pincode::where('city_id', $city_id)->get();
+    return response()->json($pincodes);
+}
 }

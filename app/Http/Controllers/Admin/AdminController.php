@@ -32,11 +32,12 @@ class AdminController extends Controller
     $totalPermissions = \Spatie\Permission\Models\Permission::count();
     $totalCustomers = \App\Models\Customer::count();
 
-    // Define online timeout (e.g. 10 minutes ago)
     $onlineTimeout = now()->subMinutes(10);
 
-    // Fetch users who are online by last_seen timestamp
-    $onlineUsers = User::where('last_seen', '>=', $onlineTimeout)->get();
+    // Eager-load roles and permissions
+    $onlineUsers = User::where('last_seen', '>=', $onlineTimeout)
+        ->with(['roles', 'permissions']) // Eager load for performance
+        ->get();
 
     return view('admin.dashboard', compact(
         'totalUsers',

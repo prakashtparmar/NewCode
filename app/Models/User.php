@@ -44,13 +44,14 @@ class User extends Authenticatable
         'is_multi_day_start_end_allowed',
         'is_allow_tracking',
         'address',
-        'state',
-        'district',
-        'tehsil',
-        'city',
+        'state_id',
+        'district_id',
+        'city_id',
+        'tehsil_id',
+
         'latitude',
         'longitude',
-        'pincode',
+        'pincode_id',
         'depo',
         'postal_address',
         'status',
@@ -67,8 +68,8 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-    'last_seen' => 'datetime',
-];
+        'last_seen' => 'datetime',
+    ];
 
     /**
      * Get the attributes that should be cast.
@@ -86,5 +87,37 @@ class User extends Authenticatable
             'is_multi_day_start_end_allowed' => 'boolean',
             'is_allow_tracking' => 'boolean',
         ];
+    }
+
+    // Add at the bottom of the User model class
+
+    public function state()
+    {
+        return $this->belongsTo(State::class);
+    }
+
+    public function district()
+    {
+        return $this->belongsTo(District::class);
+    }
+
+    public function city()
+    {
+        return $this->belongsTo(City::class);
+    }
+
+    public function tehsil()
+    {
+        return $this->belongsTo(Tehsil::class);
+    }
+
+    // public function pincode()
+    // {
+    //     return $this->belongsTo(Pincode::class);
+    // }
+
+    public function getAllPermissionsList()
+    {
+        return $this->getAllPermissions()->pluck('name');
     }
 }

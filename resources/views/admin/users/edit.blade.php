@@ -1,189 +1,315 @@
 @extends('admin.layout.layout')
 
 @section('content')
-<main class="app-main">
-    {{-- Page Header --}}
-    <div class="app-content-header">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-sm-6">
-                    <h3 class="mb-0">User Management</h3>
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-end">
-                        <li class="breadcrumb-item"><a href="{{ route('users.index') }}">Users</a></li>
-                        <li class="breadcrumb-item active">Edit User</li>
-                    </ol>
+    <main class="app-main">
+        {{-- Page Header --}}
+        <div class="app-content-header">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h3 class="mb-0">Admin Management</h3>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-end">
+                            <li class="breadcrumb-item"><a href="{{ route('users.index') }}">Users</a></li>
+                            <li class="breadcrumb-item active">Edit User</li>
+                        </ol>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    {{-- Main Content --}}
-    <div class="app-content">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-12">
-                    <div class="card card-primary card-outline mb-4">
-
-                        <div class="card-header">
-                            <div class="card-title">Edit User</div>
-                        </div>
-
-                        @if(session('success'))
-                            <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
-                                <strong>Success:</strong> {{ session('success') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        {{-- Main Content --}}
+        <div class="app-content">
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-12">
+                        <div class="card card-primary card-outline mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <div class="card-title mb-0">Edit User</div>
                             </div>
-                        @endif
 
-                        @if(session('error'))
-                            <div class="alert alert-danger alert-dismissible fade show m-3" role="alert">
-                                <strong>Error:</strong> {{ session('error') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        @endif
-
-                        @if ($errors->any())
-                            <div class="alert alert-danger alert-dismissible fade show m-3">
-                                <strong>Error!</strong>
-                                <ul class="mb-0 mt-1">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        @endif
-
-                        <form method="POST" action="{{ route('users.update', $user->id) }}" enctype="multipart/form-data">
-                            @csrf
-                            @method('PUT')
-
-                            <div class="card-body row">
-
-                                {{-- Core Fields --}}
-                                <div class="mb-3 col-md-4">
-                                    <label for="name" class="form-label">Name</label>
-                                    <input type="text" class="form-control" name="name" value="{{ old('name', $user->name) }}" required />
+                            {{-- Flash Messages --}}
+                            @if (session('success'))
+                                <div class="alert alert-success alert-dismissible fade show m-3">
+                                    <strong>Success:</strong> {{ session('success') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                                 </div>
+                            @endif
 
-                                <div class="mb-3 col-md-4">
-                                    <label for="email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" name="email" value="{{ old('email', $user->email) }}" required />
+                            @if (session('error'))
+                                <div class="alert alert-danger alert-dismissible fade show m-3">
+                                    <strong>Error:</strong> {{ session('error') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                                 </div>
+                            @endif
 
-                                <div class="mb-3 col-md-4">
-                                    <label for="mobile" class="form-label">Mobile</label>
-                                    <input type="text" class="form-control" name="mobile" value="{{ old('mobile', $user->mobile) }}" />
-                                </div>
+                            @if ($errors->any())
+                                @foreach ($errors->all() as $error)
+                                    <div class="alert alert-danger alert-dismissible fade show m-3">
+                                        <strong>Error:</strong> {{ $error }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                @endforeach
+                            @endif
 
-                                <div class="mb-3 col-md-4">
-                                    <label for="password" class="form-label">Password <small>(leave blank to keep current)</small></label>
-                                    <input type="password" class="form-control" name="password" />
-                                </div>
+                            {{-- Form Start --}}
+                            <form method="POST" action="{{ route('users.update', $user->id) }}"
+                                enctype="multipart/form-data">
+                                @csrf
+                                @method('PUT')
 
-                                <div class="mb-3 col-md-4">
-                                    <label for="password_confirmation" class="form-label">Confirm Password</label>
-                                    <input type="password" class="form-control" name="password_confirmation" />
-                                </div>
+                                <div class="card-body">
 
-                                <div class="mb-3 col-md-4">
-                                    <label for="image" class="form-label">Image</label>
-                                    <input type="file" class="form-control" name="image" />
-                                    @if($user->image)
-                                        <img src="{{ asset('storage/'.$user->image) }}" alt="User Image" width="80" class="mt-2" />
-                                    @endif
-                                </div>
+                                    {{-- Personal Information --}}
+                                    <h5 class="mb-3">Personal Information</h5>
+                                    <div class="row g-3 mb-4">
+                                        {{-- Name, Email, Mobile --}}
+                                        <div class="col-md-4">
+                                            <label class="form-label">Name <span class="text-danger">*</span></label>
+                                            <input type="text" name="name" class="form-control"
+                                                value="{{ old('name', $user->name) }}" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                                            <input type="email" name="email" class="form-control"
+                                                value="{{ old('email', $user->email) }}" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Mobile</label>
+                                            <input type="text" name="mobile" class="form-control"
+                                                value="{{ old('mobile', $user->mobile) }}">
+                                        </div>
 
-                                {{-- Additional Fields --}}
-                                @php
-                                    $fields = [
-                                        ['user_code', 'User Code'], ['designation', 'Designation'], ['reporting_to', 'Reporting To'],
-                                        ['headquarter', 'Headquarter'], ['user_type', 'User Type'],
-                                        ['date_of_birth', 'Date of Birth', 'date'], ['joining_date', 'Joining Date', 'date'],
-                                        ['emergency_contact_no', 'Emergency Contact No'],
-                                        ['gender', 'Gender', 'select', ['Male', 'Female', 'Other']],
-                                        ['marital_status', 'Marital Status', 'select', ['Single', 'Married']],
-                                        ['address', 'Address', 'textarea'],
-                                        ['district', 'District'], ['state', 'State'], ['tehsil', 'Tehsil'],
-                                        ['city', 'City'], ['pincode', 'Pincode'], ['postal_address', 'Postal Address'],
-                                        ['latitude', 'Latitude'], ['longitude', 'Longitude'], ['depo', 'Depo'],
-                                    ];
-                                @endphp
-
-                                @foreach($fields as $field)
-                                    @php
-                                        $name = $field[0];
-                                        $label = $field[1];
-                                        $type = $field[2] ?? 'text';
-                                        $options = $field[3] ?? [];
-                                    @endphp
-                                    <div class="mb-3 col-md-4">
-                                        <label for="{{ $name }}" class="form-label">{{ $label }}</label>
-
-                                        @if($type === 'select')
-                                            <select name="{{ $name }}" class="form-select">
+                                        {{-- DOB, Gender, Marital Status --}}
+                                        <div class="col-md-4">
+                                            <label class="form-label">Date of Birth</label>
+                                            <input type="date" name="date_of_birth" class="form-control"
+                                                value="{{ old('date_of_birth', $user->date_of_birth) }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Gender</label>
+                                            <select name="gender" class="form-select">
                                                 <option value="">Select</option>
-                                                @foreach($options as $option)
-                                                    <option value="{{ $option }}" {{ old($name, $user->$name) === $option ? 'selected' : '' }}>
-                                                        {{ $option }}
-                                                    </option>
+                                                <option value="Male"
+                                                    {{ old('gender', $user->gender) == 'Male' ? 'selected' : '' }}>Male
+                                                </option>
+                                                <option value="Female"
+                                                    {{ old('gender', $user->gender) == 'Female' ? 'selected' : '' }}>Female
+                                                </option>
+                                                <option value="Other"
+                                                    {{ old('gender', $user->gender) == 'Other' ? 'selected' : '' }}>Other
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Marital Status</label>
+                                            <select name="marital_status" class="form-select">
+                                                <option value="">Select</option>
+                                                <option value="Single"
+                                                    {{ old('marital_status', $user->marital_status) == 'Single' ? 'selected' : '' }}>
+                                                    Single</option>
+                                                <option value="Married"
+                                                    {{ old('marital_status', $user->marital_status) == 'Married' ? 'selected' : '' }}>
+                                                    Married</option>
+                                            </select>
+                                        </div>
+
+                                        {{-- Address --}}
+                                        <div class="col-md-12">
+                                            <label class="form-label">Address</label>
+                                            <textarea name="address" class="form-control">{{ old('address', $user->address) }}</textarea>
+                                        </div>
+
+                                        {{-- Location Dropdowns --}}
+                                        <div class="col-md-3">
+                                            <label class="form-label">State</label>
+                                            <select name="state_id" id="state" class="form-select">
+                                                <option value="">Select State</option>
+                                                @foreach ($states as $state)
+                                                    <option value="{{ $state->id }}"
+                                                        {{ old('state_id', $user->state_id) == $state->id ? 'selected' : '' }}>
+                                                        {{ $state->name }}</option>
                                                 @endforeach
                                             </select>
-                                        @elseif($type === 'textarea')
-                                            <textarea name="{{ $name }}" class="form-control" rows="2">{{ old($name, $user->$name) }}</textarea>
-                                        @else
-                                            <input type="{{ $type }}" class="form-control" name="{{ $name }}" value="{{ old($name, $user->$name) }}" />
-                                        @endif
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="form-label">District</label>
+                                            <select name="district_id" id="district" class="form-select">
+                                                <option value="">Select District</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="form-label">City</label>
+                                            <select name="city_id" id="city" class="form-select">
+                                                <option value="">Select City</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="form-label">Tehsil</label>
+                                            <select name="tehsil_id" id="tehsil" class="form-select">
+                                                <option value="">Select Tehsil</option>
+                                            </select>
+                                        </div>
+
+                                        {{-- Pincode, Postal, Lat/Lng --}}
+                                        <div class="col-md-3">
+                                            <label class="form-label">Pincode</label>
+                                            <select name="pincode_id" id="pincode" class="form-select">
+                                                <option value="">Select Pincode</option>
+                                            </select>
+                                        </div>
+
+
+                                        <div class="col-md-4">
+                                            <label class="form-label">Postal Address</label>
+                                            <input type="text" name="postal_address" class="form-control"
+                                                value="{{ old('postal_address', $user->postal_address) }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Latitude</label>
+                                            <input type="text" name="latitude" class="form-control"
+                                                value="{{ old('latitude', $user->latitude) }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Longitude</label>
+                                            <input type="text" name="longitude" class="form-control"
+                                                value="{{ old('longitude', $user->longitude) }}">
+                                        </div>
                                     </div>
-                                @endforeach
 
-                                {{-- Booleans --}}
-                                @php
-                                    $booleans = [
-                                        'is_self_sale' => 'Is Self Sale',
-                                        'is_multi_day_start_end_allowed' => 'Multi-Day Start/End Allowed',
-                                        'is_allow_tracking' => 'Allow Tracking'
-                                    ];
-                                @endphp
-
-                                @foreach($booleans as $field => $label)
-                                    <div class="mb-3 col-md-4">
-                                        <label for="{{ $field }}" class="form-label">{{ $label }}</label>
-                                        <select name="{{ $field }}" class="form-select">
-                                            <option value="0" {{ old($field, $user->$field) == 0 ? 'selected' : '' }}>No</option>
-                                            <option value="1" {{ old($field, $user->$field) == 1 ? 'selected' : '' }}>Yes</option>
-                                        </select>
+                                    {{-- Employment Information --}}
+                                    <h5 class="mb-3">Employment Information</h5>
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-4">
+                                            <label class="form-label">User Code</label>
+                                            <input type="text" name="user_code" class="form-control"
+                                                value="{{ old('user_code', $user->user_code) }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Designation</label>
+                                            <input type="text" name="designation" class="form-control"
+                                                value="{{ old('designation', $user->designation) }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Reporting To</label>
+                                            <input type="text" name="reporting_to" class="form-control"
+                                                value="{{ old('reporting_to', $user->reporting_to) }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Headquarter</label>
+                                            <input type="text" name="headquarter" class="form-control"
+                                                value="{{ old('headquarter', $user->headquarter) }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">User Type</label>
+                                            <input type="text" name="user_type" class="form-control"
+                                                value="{{ old('user_type', $user->user_type) }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Joining Date</label>
+                                            <input type="date" name="joining_date" class="form-control"
+                                                value="{{ old('joining_date', $user->joining_date) }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Emergency Contact</label>
+                                            <input type="text" name="emergency_contact_no" class="form-control"
+                                                value="{{ old('emergency_contact_no', $user->emergency_contact_no) }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Is Self Sale</label>
+                                            <select name="is_self_sale" class="form-select">
+                                                <option value="0"
+                                                    {{ old('is_self_sale', $user->is_self_sale) == '0' ? 'selected' : '' }}>
+                                                    No</option>
+                                                <option value="1"
+                                                    {{ old('is_self_sale', $user->is_self_sale) == '1' ? 'selected' : '' }}>
+                                                    Yes</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Multi-Day Start/End Allowed</label>
+                                            <select name="is_multi_day_start_end_allowed" class="form-select">
+                                                <option value="0"
+                                                    {{ old('is_multi_day_start_end_allowed', $user->is_multi_day_start_end_allowed) == '0' ? 'selected' : '' }}>
+                                                    No</option>
+                                                <option value="1"
+                                                    {{ old('is_multi_day_start_end_allowed', $user->is_multi_day_start_end_allowed) == '1' ? 'selected' : '' }}>
+                                                    Yes</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Allow Tracking</label>
+                                            <select name="is_allow_tracking" class="form-select">
+                                                <option value="1"
+                                                    {{ old('is_allow_tracking', $user->is_allow_tracking) == '1' ? 'selected' : '' }}>
+                                                    Yes</option>
+                                                <option value="0"
+                                                    {{ old('is_allow_tracking', $user->is_allow_tracking) == '0' ? 'selected' : '' }}>
+                                                    No</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                @endforeach
 
-                                {{-- Roles --}}
-                                <div class="mb-3 col-md-12">
-                                    <label class="form-label">Assign Roles</label>
-                                    <div class="row">
+                                    {{-- Authentication --}}
+                                    <h5 class="mb-3">Authentication</h5>
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Password <small>(Leave blank to keep
+                                                    existing)</small></label>
+                                            <input type="password" name="password" class="form-control"
+                                                placeholder="Enter new password">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Confirm Password</label>
+                                            <input type="password" name="password_confirmation" class="form-control"
+                                                placeholder="Confirm new password">
+                                        </div>
+                                    </div>
+
+                                    {{-- Profile Image --}}
+                                    <h5 class="mb-3">Profile Image</h5>
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Image</label>
+                                            <input type="file" name="image" class="form-control" accept="image/*">
+                                            @if ($user->image)
+                                                <img src="{{ asset('storage/' . $user->image) }}" width="100"
+                                                    class="mt-2 border rounded">
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    {{-- Roles --}}
+                                    <h5 class="mb-3">Assign Roles</h5>
+                                    <div class="row g-3 mb-3">
                                         @foreach ($roles as $role)
-                                            <div class="form-check col-md-3">
-                                                <input type="checkbox" name="roles[]" value="{{ $role->name }}"
-                                                    class="form-check-input"
-                                                    {{ in_array($role->name, old('roles', $user->getRoleNames()->toArray())) ? 'checked' : '' }}>
-                                                <label class="form-check-label">{{ $role->name }}</label>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input type="checkbox" name="roles[]" value="{{ $role->name }}"
+                                                        class="form-check-input" id="role-{{ $role->name }}"
+                                                        {{ in_array($role->name, old('roles', $user->getRoleNames()->toArray())) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="role-{{ $role->name }}">
+                                                        {{ ucfirst($role->name) }}
+                                                    </label>
+                                                </div>
                                             </div>
                                         @endforeach
                                     </div>
                                 </div>
 
-                            </div>
-
-                            <div class="card-footer text-end">
-                                <button type="submit" class="btn btn-primary">Update User</button>
-                            </div>
-                        </form>
-
+                                <div class="card-footer text-end">
+                                    <button type="submit" class="btn btn-primary">Update User</button>
+                                </div>
+                            </form>
+                            {{-- Form End --}}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</main>
+    </main>
 @endsection

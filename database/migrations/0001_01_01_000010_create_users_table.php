@@ -59,13 +59,22 @@ return new class extends Migration
 
             // Address Section
             $table->text('address')->nullable();
-            $table->string('state')->nullable();
-            $table->string('district')->nullable();
-            $table->string('tehsil')->nullable();
-            $table->string('city')->nullable();
+            // $table->string('state')->nullable();
+            // $table->string('district')->nullable();
+            // $table->string('tehsil')->nullable();
+            // $table->string('city')->nullable();
+            $table->foreignId('state_id')->nullable()->constrained('states')->onDelete('set null');
+            $table->foreignId('district_id')->nullable()->constrained('districts')->onDelete('set null');
+            $table->foreignId('city_id')->nullable()->constrained('cities')->onDelete('set null');
+            $table->foreignId('tehsil_id')->nullable()->constrained('tehsils')->onDelete('set null');
+
+
+
             $table->string('latitude')->nullable();
             $table->string('longitude')->nullable();
-            $table->string('pincode')->nullable();
+            // $table->string('pincode')->nullable();
+            $table->foreignId('pincode_id')->nullable()->constrained('pincodes')->onDelete('set null');
+
             $table->string('depo')->nullable();
             $table->string('postal_address')->nullable();
 
