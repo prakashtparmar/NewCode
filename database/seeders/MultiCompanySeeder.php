@@ -134,7 +134,14 @@ class MultiCompanySeeder extends Seeder
             }
         }
 
-        // Step 6: Create Master Admin user with all permissions and roles
+        // Step 6: Create Master Admin role and user
+        // Create the 'MasterAdmin' role
+        $masterAdminRole = Role::firstOrCreate(['name' => 'master_admin', 'guard_name' => 'web']);
+
+        // Assign all permissions to the 'MasterAdmin' role
+        $masterAdminRole->syncPermissions(Permission::all());
+
+        // Create the Master Admin user
         $masterAdmin = User::create([
             'name' => 'Master Admin',
             'email' => 'masteradmin@example.com',
@@ -143,8 +150,7 @@ class MultiCompanySeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // Assign all roles and permissions to the Master Admin
-        $masterAdmin->syncRoles(Role::all());
-        $masterAdmin->syncPermissions(Permission::all());
+        // Assign the Master Admin role to the user
+        $masterAdmin->assignRole($masterAdminRole);
     }
 }

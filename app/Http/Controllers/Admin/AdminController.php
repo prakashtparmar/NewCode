@@ -96,22 +96,42 @@ class AdminController extends Controller
     //     }
     // }
 
-    public function store(LoginRequest $request)
+public function store(LoginRequest $request)
 {
     // Get the credentials (email, password, and company code)
     $credentials = $request->only('email', 'password', 'company_id');
 
-    // Step 1: Check if company code exists in the companies table
-    $company = \App\Models\Company::where('code', $credentials['company_id'])->first();
+    // Step 1: Check if the user has the "master_admin" role
+    $isMasterUser = User::where('email', $credentials['email'])
+                        ->whereHas('roles', function ($query) {
+                            // Check if the user has the 'master_admin' role
+                            $query->where('name', 'master_admin');  // Updated role name
+                        })->exists();
 
-    if (!$company) {
-        return redirect()->back()->with('error_message', 'Invalid Company Code.');
+    // If the user is a master_admin, skip the company validation
+    if (!$isMasterUser) {
+        // Step 2: Check if company code exists in the companies table
+        $company = \App\Models\Company::where('code', $credentials['company_id'])->first();
+
+        if (!$company) {
+            return redirect()->back()->with('error_message', 'Invalid Company Code.');
+        }
+    } else {
+        // For master_admin user, we can skip setting a company (or set it to null)
+        $company = null;
     }
 
-    // Step 2: Find user by email and check if they belong to the specified company
-    $user = User::where('email', $credentials['email'])->where('company_id', $company->id)->first();
+    // Step 3: Find the user by email and check if they belong to the specified company (if not a master_admin)
+    $userQuery = User::where('email', $credentials['email']);
 
-    // Check if user exists and is active
+    // If not master_admin, ensure the user belongs to the specific company
+    if (!$isMasterUser) {
+        $userQuery->where('company_id', $company->id);
+    }
+
+    $user = $userQuery->first();
+
+    // Check if the user exists and is active
     if (!$user) {
         return redirect()->back()->with('error_message', 'Invalid Email or Password.');
     }
@@ -120,14 +140,14 @@ class AdminController extends Controller
         return redirect()->back()->with('error_message', 'Your account is inactive. Please contact support.');
     }
 
-    // Ensure user has at least one role
+    // Ensure the user has at least one role
     if ($user->roles()->count() === 0) {
-        return redirect()->back()->with('error_message', 'You do not have any assigned role. Please contact administrator.');
+        return redirect()->back()->with('error_message', 'You do not have any assigned role. Please contact the administrator.');
     }
 
-    // Attempt login using default guard
+    // Attempt login using the default guard
     if (Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']])) {
-        // Regenerate session to prevent session fixation attacks
+        // Regenerate the session to prevent session fixation attacks
         $request->session()->regenerate();
 
         // Redirect to the admin dashboard after successful login
@@ -136,6 +156,8 @@ class AdminController extends Controller
         return redirect()->back()->with('error_message', 'Invalid Email or Password.');
     }
 }
+
+
 
 
     /**
