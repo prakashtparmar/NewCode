@@ -62,40 +62,80 @@ class AdminController extends Controller
     /**
      * Handle the login attempt.
      */
+    // public function store(LoginRequest $request)
+    // {
+    //     $credentials = $request->only('email', 'password');
+
+
+    //     // Find user by email first
+    //     $user = User::where('email', $credentials['email'])->first();
+
+    //     // Check if user exists
+    //     if (!$user) {
+    //         return redirect()->back()->with('error_message', 'Invalid Email or Password');
+    //     }
+
+    //     // Check if user is active
+    //     if ($user->is_active == 0) {
+    //         return redirect()->back()->with('error_message', 'Your account is inactive. Please contact support.');
+    //     }
+
+    //     // Ensure user has at least one role
+    //     if ($user->roles()->count() === 0) {
+    //         return redirect()->back()->with('error_message', 'You do not have any assigned role. Please contact administrator.');
+    //     }
+
+    //     // Attempt login using default guard (change to 'admin' if using admin guard)
+    //     if (Auth::attempt($credentials, $request->filled('remember'))) {
+    //         // Regenerate session to prevent fixation attacks
+    //         $request->session()->regenerate();
+
+    //         return redirect()->route('admin.dashboard');
+    //     } else {
+    //         return redirect()->back()->with('error_message', 'Invalid Email or Password');
+    //     }
+    // }
+
     public function store(LoginRequest $request)
-    {
-        $credentials = $request->only('email', 'password');
+{
+    // Get the credentials (email, password, and company code)
+    $credentials = $request->only('email', 'password', 'company_id');
 
+    // Step 1: Check if company code exists in the companies table
+    $company = \App\Models\Company::where('code', $credentials['company_id'])->first();
 
-        // Find user by email first
-        $user = User::where('email', $credentials['email'])->first();
-
-        // Check if user exists
-        if (!$user) {
-            return redirect()->back()->with('error_message', 'Invalid Email or Password');
-        }
-
-        // Check if user is active
-        if ($user->is_active == 0) {
-            return redirect()->back()->with('error_message', 'Your account is inactive. Please contact support.');
-        }
-
-        // Ensure user has at least one role
-        if ($user->roles()->count() === 0) {
-            return redirect()->back()->with('error_message', 'You do not have any assigned role. Please contact administrator.');
-        }
-
-        // Attempt login using default guard (change to 'admin' if using admin guard)
-        if (Auth::attempt($credentials, $request->filled('remember'))) {
-            // Regenerate session to prevent fixation attacks
-            $request->session()->regenerate();
-
-            return redirect()->route('admin.dashboard');
-        } else {
-            return redirect()->back()->with('error_message', 'Invalid Email or Password');
-        }
+    if (!$company) {
+        return redirect()->back()->with('error_message', 'Invalid Company Code.');
     }
 
+    // Step 2: Find user by email and check if they belong to the specified company
+    $user = User::where('email', $credentials['email'])->where('company_id', $company->id)->first();
+
+    // Check if user exists and is active
+    if (!$user) {
+        return redirect()->back()->with('error_message', 'Invalid Email or Password.');
+    }
+
+    if ($user->is_active == 0) {
+        return redirect()->back()->with('error_message', 'Your account is inactive. Please contact support.');
+    }
+
+    // Ensure user has at least one role
+    if ($user->roles()->count() === 0) {
+        return redirect()->back()->with('error_message', 'You do not have any assigned role. Please contact administrator.');
+    }
+
+    // Attempt login using default guard
+    if (Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']])) {
+        // Regenerate session to prevent session fixation attacks
+        $request->session()->regenerate();
+
+        // Redirect to the admin dashboard after successful login
+        return redirect()->route('admin.dashboard');
+    } else {
+        return redirect()->back()->with('error_message', 'Invalid Email or Password.');
+    }
+}
 
 
     /**

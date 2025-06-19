@@ -42,66 +42,66 @@
                 @endif
 
                 <form action="{{ route('auth.login.request') }}" method="post">
-                    @csrf
+    @csrf
 
-                    <!-- Company Code Field -->
-                    <div class="input-group mb-1">
-                        <div class="form-floating">
-                            <input name="company_code" id="companyCode" type="text"
-                                class="form-control @error('company_code') is-invalid @enderror"
-                                placeholder="Company Code" />
-                            <label for="companyCode">Company Code</label>
-                            @error('company_code')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="input-group-text"><span class="bi bi-building"></span></div>
-                    </div>
+    <!-- Company Code Field -->
+    <div class="input-group mb-1">
+        <div class="form-floating">
+            <input name="company_id" id="companyCode" type="text"
+                class="form-control @error('company_id') is-invalid @enderror"
+                placeholder="Company Code" />
+            <label for="companyCode">Company Code</label>
+            @error('company_id')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+        <div class="input-group-text"><span class="bi bi-building"></span></div>
+    </div>
 
-                    <!-- Email Field -->
-                    <div class="input-group mb-1">
-                        <div class="form-floating">
-                            <input name="email" id="loginEmail" type="email"
-                                class="form-control @error('email') is-invalid @enderror" placeholder="Email"
-                                @if (isset($_COOKIE['email'])) value="{{ $_COOKIE['email'] }}" @endif />
-                            <label for="loginEmail">Email</label>
-                            @error('email')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="input-group-text"><span class="bi bi-envelope"></span></div>
-                    </div>
+    <!-- Email Field -->
+    <div class="input-group mb-1">
+        <div class="form-floating">
+            <input name="email" id="loginEmail" type="email"
+                class="form-control @error('email') is-invalid @enderror" placeholder="Email"
+                value="{{ old('email', $_COOKIE['email'] ?? '') }}" />
+            <label for="loginEmail">Email</label>
+            @error('email')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+        <div class="input-group-text"><span class="bi bi-envelope"></span></div>
+    </div>
 
-                    <!-- Password Field -->
-                    <div class="input-group mb-1">
-                        <div class="form-floating">
-                            <input name="password" id="loginPassword" type="password"
-                                class="form-control @error('password') is-invalid @enderror" placeholder="Password"
-                                @if (isset($_COOKIE['password'])) value="{{ $_COOKIE['password'] }}" @endif />
-                            <label for="loginPassword">Password</label>
-                            @error('password')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="input-group-text"><span class="bi bi-lock-fill"></span></div>
-                    </div>
+    <!-- Password Field -->
+    <div class="input-group mb-1">
+        <div class="form-floating">
+            <input name="password" id="loginPassword" type="password"
+                class="form-control @error('password') is-invalid @enderror" placeholder="Password"
+                value="{{ old('password', $_COOKIE['password'] ?? '') }}" />
+            <label for="loginPassword">Password</label>
+            @error('password')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+        <div class="input-group-text"><span class="bi bi-lock-fill"></span></div>
+    </div>
 
-                    <!-- Remember Me Option -->
-                    <div class="row">
-                        <div class="col-8 d-inline-flex align-items-center">
-                            <div class="form-check">
-                                <input name="remember" class="form-check-input" type="checkbox" id="remember"
-                                    @if (isset($_COOKIE['email']) && isset($_COOKIE['password'])) checked @endif />
-                                <label class="form-check-label" for="remember"> Remember Me </label>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary">Sign In</button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
+    <!-- Remember Me Option -->
+    <div class="row">
+        <div class="col-8 d-inline-flex align-items-center">
+            <div class="form-check">
+                <input name="remember" class="form-check-input" type="checkbox" id="remember"
+                    {{ old('email') && old('password') ? 'checked' : '' }} />
+                <label class="form-check-label" for="remember"> Remember Me </label>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">Sign In</button>
+            </div>
+        </div>
+    </div>
+</form>
 
 
                 {{-- <div class="social-auth-links text-center mb-3 d-grid gap-2">
