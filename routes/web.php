@@ -38,6 +38,8 @@ Route::prefix('admin')->group(function () {
 
         // Customers CRUD
         Route::resource('customers', CustomerController::class);
+Route::patch('customers/{id}/toggle', [CustomerController::class, 'toggle'])->name('customers.toggle');
+
 
         // Toggle Route (for activating/deactivating users)
         Route::post('/users/{user}/toggle', [UserController::class, 'toggle'])->name('users.toggle');

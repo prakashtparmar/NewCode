@@ -46,6 +46,7 @@ class CustomerController extends Controller
             'email' => 'required|email|unique:customers',
             'phone' => 'required',
             'address' => 'required',
+            'is_active' => 'nullable|boolean', // Add this line
         ]);
 
         $admin = Auth::user();
