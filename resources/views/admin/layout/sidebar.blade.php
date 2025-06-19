@@ -4,7 +4,10 @@
         <a href="{{ url('admin/dashboard') }}" class="brand-link d-flex align-items-center gap-2">
             <img src="{{ asset('admin/images/AdminLTELogo.png') }}" alt="AdminLTE Logo"
                 class="brand-image opacity-75 shadow" style="width: 32px; height: 32px;" />
-            <span class="brand-text fw-light fs-5">AdminLTE 4</span>
+            <span class="brand-text fw-light fs-5">
+                {{-- Dynamically display the company name --}}
+                {{ auth()->user()->company ? auth()->user()->company->name : 'FieldMaster' }}
+            </span>
         </a>
     </div>
 
@@ -14,8 +17,7 @@
             <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
 
                 {{-- Users, Roles & Permissions --}}
-                <li
-                    class="nav-item {{ request()->is('admin/users*') || request()->is('admin/roles*') || request()->is('admin/permissions*') ? 'menu-open' : '' }}">
+                <li class="nav-item {{ request()->is('admin/users*') || request()->is('admin/roles*') || request()->is('admin/permissions*') ? 'menu-open' : '' }}">
                     <a href="#"
                         class="nav-link d-flex justify-content-between align-items-center {{ request()->is('admin/users*') || request()->is('admin/roles*') || request()->is('admin/permissions*') ? 'active' : '' }}"
                         aria-expanded="{{ request()->is('admin/users*') || request()->is('admin/roles*') || request()->is('admin/permissions*') ? 'true' : 'false' }}">
@@ -23,8 +25,7 @@
                             <i class="nav-icon bi bi-people-fill me-2"></i>
                             User Management
                         </span>
-                        <i
-                            class="nav-arrow bi {{ request()->is('admin/users*') || request()->is('admin/roles*') || request()->is('admin/permissions*') ? 'bi-chevron-down' : 'bi-chevron-right' }}"></i>
+                        <i class="nav-arrow bi {{ request()->is('admin/users*') || request()->is('admin/roles*') || request()->is('admin/permissions*') ? 'bi-chevron-down' : 'bi-chevron-right' }}"></i>
                     </a>
                     <ul class="nav nav-treeview ps-4"
                         style="{{ request()->is('admin/users*') || request()->is('admin/roles*') || request()->is('admin/permissions*') ? 'display: block;' : 'display: none;' }}">
@@ -50,6 +51,15 @@
                             </a>
                         </li>
                     </ul>
+                </li>
+
+                {{-- Companies --}}
+                <li class="nav-item {{ request()->is('admin/companies*') ? 'menu-open' : '' }}">
+                    <a href="{{ url('admin/companies') }}"
+                        class="nav-link d-flex align-items-center {{ request()->is('admin/companies*') ? 'active' : '' }}">
+                        <i class="nav-icon bi bi-building me-2"></i>
+                        <p class="mb-0">Companies</p>
+                    </a>
                 </li>
 
                 {{-- Customers --}}
@@ -145,118 +155,8 @@
                                         <p class="mb-0">Approved</p>
                                     </a>
                                 </li>
-                                <li class="nav-item">
-                                    <a href="{{ url('admin/hr/leave/rejected') }}"
-                                        class="nav-link {{ request()->is('admin/hr/leave/rejected*') ? 'active' : '' }}">
-                                        <i class="nav-icon bi bi-x-circle me-2 fs-6"></i>
-                                        <p class="mb-0">Rejected</p>
-                                    </a>
-                                </li>
                             </ul>
                         </li>
-
-                        {{-- Allowances --}}
-                        <li class="nav-item">
-                            <a href="#"
-                                class="nav-link d-flex justify-content-between align-items-center {{ request()->is('admin/hr/allowances*') ? 'active' : '' }}"
-                                aria-expanded="{{ request()->is('admin/hr/allowances*') ? 'true' : 'false' }}">
-                                <span>
-                                    <i class="nav-icon bi bi-cash-stack me-2 fs-6"></i>
-                                    Allowances
-                                </span>
-                                <i
-                                    class="nav-arrow bi {{ request()->is('admin/hr/allowances*') ? 'bi-chevron-down' : 'bi-chevron-right' }}"></i>
-                            </a>
-                            <ul class="nav nav-treeview ps-4"
-                                style="{{ request()->is('admin/hr/allowances*') ? 'display: block;' : 'display: none;' }}">
-                                <li class="nav-item">
-                                    <a href="{{ url('admin/hr/allowances/create') }}"
-                                        class="nav-link {{ request()->is('admin/hr/allowances/create*') ? 'active' : '' }}">
-                                        <i class="nav-icon bi bi-plus-circle me-2 fs-6"></i>
-                                        <p class="mb-0">Create</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ url('admin/hr/allowances') }}"
-                                        class="nav-link {{ request()->is('admin/hr/allowances') ? 'active' : '' }}">
-                                        <i class="nav-icon bi bi-list-ul me-2 fs-6"></i>
-                                        <p class="mb-0">List</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        {{-- Claims --}}
-                        <li class="nav-item">
-                            <a href="#"
-                                class="nav-link d-flex justify-content-between align-items-center {{ request()->is('admin/hr/claims*') ? 'active' : '' }}"
-                                aria-expanded="{{ request()->is('admin/hr/claims*') ? 'true' : 'false' }}">
-                                <span>
-                                    <i class="nav-icon bi bi-file-earmark-medical me-2 fs-6"></i>
-                                    Claims
-                                </span>
-                                <i
-                                    class="nav-arrow bi {{ request()->is('admin/hr/claims*') ? 'bi-chevron-down' : 'bi-chevron-right' }}"></i>
-                            </a>
-                            <ul class="nav nav-treeview ps-4"
-                                style="{{ request()->is('admin/hr/claims*') ? 'display: block;' : 'display: none;' }}">
-                                <li class="nav-item">
-                                    <a href="{{ url('admin/hr/claims/create') }}"
-                                        class="nav-link {{ request()->is('admin/hr/claims/create*') ? 'active' : '' }}">
-                                        <i class="nav-icon bi bi-plus-circle me-2 fs-6"></i>
-                                        <p class="mb-0">Create</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="{{ url('admin/hr/claims') }}"
-                                        class="nav-link {{ request()->is('admin/hr/claims') ? 'active' : '' }}">
-                                        <i class="nav-icon bi bi-list-ul me-2 fs-6"></i>
-                                        <p class="mb-0">List</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        {{-- Other HR submodules placeholder --}}
-                        <li class="nav-item">
-                            <a href="{{ url('admin/hr/other') }}"
-                                class="nav-link {{ request()->is('admin/hr/other*') ? 'active' : '' }}">
-                                <i class="nav-icon bi bi-sliders me-2 fs-6"></i>
-                                <p class="mb-0">Other HR Modules</p>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-
-                {{-- Report Modules --}}
-                <li class="nav-item {{ request()->is('admin/reports/*') ? 'menu-open' : '' }}">
-                    <a href="#"
-                        class="nav-link d-flex justify-content-between align-items-center {{ request()->is('admin/reports/*') ? 'active' : '' }}"
-                        aria-expanded="{{ request()->is('admin/reports/*') ? 'true' : 'false' }}">
-                        <span>
-                            <i class="nav-icon bi bi-file-earmark-bar-graph-fill me-2"></i>
-                            Reports
-                        </span>
-                        <i
-                            class="nav-arrow bi {{ request()->is('admin/reports/*') ? 'bi-chevron-down' : 'bi-chevron-right' }}"></i>
-                    </a>
-                    <ul class="nav nav-treeview ps-4"
-                        style="{{ request()->is('admin/reports/*') ? 'display: block;' : 'display: none;' }}">
-                        <li class="nav-item">
-                            <a href="{{ url('admin/reports/sales') }}"
-                                class="nav-link {{ request()->is('admin/reports/sales*') ? 'active' : '' }}">
-                                <i class="nav-icon bi bi-circle me-2 fs-6"></i>
-                                <p class="mb-0">Sales Report</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ url('admin/reports/finance') }}"
-                                class="nav-link {{ request()->is('admin/reports/finance*') ? 'active' : '' }}">
-                                <i class="nav-icon bi bi-circle me-2 fs-6"></i>
-                                <p class="mb-0">Finance Report</p>
-                            </a>
-                        </li>
-                        <!-- Add more report submodules as needed -->
                     </ul>
                 </li>
 

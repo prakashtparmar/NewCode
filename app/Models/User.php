@@ -48,13 +48,16 @@ class User extends Authenticatable
         'district_id',
         'city_id',
         'tehsil_id',
-
         'latitude',
         'longitude',
         'pincode_id',
         'depo',
         'postal_address',
         'status',
+
+        // ✨ Added for Multi-Tenant Support
+        'company_id',
+        'user_level',
     ];
 
     /**
@@ -89,32 +92,24 @@ class User extends Authenticatable
         ];
     }
 
-    // Add at the bottom of the User model class
+    // Existing relationships
+    public function state() { return $this->belongsTo(State::class); }
+    public function district() { return $this->belongsTo(District::class); }
+    public function city() { return $this->belongsTo(City::class); }
+    public function tehsil() { return $this->belongsTo(Tehsil::class); }
+    // public function pincode() { return $this->belongsTo(Pincode::class); }
 
-    public function state()
+    // ✨ Company relationship (multi-tenant)
+    public function company()
     {
-        return $this->belongsTo(State::class);
+        return $this->belongsTo(Company::class);
     }
 
-    public function district()
+    // ✨ Check if user is master admin
+    public function isMasterAdmin()
     {
-        return $this->belongsTo(District::class);
+        return $this->user_level === 'master_admin';
     }
-
-    public function city()
-    {
-        return $this->belongsTo(City::class);
-    }
-
-    public function tehsil()
-    {
-        return $this->belongsTo(Tehsil::class);
-    }
-
-    // public function pincode()
-    // {
-    //     return $this->belongsTo(Pincode::class);
-    // }
 
     public function getAllPermissionsList()
     {

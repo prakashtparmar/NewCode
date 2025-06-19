@@ -43,6 +43,22 @@
 
                 <form action="{{ route('auth.login.request') }}" method="post">
                     @csrf
+
+                    <!-- Company Code Field -->
+                    <div class="input-group mb-1">
+                        <div class="form-floating">
+                            <input name="company_code" id="companyCode" type="text"
+                                class="form-control @error('company_code') is-invalid @enderror"
+                                placeholder="Company Code" />
+                            <label for="companyCode">Company Code</label>
+                            @error('company_code')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="input-group-text"><span class="bi bi-building"></span></div>
+                    </div>
+
+                    <!-- Email Field -->
                     <div class="input-group mb-1">
                         <div class="form-floating">
                             <input name="email" id="loginEmail" type="email"
@@ -56,6 +72,7 @@
                         <div class="input-group-text"><span class="bi bi-envelope"></span></div>
                     </div>
 
+                    <!-- Password Field -->
                     <div class="input-group mb-1">
                         <div class="form-floating">
                             <input name="password" id="loginPassword" type="password"
@@ -69,6 +86,7 @@
                         <div class="input-group-text"><span class="bi bi-lock-fill"></span></div>
                     </div>
 
+                    <!-- Remember Me Option -->
                     <div class="row">
                         <div class="col-8 d-inline-flex align-items-center">
                             <div class="form-check">
@@ -84,6 +102,7 @@
                         </div>
                     </div>
                 </form>
+
 
                 {{-- <div class="social-auth-links text-center mb-3 d-grid gap-2">
             <p>- OR -</p>

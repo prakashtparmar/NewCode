@@ -75,6 +75,12 @@ return new class extends Migration
             // $table->string('pincode')->nullable();
             $table->foreignId('pincode_id')->nullable()->constrained('pincodes')->onDelete('set null');
 
+            $table->foreignId('company_id')->nullable()->constrained('companies')->onDelete('cascade');
+            // $table->enum('user_level', ['master_admin', 'company_admin', 'user'])->default('user');
+            $table->enum('user_level', ['master_admin', 'company_admin', 'user', 'admin', 'executive'])->default('user');
+
+
+
             $table->string('depo')->nullable();
             $table->string('postal_address')->nullable();
 
