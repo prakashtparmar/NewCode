@@ -18,9 +18,15 @@ class CustomerController extends Controller
         Session::put('page', 'customers');
         $admin = Auth::user();
 
-        $customers = $admin->role === 'executive'
-            ? Customer::where('executive_id', $admin->id)->get()
-            : Customer::all();
+        if ($admin->hasRole('master_admin')) {
+            $customers = Customer::all();
+        } elseif ($admin->hasRole('executive')) {
+            $customers = Customer::where('executive_id', $admin->id)
+                ->where('company_id', $admin->company_id)
+                ->get();
+        } else {
+            $customers = Customer::where('company_id', $admin->company_id)->get();
+        }
 
         return view('admin.customers.index', compact('customers'));
     }
@@ -31,7 +37,11 @@ class CustomerController extends Controller
     public function create()
     {
         Session::put('page', 'add-customer');
-        $executives = User::where('role', 'executive')->get();
+        $admin = Auth::user();
+
+        $executives = User::where('role', 'executive')
+            ->where('company_id', $admin->company_id)
+            ->get();
 
         return view('admin.customers.edit', compact('executives'));
     }
@@ -42,15 +52,18 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:customers',
-            'phone' => 'required',
-            'address' => 'required',
-            'is_active' => 'nullable|boolean', // Add this line
+            'name'       => 'required',
+            'email'      => 'required|email|unique:customers',
+            'phone'      => 'required',
+            'address'    => 'required',
+            'is_active'  => 'nullable|boolean',
         ]);
 
         $admin = Auth::user();
-        $validated['executive_id'] = $admin->role === 'executive' ? $admin->id : $request->input('executive_id');
+        $validated['company_id'] = $admin->company_id;
+        $validated['executive_id'] = $admin->hasRole('executive')
+            ? $admin->id
+            : $request->input('executive_id');
 
         Customer::create($validated);
 
@@ -63,6 +76,8 @@ class CustomerController extends Controller
     public function show(string $id)
     {
         $customer = Customer::findOrFail($id);
+        $this->authorizeCustomerAccess($customer);
+
         return view('admin.customers.show', compact('customer'));
     }
 
@@ -72,7 +87,11 @@ class CustomerController extends Controller
     public function edit(string $id)
     {
         $customer = Customer::findOrFail($id);
-        $executives = User::where('role', 'executive')->get();
+        $this->authorizeCustomerAccess($customer);
+
+        $executives = User::where('role', 'executive')
+            ->where('company_id', Auth::user()->company_id)
+            ->get();
 
         return view('admin.customers.edit', compact('customer', 'executives'));
     }
@@ -81,30 +100,29 @@ class CustomerController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-{
-    $customer = Customer::findOrFail($id);
+    {
+        $customer = Customer::findOrFail($id);
+        $this->authorizeCustomerAccess($customer);
 
-    $validated = $request->validate([
-        'name'    => 'required',
-        'email'   => 'required|email|unique:customers,email,' . $id,
-        'phone'   => 'required',
-        'address' => 'required',
-    ]);
+        $validated = $request->validate([
+            'name'    => 'required',
+            'email'   => 'required|email|unique:customers,email,' . $id,
+            'phone'   => 'required',
+            'address' => 'required',
+        ]);
 
-    $admin = Auth::user();
+        $admin = Auth::user();
 
-    // Only assign executive_id if admin is executive or value is sent
-    if ($admin->role === 'executive') {
-        $validated['executive_id'] = $admin->id;
-    } elseif ($request->has('executive_id')) {
-        $validated['executive_id'] = $request->input('executive_id');
+        if ($admin->hasRole('executive')) {
+            $validated['executive_id'] = $admin->id;
+        } elseif ($request->has('executive_id')) {
+            $validated['executive_id'] = $request->input('executive_id');
+        }
+
+        $customer->update($validated);
+
+        return redirect()->route('customers.index')->with('success', 'Customer updated successfully.');
     }
-
-    $customer->update($validated);
-
-    return redirect()->route('customers.index')->with('success', 'Customer updated successfully.');
-}
-
 
     /**
      * Remove the specified resource from storage.
@@ -112,8 +130,26 @@ class CustomerController extends Controller
     public function destroy(string $id)
     {
         $customer = Customer::findOrFail($id);
+        $this->authorizeCustomerAccess($customer);
+
         $customer->delete();
 
         return redirect()->route('customers.index')->with('success', 'Customer deleted successfully.');
+    }
+
+    /**
+     * Restrict access to customers outside user's company (except for master_admin).
+     */
+    private function authorizeCustomerAccess(Customer $customer)
+    {
+        $admin = Auth::user();
+
+        if ($admin->hasRole('master_admin')) {
+            return;
+        }
+
+        if ($customer->company_id !== $admin->company_id) {
+            abort(403, 'Unauthorized access to this customer.');
+        }
     }
 }

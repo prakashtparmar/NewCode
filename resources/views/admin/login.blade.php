@@ -3,7 +3,7 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>AdminLTE 4 | Login Page v2</title>
+    <title>FieldMaster | Login Page v1</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="title" content="AdminLTE 4 | Login Page v2" />
     <meta name="author" content="ColorlibHQ" />
@@ -24,9 +24,9 @@
     <div class="login-box">
         <div class="card card-outline card-primary">
             <div class="card-header">
-                <a href="../index2.html"
+                <a href="#"
                     class="link-dark text-center link-offset-2 link-opacity-100 link-opacity-50-hover">
-                    <h1 class="mb-0"><b>Admin</b>LTE</h1>
+                    <h1 class="mb-0"><b>FieldMaster</b>V1</h1>
                 </a>
             </div>
             <div class="card-body login-card-body">
@@ -59,48 +59,51 @@
     </div>
 
     <!-- Email Field -->
-    <div class="input-group mb-1">
-        <div class="form-floating">
-            <input name="email" id="loginEmail" type="email"
-                class="form-control @error('email') is-invalid @enderror" placeholder="Email"
-                value="{{ old('email', $_COOKIE['email'] ?? '') }}" />
-            <label for="loginEmail">Email</label>
-            @error('email')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
-        <div class="input-group-text"><span class="bi bi-envelope"></span></div>
+<div class="input-group mb-1">
+    <div class="form-floating">
+        <input name="email" id="loginEmail" type="email"
+            class="form-control @error('email') is-invalid @enderror"
+            placeholder="Email"
+            @if(isset($_COOKIE["email"])) value="{{ $_COOKIE['email'] }}" @endif />
+        <label for="loginEmail">Email</label>
+        @error('email')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
     </div>
+    <div class="input-group-text"><span class="bi bi-envelope"></span></div>
+</div>
 
-    <!-- Password Field -->
-    <div class="input-group mb-1">
-        <div class="form-floating">
-            <input name="password" id="loginPassword" type="password"
-                class="form-control @error('password') is-invalid @enderror" placeholder="Password"
-                value="{{ old('password', $_COOKIE['password'] ?? '') }}" />
-            <label for="loginPassword">Password</label>
-            @error('password')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
-        <div class="input-group-text"><span class="bi bi-lock-fill"></span></div>
+<!-- Password Field -->
+<div class="input-group mb-1">
+    <div class="form-floating">
+        <input name="password" id="loginPassword" type="password"
+            class="form-control @error('password') is-invalid @enderror"
+            placeholder="Password"
+            @if(isset($_COOKIE["password"])) value="{{ $_COOKIE['password'] }}" @endif />
+        <label for="loginPassword">Password</label>
+        @error('password')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
     </div>
+    <div class="input-group-text"><span class="bi bi-lock-fill"></span></div>
+</div>
 
-    <!-- Remember Me Option -->
-    <div class="row">
-        <div class="col-8 d-inline-flex align-items-center">
-            <div class="form-check">
-                <input name="remember" class="form-check-input" type="checkbox" id="remember"
-                    {{ old('email') && old('password') ? 'checked' : '' }} />
-                <label class="form-check-label" for="remember"> Remember Me </label>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary">Sign In</button>
-            </div>
+<!-- Remember Me Option -->
+<div class="row">
+    <div class="col-8 d-inline-flex align-items-center">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="remember" name="remember"
+                @if(isset($_COOKIE['email'])) checked @endif />
+            <label class="form-check-label" for="remember"> Remember Me </label>
         </div>
     </div>
+    <div class="col-4">
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">Sign In</button>
+        </div>
+    </div>
+</div>
+
 </form>
 
 

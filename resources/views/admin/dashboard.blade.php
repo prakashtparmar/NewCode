@@ -29,7 +29,8 @@
                                 <h3>{{ $totalUsers }}</h3>
                                 <p>Total Users</p>
                             </div>
-                            <a href="{{ url('admin/users') }}" class="small-box-footer">More info <i class="bi bi-link-45deg"></i></a>
+                            <a href="{{ url('admin/users') }}" class="small-box-footer">More info <i
+                                    class="bi bi-link-45deg"></i></a>
                         </div>
                     </div>
                     <div class="col-lg-3 col-6">
@@ -38,7 +39,8 @@
                                 <h3>{{ $totalRoles }}</h3>
                                 <p>Total Roles</p>
                             </div>
-                            <a href="{{ url('admin/roles') }}" class="small-box-footer">More info <i class="bi bi-link-45deg"></i></a>
+                            <a href="{{ url('admin/roles') }}" class="small-box-footer">More info <i
+                                    class="bi bi-link-45deg"></i></a>
                         </div>
                     </div>
                     <div class="col-lg-3 col-6">
@@ -47,18 +49,35 @@
                                 <h3>{{ $totalPermissions }}</h3>
                                 <p>Total Permissions</p>
                             </div>
-                            <a href="{{ url('admin/permissions') }}" class="small-box-footer">More info <i class="bi bi-link-45deg"></i></a>
+                            <a href="{{ url('admin/permissions') }}" class="small-box-footer">More info <i
+                                    class="bi bi-link-45deg"></i></a>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-6">
+                    {{-- <div class="col-lg-3 col-6">
                         <div class="small-box text-bg-danger">
                             <div class="inner">
                                 <h3>{{ $totalCustomers }}</h3>
                                 <p>Total Customers</p>
                             </div>
-                            <a href="{{ url('admin/customers') }}" class="small-box-footer">More info <i class="bi bi-link-45deg"></i></a>
+                            <a href="{{ url('admin/customers') }}" class="small-box-footer">More info <i
+                                    class="bi bi-link-45deg"></i></a>
                         </div>
-                    </div>
+                    </div> --}}
+
+                    @if (!is_null($totalCustomers))
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box text-bg-danger">
+                                <div class="inner">
+                                    <h3>{{ $totalCustomers }}</h3>
+                                    <p>Total Customers</p>
+                                </div>
+                                <a href="{{ url('admin/customers') }}" class="small-box-footer">
+                                    More info <i class="bi bi-link-45deg"></i>
+                                </a>
+                            </div>
+                        </div>
+                    @endif
+
                 </div>
 
                 <!-- Logged-in User Info Table -->
@@ -91,10 +110,10 @@
                                                     @endforeach
                                                 </td>
                                                 <td>
-    @foreach ($user->getAllPermissionsList() as $permission)
-        <span class="badge bg-info">{{ $permission }}</span>
-    @endforeach
-</td>
+                                                    @foreach ($user->getAllPermissionsList() as $permission)
+                                                        <span class="badge bg-info">{{ $permission }}</span>
+                                                    @endforeach
+                                                </td>
                                                 <td>{{ $user->last_seen ? $user->last_seen->diffForHumans() : 'N/A' }}</td>
                                             </tr>
                                         @empty
