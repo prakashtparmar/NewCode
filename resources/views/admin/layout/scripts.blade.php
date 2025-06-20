@@ -243,3 +243,66 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 </script>
 
+
+{{-- ----------------------------------------------------------------------------------------------- --}}
+{{-- <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_API_KEY&libraries=places"></script> --}}
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB_-uOyQimLqBkDW_Vr8d88GX6Qk0lyksI&libraries=places"></script>
+<script>
+    function initMap() {
+        const start = {
+            lat: parseFloat(document.getElementById('start_lat').value),
+            lng: parseFloat(document.getElementById('start_lng').value)
+        };
+        const end = {
+            lat: parseFloat(document.getElementById('end_lat').value),
+            lng: parseFloat(document.getElementById('end_lng').value)
+        };
+
+        const map = new google.maps.Map(document.getElementById("map"), {
+            zoom: 7,
+            center: start
+        });
+
+        const directionsService = new google.maps.DirectionsService();
+        const directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
+
+        directionsService.route(
+            {
+                origin: start,
+                destination: end,
+                travelMode: google.maps.TravelMode.DRIVING
+            },
+            function (response, status) {
+                if (status === "OK") {
+                    directionsRenderer.setDirections(response);
+
+                    const distanceInMeters = response.routes[0].legs[0].distance.value;
+                    const distanceInKm = (distanceInMeters / 1000).toFixed(2);
+                    const display = document.getElementById("distance-display");
+                    if (display) display.innerText = distanceInKm + " km";
+                } else {
+                    alert("Directions request failed due to: " + status);
+                }
+            }
+        );
+
+        // Start marker
+        new google.maps.Marker({
+            position: start,
+            map: map,
+            label: "A",
+            title: "Start Location"
+        });
+
+        // End marker
+        new google.maps.Marker({
+            position: end,
+            map: map,
+            label: "B",
+            title: "End Location"
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", initMap);
+</script>
+

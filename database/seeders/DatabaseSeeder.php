@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             // AdminsTableSeeder::class,
             UserSeeder::class,
-            TripSeeder::class,
+            
             StateSeeder::class,
             DistrictSeeder::class,
             CitySeeder::class,
@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             PincodeSeeder::class,
             MultiCompanySeeder::class,
             CustomerSeeder::class,
+            TripSeeder::class,
 
         ]);
 

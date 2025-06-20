@@ -11,6 +11,7 @@ use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\TehsilController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\TripController;
 
 // Redirect root URL to admin login
 Route::get('/', function () {
@@ -50,7 +51,8 @@ Route::prefix('admin')->group(function () {
             // Route::patch('customers/{id}/toggle', [CustomerController::class, 'toggle'])->name('customers.toggle');
             Route::patch('/customers/{id}/toggle', [CustomerController::class, 'toggleStatus'])->name('customers.toggle');
 
-
+            Route::resource('trips', TripController::class);
+    Route::post('trips/{id}/approve', [TripController::class, 'approve'])->name('trips.approve');
 
             // ✅ AJAX Executive Fetch by Company (used in create/edit customer)
             Route::get('companies/{id}/executives', [CustomerController::class, 'getExecutives'])->name('company.executives');

@@ -14,13 +14,14 @@ class TripSeeder extends Seeder
             $startTime = Carbon::now()->subDays(rand(1, 10))->setTime(rand(7, 10), rand(0, 59));
             $endTime = (clone $startTime)->addMinutes(rand(30, 180));
 
-            $approvalStatus = collect(['pending', 'approved', 'rejected'])->random();
-            $approvedBy = ($approvalStatus !== 'pending') ? 2 : null; // Assuming manager has user_id 2
-            $approvalReason = $approvalStatus === 'rejected' ? 'Insufficient details provided' : null;
+            $approvalStatus = collect(['pending', 'approved', 'denied'])->random(); // ✅ Use 'denied' instead of 'rejected'
+            $approvedBy = ($approvalStatus !== 'pending') ? 2 : null;
+            $approvalReason = $approvalStatus === 'denied' ? 'Insufficient details provided' : null;
             $approvedAt = ($approvalStatus !== 'pending') ? Carbon::now()->subDays(rand(0, 5)) : null;
 
             DB::table('trips')->insert([
-                'user_id' => 1, // Hardcoded user_id for simplicity
+                'user_id' => 1,
+                'company_id' => 1, // ✅ Add this if foreign key required
                 'trip_date' => $startTime->toDateString(),
                 'start_time' => $startTime,
                 'end_time' => $endTime,
