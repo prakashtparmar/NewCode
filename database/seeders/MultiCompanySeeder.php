@@ -18,10 +18,8 @@ class MultiCompanySeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
         // Step 2: Truncate relevant tables to reset the database state
-        // Forget cached permissions (if any)
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Truncate necessary tables to start fresh
         DB::table('model_has_roles')->truncate();
         DB::table('model_has_permissions')->truncate();
         DB::table('role_has_permissions')->truncate();
@@ -30,10 +28,9 @@ class MultiCompanySeeder extends Seeder
         DB::table('users')->truncate();
         DB::table('companies')->truncate();
 
-        // Step 3: Enable foreign key checks after truncation
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        // Step 4: Define permissions for users, roles, products, and companies
+        // Step 3: Define permissions
         $permissions = [
             'view_users',
             'create_users',
@@ -64,56 +61,52 @@ class MultiCompanySeeder extends Seeder
             'toggle_customers'
         ];
 
-        // Create the permissions in the database
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
-        // Step 5: Create companies, roles, and users
+        // Step 4: Create shared roles
+        $subAdminRole = Role::firstOrCreate(['name' => 'sub_admin', 'guard_name' => 'web']);
+        $executiveRole = Role::firstOrCreate(['name' => 'executive', 'guard_name' => 'web']);
 
-        // Company data
+        // Assign appropriate permissions to the roles
+        $subAdminRole->syncPermissions([
+            'view_users',
+            'create_users',
+            'edit_users',
+            'delete_users',
+            'toggle_users',
+            'view_roles',
+            'create_roles',
+            'edit_roles',
+            'delete_roles',
+            'view_permissions',
+            'create_permissions',
+            'edit_permissions',
+            'delete_permissions',
+            'view_products',
+            'create_products',
+            'edit_products',
+            'delete_products',
+            'view_companies',
+            'create_companies',
+            'edit_companies',
+            'delete_companies',
+        ]);
+
+        $executiveRole->syncPermissions(['view_users']);
+
+        // Step 5: Create companies and users
         $companies = [
             ['name' => 'TATA', 'code' => 'TATA'],
             ['name' => 'AIRTEL', 'code' => 'AIRTEL'],
             ['name' => 'RELIENCE', 'code' => 'RELIENCE'],
         ];
 
-        // Loop through each company and set up roles and users
         foreach ($companies as $companyData) {
-            // Create the company
             $company = Company::create($companyData);
 
-            // Create roles for each company
-            $adminRole = Role::create(['name' => "admin_{$company->id}", 'guard_name' => 'web']);
-            $executiveRole = Role::create(['name' => "executive_{$company->id}", 'guard_name' => 'web']);
-
-            // Assign scoped permissions to roles
-            $adminRole->syncPermissions([
-                'view_users',
-                'create_users',
-                'edit_users',
-                'delete_users',
-                'toggle_users',
-                'view_roles',
-                'create_roles',
-                'edit_roles',
-                'delete_roles',
-                'view_permissions',
-                'create_permissions',
-                'edit_permissions',
-                'delete_permissions',
-                'view_products',
-                'create_products',
-                'edit_products',
-                'delete_products',
-                'view_companies',
-                'create_companies',
-                'edit_companies',
-                'delete_companies',
-            ]);
-            $executiveRole->syncPermissions(['view_users']);
-
-            // Create admin user for the company
+            // Create sub-admin user for each company
             $admin = User::create([
                 'name' => "Admin {$company->name}",
                 'email' => "admin{$company->id}@example.com",
@@ -122,10 +115,9 @@ class MultiCompanySeeder extends Seeder
                 'user_level' => 'admin',
                 'is_active' => true,
             ]);
-            // Assign admin role to the admin user
-            $admin->assignRole($adminRole);
+            $admin->assignRole($subAdminRole);
 
-            // Create 2 executive users for the company
+            // Create 2 executive users for each company
             for ($i = 1; $i <= 2; $i++) {
                 $executive = User::create([
                     'name' => "Executive{$i} {$company->name}",
@@ -135,19 +127,14 @@ class MultiCompanySeeder extends Seeder
                     'user_level' => 'executive',
                     'is_active' => true,
                 ]);
-                // Assign executive role to each executive user
                 $executive->assignRole($executiveRole);
             }
         }
 
-        // Step 6: Create Master Admin role and user
-        // Create the 'MasterAdmin' role
+        // Step 6: Master Admin setup
         $masterAdminRole = Role::firstOrCreate(['name' => 'master_admin', 'guard_name' => 'web']);
-
-        // Assign all permissions to the 'MasterAdmin' role
         $masterAdminRole->syncPermissions(Permission::all());
 
-        // Create the Master Admin user
         $masterAdmin = User::create([
             'name' => 'Master Admin',
             'email' => 'masteradmin@example.com',
@@ -156,7 +143,6 @@ class MultiCompanySeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // Assign the Master Admin role to the user
         $masterAdmin->assignRole($masterAdminRole);
     }
 }

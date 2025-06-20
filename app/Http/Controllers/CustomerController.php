@@ -33,24 +33,24 @@ class CustomerController extends Controller
     }
 
     public function create()
-{
-    Session::put('page', 'add-customer');
-    $admin = Auth::user();
+    {
+        Session::put('page', 'add-customer');
+        $admin = Auth::user();
 
-    $companies = $admin->hasRole('master_admin')
-        ? Company::all()
-        : Company::where('id', $admin->company_id ?? 1)->get();
+        $companies = $admin->hasRole('master_admin')
+            ? Company::all()
+            : Company::where('id', $admin->company_id ?? 1)->get();
 
-    $executives = collect(); // empty by default
+        $executives = collect(); // empty by default
 
-    if (!$admin->hasRole('master_admin')) {
-        $executives = User::where('user_level', 'executive')
-            ->where('company_id', $admin->company_id ?? 1)
-            ->get();
+        if (!$admin->hasRole('master_admin')) {
+            $executives = User::where('user_level', 'executive')
+                ->where('company_id', $admin->company_id ?? 1)
+                ->get();
+        }
+
+        return view('admin.customers.create', compact('companies', 'executives'));
     }
-
-    return view('admin.customers.create', compact('companies', 'executives'));
-}
 
     public function store(Request $request)
     {
@@ -173,5 +173,32 @@ class CustomerController extends Controller
         if (($admin->company_id ?? 1) !== $customer->company_id) {
             abort(403, 'Unauthorized access to this customer.');
         }
+    }
+
+    /**
+     * Toggle the active/inactive status of a customer
+     */
+    public function toggleStatus(Customer $id)
+    {
+        $this->authorizeCustomerAccess($id); // Ensure access control
+
+        // Toggle status: Active <-> Inactive
+        $id->is_active = !$id->is_active;
+        $id->save();
+
+        return redirect()->route('customers.index')->with('success', 'Customer status updated successfully.');
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $ids = $request->input('ids');
+
+        if (!$ids || !is_array($ids)) {
+            return redirect()->back()->with('error', 'No customers selected for deletion.');
+        }
+
+        Customer::whereIn('id', $ids)->delete();
+
+        return redirect()->route('customers.index')->with('success', 'Selected customers deleted successfully.');
     }
 }

@@ -25,6 +25,8 @@ class CheckCompanyAccess
             return $next($request);
         }
 
+        
+
         // ✅ 2. Detect company ID from route (e.g., /companies/{company})
         $companyFromRoute = $request->route('company');
 

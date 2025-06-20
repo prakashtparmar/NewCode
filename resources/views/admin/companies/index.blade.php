@@ -40,7 +40,7 @@
                                 @endif
 
                                 <div class="table-responsive">
-                                    <table id="companies" class="table table-bordered table-striped align-middle">
+                                    <table id="companies-table" class="table table-bordered table-striped align-middle">
                                         <thead class="table-light">
                                             <tr>
                                                 <th>#</th>
@@ -84,12 +84,10 @@
                                                     <td>
                                                         <a href="{{ route('companies.show', $company) }}"
                                                             class="text-info me-2" title="View">
-                                                            <i class="fas fa-eye"></i>
-                                                        </a>
+                                                            <i class="fas fa-eye"></i></a>&nbsp;&nbsp;
                                                         <a href="{{ route('companies.edit', $company) }}"
                                                             class="text-warning me-2" title="Edit">
-                                                            <i class="fas fa-edit"></i>
-                                                        </a>
+                                                            <i class="fas fa-edit"></i></a>&nbsp;&nbsp;
                                                         <form action="{{ route('companies.destroy', $company) }}"
                                                             method="POST" class="d-inline"
                                                             onsubmit="return confirm('Are you sure to delete this company?')">

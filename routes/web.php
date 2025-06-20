@@ -29,6 +29,8 @@ Route::prefix('admin')->group(function () {
 
         // Dashboard
         Route::get('dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+        Route::delete('/customers/bulk-delete', [CustomerController::class, 'bulkDelete'])->name('customers.bulk-delete');
+
 
         // Multi-Tenant Group
         Route::middleware(['company.access'])->group(function () {
@@ -45,7 +47,10 @@ Route::prefix('admin')->group(function () {
 
             // Customers
             Route::resource('customers', CustomerController::class);
-            Route::patch('customers/{id}/toggle', [CustomerController::class, 'toggle'])->name('customers.toggle');
+            // Route::patch('customers/{id}/toggle', [CustomerController::class, 'toggle'])->name('customers.toggle');
+            Route::patch('/customers/{id}/toggle', [CustomerController::class, 'toggleStatus'])->name('customers.toggle');
+
+
 
             // ✅ AJAX Executive Fetch by Company (used in create/edit customer)
             Route::get('companies/{id}/executives', [CustomerController::class, 'getExecutives'])->name('company.executives');

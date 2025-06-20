@@ -72,10 +72,12 @@
 
 <script>
   $(document).ready(function () {
-    $("#roles").DataTable();
-    $("#users").DataTable();
-    $("#products").DataTable();
-    $("#permissions").DataTable();
+    $("#roles-table").DataTable();
+    $("#users-table").DataTable();
+    $("#companies-table").DataTable();
+    $("#permissions-table").DataTable();
+    $("#customers-table").DataTable();
+    
   });
 </script>
 
@@ -231,5 +233,13 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+</script>
+
+<script>
+    // Toggle all checkboxes
+    document.getElementById('select-all').addEventListener('change', function () {
+        const checkboxes = document.querySelectorAll('.customer-checkbox');
+        checkboxes.forEach(cb => cb.checked = this.checked);
+    });
 </script>
 

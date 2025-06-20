@@ -1,95 +1,132 @@
 @extends('admin.layout.layout')
 
 @section('content')
-<main class="app-main">
-    <div class="app-content-header">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-sm-6">
-                    <h3 class="mb-0">Customers</h3>
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-end">
-                        <li class="breadcrumb-item"><a href="#">Customer Management</a></li>
-                        <li class="breadcrumb-item active">All Customers</li>
-                    </ol>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="app-content">
-        <div class="container-fluid">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Customer List</h5>
-                    <a href="{{ route('customers.create') }}" class="btn btn-sm btn-primary">Add Customer</a>
-                </div>
-                <div class="card-body table-responsive">
-                    <table class="table table-bordered table-striped align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>#ID</th>
-                                <th>Full Name</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Address</th>
-                                <th>Company</th>
-                                <th>Executive</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($customers as $customer)
-                                <tr>
-                                    <td>{{ $customer->id }}</td>
-                                    <td>{{ $customer->name }}</td>
-                                    <td>{{ $customer->email }}</td>
-                                    <td>{{ $customer->phone }}</td>
-                                    <td>{{ $customer->address }}</td>
-
-                                    {{-- Company Name --}}
-                                    <td>
-                                        {{ optional($customer->company)->name ?? 'Demo Company' }}
-                                    </td>
-
-                                    {{-- Executive Name --}}
-                                    <td>
-                                        {{ optional($customer->user)->name ?? 'Executive User' }}
-                                    </td>
-
-                                    {{-- Status --}}
-                                    <td>
-                                        <span class="badge bg-{{ $customer->is_active ? 'success' : 'danger' }}">
-                                            {{ $customer->is_active ? 'Active' : 'Inactive' }}
-                                        </span>
-                                    </td>
-
-                                    {{-- Actions --}}
-                                    <td>
-                                        <a href="{{ route('customers.show', $customer->id) }}" class="btn btn-sm btn-info">View</a>
-                                        <a href="{{ route('customers.edit', $customer->id) }}" class="btn btn-sm btn-warning">Edit</a>
-                                        <form action="{{ route('customers.destroy', $customer->id) }}" method="POST" style="display:inline-block;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger"
-                                                onclick="return confirm('Are you sure you want to delete this customer?')">
-                                                Delete
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="9" class="text-center">No customers found.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+    <main class="app-main">
+        <!-- Header Section -->
+        <div class="app-content-header">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h3 class="mb-0">Customers</h3>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-end">
+                            <li class="breadcrumb-item"><a href="#">Customer Management</a></li>
+                            <li class="breadcrumb-item active">All Customers</li>
+                        </ol>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</main>
+
+        <!-- Content Section -->
+        <div class="app-content">
+            <div class="container-fluid">
+                <div class="card mb-4">
+                    <!-- Card Header -->
+                    <div class="card-header">
+                        <h5 class="card-title">Customer List</h5>
+                        <a href="{{ route('customers.create') }}" class="btn btn-primary float-end">Add Customer</a>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="card-body table-responsive">
+                        @if (session('success'))
+                            <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
+                                <strong>Success:</strong> {{ session('success') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        @endif
+                        @if (session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+                                <strong>Error:</strong> {{ session('error') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        @endif
+
+                        <!-- Bulk Delete Form -->
+                        <form action="{{ route('customers.bulk-delete') }}" method="POST" id="bulk-delete-form">
+                            @csrf
+                            @method('DELETE')
+
+                            <button type="submit" class="btn btn-danger mb-3"
+                                onclick="return confirm('Are you sure you want to delete selected customers?')">
+                                Delete Selected
+                            </button>
+
+                            <table id="customers-table" class="table table-bordered table-striped align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th><input type="checkbox" id="select-all"></th>
+                                        <th>#ID</th>
+                                        <th>Full Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Address</th>
+                                        <th>Company</th>
+                                        <th>Executive</th>
+                                        @can('toggle_customers')
+                                            <th>Status</th>
+                                        @endcan
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($customers as $customer)
+                                        <tr>
+                                            <td>
+                                                <input type="checkbox" name="ids[]" value="{{ $customer->id }}"
+                                                    class="customer-checkbox">
+                                            </td>
+                                            <td>{{ $customer->id }}</td>
+                                            <td>{{ $customer->name }}</td>
+                                            <td>{{ $customer->email }}</td>
+                                            <td>{{ $customer->phone }}</td>
+                                            <td>{{ $customer->address }}</td>
+                                            <td>{{ optional($customer->company)->name ?? 'Demo Company' }}</td>
+                                            <td>{{ optional($customer->user)->name ?? 'Executive User' }}</td>
+
+                                            @can('toggle_customers')
+                                                <td>
+                                                    <form action="{{ route('customers.toggle', $customer->id) }}" method="POST">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <button type="submit"
+                                                            class="badge {{ $customer->is_active ? 'bg-success' : 'bg-danger' }}"
+                                                            onclick="return confirm('Are you sure you want to {{ $customer->is_active ? 'deactivate' : 'activate' }} this customer?')">
+                                                            {{ $customer->is_active ? 'Active' : 'Inactive' }}
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            @endcan
+
+                                            <td>
+                                                <a href="{{ route('customers.show', $customer) }}" class="text-info me-2" title="View">
+                                                    <i class="fas fa-eye"></i></a>
+                                                <a href="{{ route('customers.edit', $customer) }}" class="text-warning me-2" title="Edit">
+                                                    <i class="fas fa-edit"></i></a>
+                                                <form action="{{ route('customers.destroy', $customer) }}" method="POST" class="d-inline"
+                                                    onsubmit="return confirm('Are you sure you want to delete this customer?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-link p-0 text-danger" title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="10" class="text-center">No customers found.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </form>
+                    </div> <!-- /.card-body -->
+                </div> <!-- /.card -->
+            </div> <!-- /.container-fluid -->
+        </div> <!-- /.app-content -->
+    </main>
 @endsection
+

@@ -43,7 +43,7 @@
                             @can('view_users')
                             @php $loggedInUserId = Auth::id(); @endphp
                             <div class="table-responsive">
-                                <table id="users" class="table table-bordered table-striped align-middle">
+                                <table id="users-table" class="table table-bordered table-striped align-middle">
                                     <thead class="table-light">
                                         <tr>
                                             <th>#</th>
