@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Customer;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -24,13 +25,13 @@ class DatabaseSeeder extends Seeder
             // AdminsTableSeeder::class,
             UserSeeder::class,
             TripSeeder::class,
-            CustomerSeeder::class,
             StateSeeder::class,
             DistrictSeeder::class,
             CitySeeder::class,
             TehsilSeeder::class,
             PincodeSeeder::class,
             MultiCompanySeeder::class,
+            CustomerSeeder::class,
 
         ]);
 

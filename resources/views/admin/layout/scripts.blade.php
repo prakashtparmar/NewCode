@@ -192,3 +192,44 @@
         @endif
     });
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const companySelect = document.getElementById('company_id');
+    const executiveSelect = document.getElementById('user_id');
+
+    if (!companySelect || !executiveSelect) return;
+
+    companySelect.addEventListener('change', function () {
+        const companyId = this.value;
+
+        executiveSelect.innerHTML = '<option value="">-- Select Executive --</option>';
+
+        if (companyId) {
+            fetch(`/admin/companies/${companyId}/executives`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.executives && Array.isArray(data.executives)) {
+                        data.executives.forEach(exec => {
+                            const option = document.createElement('option');
+                            option.value = exec.id;
+                            option.textContent = exec.name;
+                            executiveSelect.appendChild(option);
+                        });
+                    } else {
+                        console.warn('Unexpected response format:', data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching executives:', error);
+                });
+        }
+    });
+});
+</script>
+

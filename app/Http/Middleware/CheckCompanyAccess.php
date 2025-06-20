@@ -20,26 +20,29 @@ class CheckCompanyAccess
     {
         $user = Auth::user();
 
-        // If user is master admin, allow access to all
+        // ✅ 1. Allow if user is master_admin
         if ($user && $user->user_level === 'master_admin') {
             return $next($request);
         }
 
-        // Detect company ID from route (e.g., /companies/{company}/users)
+        // ✅ 2. Detect company ID from route (e.g., /companies/{company})
         $companyFromRoute = $request->route('company');
 
-        // If it's a model (route model binding), get the ID
-        if (is_object($companyFromRoute)) {
-            $companyId = $companyFromRoute->id;
+        // ✅ 3. Extract ID if it's a bound model or scalar
+        if (is_object($companyFromRoute) && method_exists($companyFromRoute, 'getKey')) {
+            $companyId = $companyFromRoute->getKey(); // safe way to get model ID
+        } elseif (is_numeric($companyFromRoute)) {
+            $companyId = (int) $companyFromRoute;
         } else {
-            $companyId = $companyFromRoute; // assume it's an ID
+            $companyId = null;
         }
 
-        // If user's company doesn't match the route's company, deny access
-        if ($user && $companyId && $user->company_id !== (int) $companyId) {
+        // ✅ 4. Deny access if company ID mismatches
+        if ($user && $companyId && (int) $user->company_id !== $companyId) {
             abort(403, 'Unauthorized: You do not have access to this company\'s data.');
         }
 
+        // ✅ 5. Allow access
         return $next($request);
     }
 }

@@ -143,76 +143,77 @@ class AdminController extends Controller
     // }
 
     public function store(LoginRequest $request)
-    {
-        // Get the credentials (email, password, and company code)
-        $credentials = $request->only('email', 'password', 'company_id');
+{
+    // Get the credentials (email, password, and company code)
+    $credentials = $request->only('email', 'password', 'company_id');
 
-        // Step 1: Check if the user has the "master_admin" role
-        $isMasterUser = User::where('email', $credentials['email'])
-            ->whereHas('roles', function ($query) {
-                // Check if the user has the 'master_admin' role
-                $query->where('name', 'master_admin');  // Updated role name
-            })->exists();
+    // Step 1: Check if the user has the "master_admin" role
+    $isMasterUser = User::where('email', $credentials['email'])
+        ->whereHas('roles', function ($query) {
+            $query->where('name', 'master_admin');
+        })->exists();
 
-        // If the user is a master_admin, skip the company validation
-        if (!$isMasterUser) {
-            // Step 2: Check if company code exists in the companies table
-            $company = \App\Models\Company::where('code', $credentials['company_id'])->first();
+    // If the user is a master_admin, skip the company validation
+    if (!$isMasterUser) {
+        // Step 2: Check if company code exists in the companies table
+        $company = \App\Models\Company::where('code', $credentials['company_id'])->first();
 
-            if (!$company) {
-                return redirect()->back()->with('error_message', 'Invalid Company Code.');
-            }
-        } else {
-            // For master_admin user, we can skip setting a company (or set it to null)
-            $company = null;
+        if (!$company) {
+            return redirect()->back()->with('error_message', 'Invalid Company Code.');
         }
 
-        // Step 3: Find the user by email and check if they belong to the specified company (if not a master_admin)
-        $userQuery = User::where('email', $credentials['email']);
-
-        // If not master_admin, ensure the user belongs to the specific company
-        if (!$isMasterUser) {
-            $userQuery->where('company_id', $company->id);
+        // ✅ Check if the company status is Active
+        if ($company->status !== 'Active') {
+            return redirect()->back()->with('error_message', 'Your company is currently inactive.');
         }
-
-        $user = $userQuery->first();
-
-        // Check if the user exists and is active
-        if (!$user) {
-            return redirect()->back()->with('error_message', 'Invalid Email or Password.');
-        }
-
-        if ($user->is_active == 0) {
-            return redirect()->back()->with('error_message', 'Your account is inactive. Please contact support.');
-        }
-
-        // Ensure the user has at least one role
-        if ($user->roles()->count() === 0) {
-            return redirect()->back()->with('error_message', 'You do not have any assigned role. Please contact the administrator.');
-        }
-
-        // Attempt login using the default guard
-        if (Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']])) {
-
-            // ✅ Cookie Logic - Remember me
-            if (!empty($request->remember)) {
-                setcookie("email", $credentials["email"], time() + 3600); // 1 hour
-                setcookie("password", $credentials["password"], time() + 3600);
-            } else {
-                setcookie("email", "", time() - 3600);
-                setcookie("password", "", time() - 3600);
-            }
-            // ✅ END -- Cookie Logic - Remember me --  END ✅
-
-            // Regenerate the session to prevent session fixation attacks
-            $request->session()->regenerate();
-
-            // Redirect to the admin dashboard after successful login
-            return redirect()->route('admin.dashboard');
-        } else {
-            return redirect()->back()->with('error_message', 'Invalid Email or Password.');
-        }
+    } else {
+        // For master_admin user, we can skip setting a company (or set it to null)
+        $company = null;
     }
+
+    // Step 3: Find the user by email and check if they belong to the specified company (if not a master_admin)
+    $userQuery = User::where('email', $credentials['email']);
+
+    if (!$isMasterUser) {
+        $userQuery->where('company_id', $company->id);
+    }
+
+    $user = $userQuery->first();
+
+    // Check if the user exists and is active
+    if (!$user) {
+        return redirect()->back()->with('error_message', 'Invalid Email or Password.');
+    }
+
+    if ($user->is_active == 0) {
+        return redirect()->back()->with('error_message', 'Your account is inactive. Please contact support.');
+    }
+
+    if ($user->roles()->count() === 0) {
+        return redirect()->back()->with('error_message', 'You do not have any assigned role. Please contact the administrator.');
+    }
+
+    // Attempt login using the default guard
+    if (Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']])) {
+
+        // ✅ Cookie Logic - Remember me
+        if (!empty($request->remember)) {
+            setcookie("email", $credentials["email"], time() + 3600);
+            setcookie("password", $credentials["password"], time() + 3600);
+        } else {
+            setcookie("email", "", time() - 3600);
+            setcookie("password", "", time() - 3600);
+        }
+
+        // Regenerate the session
+        $request->session()->regenerate();
+
+        return redirect()->route('admin.dashboard');
+    } else {
+        return redirect()->back()->with('error_message', 'Invalid Email or Password.');
+    }
+}
+
 
 
 

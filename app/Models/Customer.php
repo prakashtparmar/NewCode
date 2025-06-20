@@ -11,13 +11,14 @@ class Customer extends Model
         'email',
         'phone',
         'address',
-        'executive_id',
-        'company_id', // ✅ Added for multi-tenant support
+        'user_id',      // ✅ updated from executive_id
+        'company_id',
+        'is_active',
     ];
 
-    public function executive()
+    public function user() // ✅ renamed from executive() to match user_id
     {
-        return $this->belongsTo(Admin::class, 'executive_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function orders()
@@ -33,5 +34,10 @@ class Customer extends Model
     public function scopeForCompany($query, $companyId)
     {
         return $query->where('company_id', $companyId);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
     }
 }

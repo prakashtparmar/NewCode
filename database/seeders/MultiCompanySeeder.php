@@ -56,6 +56,12 @@ class MultiCompanySeeder extends Seeder
             'create_companies',
             'edit_companies',
             'delete_companies',
+            'toggle_companies',
+            'view_customers',
+            'create_customers',
+            'edit_customers',
+            'delete_customers',
+            'toggle_customers'
         ];
 
         // Create the permissions in the database

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Company;
+use Illuminate\Support\Facades\Auth;
 
 class CompanyController extends Controller
 {
@@ -12,7 +13,13 @@ class CompanyController extends Controller
      */
     public function index()
     {
-        $companies = Company::all();
+        $user = Auth::user();
+
+        // master_admin sees all companies, others only their own
+        $companies = $user->hasRole('master_admin')
+            ? Company::all()
+            : Company::where('id', $user->company_id)->get();
+
         return view('admin.companies.index', compact('companies'));
     }
 
@@ -21,6 +28,8 @@ class CompanyController extends Controller
      */
     public function create()
     {
+        $this->authorizeMaster(); // Only allow master_admin to create
+
         return view('admin.companies.create');
     }
 
@@ -29,6 +38,8 @@ class CompanyController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorizeMaster(); // Only master_admin can store companies
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'nullable|string|unique:companies,code',
@@ -37,6 +48,7 @@ class CompanyController extends Controller
         ]);
 
         Company::create($validated);
+
         return redirect()->route('companies.index')->with('success', 'Company created successfully.');
     }
 
@@ -45,6 +57,8 @@ class CompanyController extends Controller
      */
     public function show(Company $company)
     {
+        $this->authorizeCompanyAccess($company);
+
         return view('admin.companies.show', compact('company'));
     }
 
@@ -53,6 +67,8 @@ class CompanyController extends Controller
      */
     public function edit(Company $company)
     {
+        $this->authorizeCompanyAccess($company);
+
         return view('admin.companies.edit', compact('company'));
     }
 
@@ -61,6 +77,8 @@ class CompanyController extends Controller
      */
     public function update(Request $request, Company $company)
     {
+        $this->authorizeCompanyAccess($company);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'nullable|string|unique:companies,code,' . $company->id,
@@ -69,6 +87,7 @@ class CompanyController extends Controller
         ]);
 
         $company->update($validated);
+
         return redirect()->route('companies.index')->with('success', 'Company updated successfully.');
     }
 
@@ -77,17 +96,52 @@ class CompanyController extends Controller
      */
     public function destroy(Company $company)
     {
+        $this->authorizeMaster(); // Only master_admin can delete companies
+
         $company->delete();
+
         return redirect()->route('companies.index')->with('success', 'Company deleted successfully.');
     }
 
+    /**
+     * Toggle active/inactive status of a company.
+     */
     public function toggle($id)
-{
-    $company = Company::findOrFail($id);
-    $company->is_active = !$company->is_active;
-    $company->status = $company->is_active ? 'Active' : 'Inactive';
-    $company->save();
+    {
+        $company = Company::findOrFail($id);
+        $this->authorizeCompanyAccess($company);
 
-    return redirect()->route('companies.index')->with('success', 'Company status updated.');
-}
+        $company->is_active = !$company->is_active;
+        $company->status = $company->is_active ? 'Active' : 'Inactive';
+        $company->save();
+
+        return redirect()->route('companies.index')->with('success', 'Company status updated.');
+    }
+
+    /**
+     * Authorize only master_admin for certain actions.
+     */
+    private function authorizeMaster()
+    {
+        $user = Auth::user();
+        if (!$user->hasRole('master_admin')) {
+            abort(403, 'Unauthorized action.');
+        }
+    }
+
+    /**
+     * Authorize access to specific company.
+     */
+    private function authorizeCompanyAccess(Company $company)
+    {
+        $user = Auth::user();
+
+        if ($user->hasRole('master_admin')) {
+            return; // master_admin has access to all companies
+        }
+
+        if ($company->id !== $user->company_id) {
+            abort(403, 'Unauthorized access to this company.');
+        }
+    }
 }

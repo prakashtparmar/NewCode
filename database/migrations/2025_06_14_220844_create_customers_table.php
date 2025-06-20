@@ -12,25 +12,28 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('customers', function (Blueprint $table) {
-    $table->id();
+        $table->id();
 
-    $table->string('name');
-    $table->string('email')->unique();
-    $table->string('phone');
-    $table->string('address');
+        $table->string('name');
+        $table->string('email')->unique();
+        $table->string('phone', 20);
+        $table->string('address');
 
-    // Foreign key to 'companies' table
-    $table->unsignedBigInteger('company_id'); // 🚀 Add this
-    $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+        // Link to the company the customer belongs to
+        $table->foreignId('company_id')
+              ->constrained('companies')
+              ->onDelete('cascade');
 
-    // Foreign key to 'users' table for mapping to executive
-    $table->unsignedBigInteger('executive_id')->nullable();
-    $table->foreign('executive_id')->references('id')->on('users')->onDelete('set null');
+        // Assigned executive or user who manages the customer
+        $table->foreignId('user_id')
+              ->nullable()
+              ->constrained('users')
+              ->onDelete('set null');
 
-    $table->boolean('is_active')->default(true);
+        $table->boolean('is_active')->default(true);
 
-    $table->timestamps();
-});
+        $table->timestamps();
+    });
     }
 
     /**

@@ -1,9 +1,7 @@
 @extends('admin.layout.layout')
 
 @section('content')
-
 <main class="app-main">
-
     {{-- Page Header --}}
     <div class="app-content-header">
         <div class="container-fluid">
@@ -14,7 +12,7 @@
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-end">
                         <li class="breadcrumb-item"><a href="{{ route('customers.index') }}">Customers</a></li>
-                        <li class="breadcrumb-item active">{{ isset($customer) ? 'Edit Customer' : 'Add Customer' }}</li>
+                        <li class="breadcrumb-item active">Edit Customer</li>
                     </ol>
                 </div>
             </div>
@@ -30,7 +28,7 @@
 
                         {{-- Card Header --}}
                         <div class="card-header">
-                            <div class="card-title">{{ isset($customer) ? 'Edit Customer' : 'Add Customer' }}</div>
+                            <div class="card-title">Edit Customer</div>
                         </div>
 
                         {{-- Flash Messages --}}
@@ -61,12 +59,10 @@
                             </div>
                         @endif
 
-                        {{-- Add/Edit Form --}}
-                        <form method="POST" action="{{ isset($customer) ? route('customers.update', $customer->id) : route('customers.store') }}">
+                        {{-- Form --}}
+                        <form method="POST" action="{{ route('customers.update', $customer->id) }}">
                             @csrf
-                            @if(isset($customer))
-                                @method('PUT')
-                            @endif
+                            @method('PUT')
 
                             <div class="card-body row">
 
@@ -74,36 +70,75 @@
                                 <div class="mb-3 col-md-6">
                                     <label for="name" class="form-label">Name</label>
                                     <input type="text" class="form-control" id="name" name="name"
-                                           value="{{ old('name', $customer->name ?? '') }}" required />
+                                           value="{{ old('name', $customer->name) }}" required />
                                 </div>
 
                                 {{-- Email --}}
                                 <div class="mb-3 col-md-6">
                                     <label for="email" class="form-label">Email address</label>
                                     <input type="email" class="form-control" id="email" name="email"
-                                           value="{{ old('email', $customer->email ?? '') }}" required />
+                                           value="{{ old('email', $customer->email) }}" />
                                 </div>
 
                                 {{-- Phone --}}
                                 <div class="mb-3 col-md-6">
                                     <label for="phone" class="form-label">Phone</label>
                                     <input type="text" class="form-control" id="phone" name="phone"
-                                           value="{{ old('phone', $customer->phone ?? '') }}" required />
+                                           value="{{ old('phone', $customer->phone) }}" required />
                                 </div>
+
+                                {{-- Company (only for master_admin) --}}
+                                @if(auth()->user()->hasRole('master_admin'))
+                                    <div class="mb-3 col-md-6">
+                                        <label for="company_id" class="form-label">Company</label>
+                                        <select name="company_id" id="company_id" class="form-select">
+                                            <option value="">-- Select Company --</option>
+                                            @foreach($companies as $company)
+                                                <option value="{{ $company->id }}"
+                                                    {{ old('company_id', $customer->company_id) == $company->id ? 'selected' : '' }}>
+                                                    {{ $company->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                @endif
+
+                                {{-- Executive --}}
+                                @if(!auth()->user()->hasRole('executive'))
+                                    <div class="mb-3 col-md-6">
+                                        <label for="user_id" class="form-label">Executive</label>
+                                        <select name="user_id" id="user_id" class="form-select">
+                                            <option value="">-- Select Executive --</option>
+                                            @foreach($executives as $executive)
+                                                <option value="{{ $executive->id }}"
+                                                    {{ old('user_id', $customer->user_id) == $executive->id ? 'selected' : '' }}>
+                                                    {{ $executive->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                @endif
 
                                 {{-- Address --}}
                                 <div class="mb-3 col-md-12">
                                     <label for="address" class="form-label">Address</label>
-                                    <textarea class="form-control" id="address" name="address" rows="3" required>{{ old('address', $customer->address ?? '') }}</textarea>
+                                    <textarea class="form-control" id="address" name="address" rows="3" required>{{ old('address', $customer->address) }}</textarea>
+                                </div>
+
+                                {{-- Status --}}
+                                <div class="mb-3 col-md-6">
+                                    <label for="is_active" class="form-label">Status</label>
+                                    <select name="is_active" id="is_active" class="form-select">
+                                        <option value="1" {{ old('is_active', $customer->is_active) == 1 ? 'selected' : '' }}>Active</option>
+                                        <option value="0" {{ old('is_active', $customer->is_active) == 0 ? 'selected' : '' }}>Inactive</option>
+                                    </select>
                                 </div>
 
                             </div>
 
                             {{-- Submit --}}
                             <div class="card-footer text-end">
-                                <button type="submit" class="btn btn-primary">
-                                    {{ isset($customer) ? 'Update Customer' : 'Add Customer' }}
-                                </button>
+                                <button type="submit" class="btn btn-primary">Update Customer</button>
                             </div>
                         </form>
 
@@ -112,7 +147,5 @@
             </div>
         </div>
     </div>
-
 </main>
-
 @endsection
