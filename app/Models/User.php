@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles, HasApiTokens;
 
     protected $guard = 'web';
 
@@ -97,7 +98,7 @@ class User extends Authenticatable
     public function district() { return $this->belongsTo(District::class); }
     public function city() { return $this->belongsTo(City::class); }
     public function tehsil() { return $this->belongsTo(Tehsil::class); }
-    // public function pincode() { return $this->belongsTo(Pincode::class); }
+    public function pincode() { return $this->belongsTo(Pincode::class);}
 
     // ✨ Company relationship (multi-tenant)
     public function company()
