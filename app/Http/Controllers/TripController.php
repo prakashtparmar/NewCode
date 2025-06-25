@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Trip;
+use App\Models\TripLog; // ✅ Include TripLog
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -10,9 +11,7 @@ class TripController extends Controller
 {
     public function index()
     {
-        // Show all trips with user relation
         $trips = Trip::with('user')->latest()->get();
-
         return view('admin.trips.index', compact('trips'));
     }
 
@@ -143,4 +142,39 @@ class TripController extends Controller
 
         return round($km, 2);
     }
+
+    // ✅ ADDITION 1: Store GPS points
+    public function logPoint(Request $request)
+    {
+        $request->validate([
+            'trip_id' => 'required|exists:trips,id',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'recorded_at' => 'nullable|date',
+        ]);
+
+        $log = TripLog::create([
+            'trip_id' => $request->trip_id,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'recorded_at' => $request->recorded_at ?? now(),
+        ]);
+
+        return response()->json(['status' => 'success', 'log' => $log]);
+    }
+
+    // ✅ ADDITION 2: Show route on map
+    public function showRoute($tripId)
+{
+    $trip = Trip::findOrFail($tripId);
+
+    $logs = TripLog::where('trip_id', $tripId)
+        ->orderBy('recorded_at')
+        ->get(['latitude', 'longitude']);
+
+    return view('admin.trips.map', [
+        'trip' => $trip,
+        'logs' => $logs,
+    ]);
+}
 }

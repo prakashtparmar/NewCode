@@ -94,6 +94,7 @@
                                         <tr>
                                             <th>Name</th>
                                             <th>Email</th>
+                                            <th>Mobile</th>
                                             <th>Roles</th>
                                             <th>Permissions</th>
                                             <th>Last Seen</th>
@@ -104,16 +105,48 @@
                                             <tr>
                                                 <td>{{ $user->name }}</td>
                                                 <td>{{ $user->email }}</td>
+                                                <td>{{ $user->mobile ?? 'N/A' }}</td>
                                                 <td>
                                                     @foreach ($user->getRoleNames() as $role)
                                                         <span class="badge bg-success">{{ $role }}</span>
                                                     @endforeach
                                                 </td>
                                                 <td>
-                                                    @foreach ($user->getAllPermissionsList() as $permission)
-                                                        <span class="badge bg-info">{{ $permission }}</span>
-                                                    @endforeach
+                                                    <button class="btn btn-sm btn-info" data-bs-toggle="modal"
+                                                        data-bs-target="#permissionsModal-{{ $user->id }}">
+                                                        View
+                                                    </button>
+
+                                                    <!-- Modal -->
+                                                    <div class="modal fade" id="permissionsModal-{{ $user->id }}"
+                                                        tabindex="-1"
+                                                        aria-labelledby="permissionsModalLabel-{{ $user->id }}"
+                                                        aria-hidden="true">
+                                                        <div class="modal-dialog modal-dialog-scrollable">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title"
+                                                                        id="permissionsModalLabel-{{ $user->id }}">
+                                                                        Permissions for {{ $user->name }}
+                                                                    </h5>
+                                                                    <button type="button" class="btn-close"
+                                                                        data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    @if (count($user->getAllPermissionsList()))
+                                                                        @foreach ($user->getAllPermissionsList() as $permission)
+                                                                            <span
+                                                                                class="badge bg-info mb-1">{{ $permission }}</span>
+                                                                        @endforeach
+                                                                    @else
+                                                                        <p>No permissions assigned.</p>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </td>
+
                                                 <td>{{ $user->last_seen ? $user->last_seen->diffForHumans() : 'N/A' }}</td>
                                             </tr>
                                         @empty

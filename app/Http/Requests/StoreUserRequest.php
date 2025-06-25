@@ -42,8 +42,9 @@ class StoreUserRequest extends FormRequest
             'is_self_sale' => 'nullable|boolean',
             'is_multi_day_start_end_allowed' => 'nullable|boolean',
             'is_allow_tracking' => 'nullable|boolean',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:5120',
             'roles' => 'nullable|array',
+            'company_id' => 'nullable|exists:companies,id',
         ];
     }
 }

@@ -40,44 +40,56 @@ class UserController extends Controller
      * Show the form to create a new user.
      */
     public function create()
-    {
-        // ✅ Show only roles for the logged-in user's company (unless master_admin)
-        $roles = auth()->user()->user_level === 'master_admin'
-            ? Role::all()
-            : Role::where('company_id', auth()->user()->company_id)->get();
+{
+    $authUser = auth()->user();
 
-        return view('admin.users.create', [
-            'roles' => $roles,
-            'permissions' => Permission::all(),
-            'states' => State::all(),
-        ]);
-    }
+    $roles = $authUser->user_level === 'master_admin'
+        ? Role::all()
+        : Role::where('company_id', $authUser->company_id)->get();
+
+    $companies = $authUser->user_level === 'master_admin'
+        ? \App\Models\Company::all()
+        : collect(); // empty for non-master
+
+    return view('admin.users.create', [
+        'roles' => $roles,
+        'permissions' => Permission::all(),
+        'states' => State::all(),
+        'companies' => $companies,
+        'authUser' => $authUser,
+    ]);
+}
 
     /**
      * Store a newly created user in the database.
      */
     public function store(StoreUserRequest $request)
-    {
-        $data = $request->validated();
+{
+    $data = $request->validated();
 
-        if (!empty($data['password'])) {
-            $data['password'] = bcrypt($data['password']);
-        }
-
-        // 📌 Assign the company ID of the currently logged-in user
-        $data['company_id'] = auth()->user()->company_id;
-
-        // 📷 Optional: Handle file upload for image
-        if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('users', 'public');
-        }
-
-        $user = User::create($data);
-
-        $user->syncRoles($request->roles);
-
-        return redirect()->route('users.index')->with('success', 'User created successfully.');
+    if (!empty($data['password'])) {
+        $data['password'] = bcrypt($data['password']);
     }
+
+    // Conditionally assign company_id only if not master_admin
+    if (auth()->user()->user_level !== 'master_admin') {
+        $data['company_id'] = auth()->user()->company_id;
+    }
+
+    // Handle file upload
+    if ($request->hasFile('image')) {
+        $data['image'] = $request->file('image')->store('users', 'public');
+    }
+
+    $user = User::create($data);
+
+    // Safely sync roles if present
+    if ($request->filled('roles')) {
+        $user->syncRoles($request->input('roles'));
+    }
+
+    return redirect()->route('users.index')->with('success', 'User created successfully.');
+}
 
     /**
      * Display a specific user's details.
@@ -96,28 +108,38 @@ class UserController extends Controller
      * Show the form to edit an existing user.
      */
     public function edit(User $user)
-    {
-        // 🔐 Restrict edit access to same company
-        if (auth()->user()->user_level !== 'master_admin' && $user->company_id !== auth()->user()->company_id) {
-            abort(403, 'Unauthorized access to user.');
-        }
-
-        // ✅ Show only roles for the logged-in user's company (unless master_admin)
-        $roles = auth()->user()->user_level === 'master_admin'
-            ? Role::all()
-            : Role::where('company_id', auth()->user()->company_id)->get();
-
-        return view('admin.users.edit', [
-            'user' => $user,
-            'roles' => $roles,
-            'permissions' => Permission::all(),
-            'states' => State::all(),
-            'districts' => District::where('state_id', $user->state_id)->get(),
-            'cities' => City::where('district_id', $user->district_id)->get(),
-            'tehsils' => Tehsil::where('city_id', $user->city_id)->get(),
-            'pincodes' => Pincode::where('city_id', $user->city_id)->get(),
-        ]);
+{
+    // 🔐 Restrict edit access to same company
+    if (auth()->user()->user_level !== 'master_admin' && $user->company_id !== auth()->user()->company_id) {
+        abort(403, 'Unauthorized access to user.');
     }
+
+    $authUser = auth()->user();
+
+    // ✅ Show only roles for the logged-in user's company (unless master_admin)
+    $roles = $authUser->user_level === 'master_admin'
+        ? Role::all()
+        : Role::where('company_id', $authUser->company_id)->get();
+
+    // ✅ Show all companies only to master_admin
+    $companies = $authUser->user_level === 'master_admin'
+        ? \App\Models\Company::all()
+        : collect(); // Empty for non-master
+
+    return view('admin.users.edit', [
+        'user' => $user,
+        'roles' => $roles,
+        'permissions' => Permission::all(),
+        'states' => State::all(),
+        'districts' => District::where('state_id', $user->state_id)->get(),
+        'cities' => City::where('district_id', $user->district_id)->get(),
+        'tehsils' => Tehsil::where('city_id', $user->city_id)->get(),
+        'pincodes' => Pincode::where('city_id', $user->city_id)->get(),
+        'companies' => $companies,
+        'authUser' => $authUser,
+    ]);
+}
+
 
     /**
      * Update a specific user in the database.

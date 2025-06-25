@@ -52,7 +52,7 @@ Route::prefix('admin')->group(function () {
             Route::patch('/customers/{id}/toggle', [CustomerController::class, 'toggleStatus'])->name('customers.toggle');
 
             Route::resource('trips', TripController::class);
-    Route::post('trips/{id}/approve', [TripController::class, 'approve'])->name('trips.approve');
+            Route::post('trips/{id}/approve', [TripController::class, 'approve'])->name('trips.approve');
 
             // ✅ AJAX Executive Fetch by Company (used in create/edit customer)
             Route::get('companies/{id}/executives', [CustomerController::class, 'getExecutives'])->name('company.executives');
@@ -68,5 +68,11 @@ Route::prefix('admin')->group(function () {
         Route::get('/get-cities/{district_id}', [UserController::class, 'getCities'])->name('get.cities');
         Route::get('/get-tehsils/{city_id}', [UserController::class, 'getTehsils'])->name('get.tehsils');
         Route::get('/get-pincodes/{city_id}', [UserController::class, 'getPincodes'])->name('get.pincodes');
+
+        // For trip log point collection (can go in api.php if coming from mobile)
+        Route::post('/trip-logs', [TripController::class, 'logPoint'])->name('trip.log');
+
+        // For viewing trip route
+        Route::get('/trips/{trip}/map', [TripController::class, 'showRoute'])->name('trip.map');
     });
 });

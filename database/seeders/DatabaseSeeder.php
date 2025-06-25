@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
             MultiCompanySeeder::class,
             CustomerSeeder::class,
             TripSeeder::class,
+            TripWithLogsSeeder::class,
 
         ]);
 

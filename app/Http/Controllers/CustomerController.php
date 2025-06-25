@@ -12,25 +12,31 @@ use Illuminate\Support\Facades\Session;
 class CustomerController extends Controller
 {
     public function index()
-    {
-        Session::put('page', 'customers');
-        $admin = Auth::user();
+{
+    Session::put('page', 'customers');
+    $admin = Auth::user();
 
-        if ($admin->hasRole('master_admin')) {
-            $customers = Customer::with(['user', 'company'])->latest()->get();
-        } elseif ($admin->hasRole('executive')) {
-            $customers = Customer::with(['user', 'company'])
-                ->where('user_id', $admin->id)
-                ->where('company_id', $admin->company_id ?? 1)
-                ->latest()->get();
-        } else {
-            $customers = Customer::with(['user', 'company'])
-                ->where('company_id', $admin->company_id ?? 1)
-                ->latest()->get();
-        }
-
-        return view('admin.customers.index', compact('customers'));
+    if ($admin->hasRole('master_admin')) {
+        // Master admin sees all customers
+        $customers = Customer::with(['user', 'company'])->latest()->get();
+    } elseif ($admin->hasRole('sub_admin')) {
+        // Sub-admin sees all customers in their company
+        $customers = Customer::with(['user', 'company'])
+            ->where('company_id', $admin->company_id)
+            ->latest()
+            ->get();
+    } else {
+        // Other users see only customers assigned to them
+        $customers = Customer::with(['user', 'company'])
+            ->where('user_id', $admin->id)
+            ->latest()
+            ->get();
     }
+
+    return view('admin.customers.index', compact('customers'));
+}
+
+
 
     public function create()
     {
@@ -41,11 +47,13 @@ class CustomerController extends Controller
             ? Company::all()
             : Company::where('id', $admin->company_id ?? 1)->get();
 
-        $executives = collect(); // empty by default
+        $executives = collect();
 
         if (!$admin->hasRole('master_admin')) {
-            $executives = User::where('user_level', 'executive')
-                ->where('company_id', $admin->company_id ?? 1)
+            $executives = User::where('company_id', $admin->company_id ?? 1)
+                ->whereDoesntHave('roles', function ($q) {
+                    $q->where('name', 'master_admin');
+                })
                 ->get();
         }
 
@@ -100,8 +108,10 @@ class CustomerController extends Controller
             ? Company::all()
             : Company::where('id', $admin->company_id ?? 1)->get();
 
-        $executives = User::where('user_level', 'executive')
-            ->where('company_id', $customer->company_id ?? ($admin->company_id ?? 1))
+        $executives = User::where('company_id', $customer->company_id ?? ($admin->company_id ?? 1))
+            ->whereDoesntHave('roles', function ($q) {
+                $q->where('name', 'master_admin');
+            })
             ->get();
 
         return view('admin.customers.edit', compact('customer', 'executives', 'companies'));
@@ -153,8 +163,10 @@ class CustomerController extends Controller
      */
     public function getExecutives($companyId)
     {
-        $executives = User::where('user_level', 'executive')
-            ->where('company_id', $companyId)
+        $executives = User::where('company_id', $companyId)
+            ->whereDoesntHave('roles', function ($q) {
+                $q->where('name', 'master_admin');
+            })
             ->select('id', 'name')
             ->get();
 
@@ -180,9 +192,8 @@ class CustomerController extends Controller
      */
     public function toggleStatus(Customer $id)
     {
-        $this->authorizeCustomerAccess($id); // Ensure access control
+        $this->authorizeCustomerAccess($id);
 
-        // Toggle status: Active <-> Inactive
         $id->is_active = !$id->is_active;
         $id->save();
 

@@ -84,3 +84,49 @@
     </div>
 </main>
 @endsection
+
+{{-- @section('scripts')
+<script>
+    function initMap() {
+        const startLat = parseFloat(document.getElementById('start_lat').value);
+        const startLng = parseFloat(document.getElementById('start_lng').value);
+        const endLat = parseFloat(document.getElementById('end_lat').value);
+        const endLng = parseFloat(document.getElementById('end_lng').value);
+
+        const centerLat = (startLat + endLat) / 2;
+        const centerLng = (startLng + endLng) / 2;
+
+        const map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 12,
+            center: { lat: centerLat, lng: centerLng }
+        });
+
+        const startMarker = new google.maps.Marker({
+            position: { lat: startLat, lng: startLng },
+            map: map,
+            label: 'S'
+        });
+
+        const endMarker = new google.maps.Marker({
+            position: { lat: endLat, lng: endLng },
+            map: map,
+            label: 'E'
+        });
+
+        const tripPath = new google.maps.Polyline({
+            path: [
+                { lat: startLat, lng: startLng },
+                { lat: endLat, lng: endLng }
+            ],
+            geodesic: true,
+            strokeColor: '#007bff',
+            strokeOpacity: 1.0,
+            strokeWeight: 4
+        });
+
+        tripPath.setMap(map);
+    }
+
+    window.onload = initMap;
+</script>
+@endsection --}}

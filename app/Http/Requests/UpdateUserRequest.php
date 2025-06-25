@@ -20,7 +20,7 @@ class UpdateUserRequest extends FormRequest
             'email' => "required|email|max:255|unique:users,email,{$userId}",
             'mobile' => 'nullable|string|max:20',
             'password' => 'nullable|confirmed|min:6',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:5120',
 
             // Personal & Contact Information
             'user_code' => 'nullable|string|max:100',
@@ -52,6 +52,8 @@ class UpdateUserRequest extends FormRequest
             // Roles
             'roles' => 'nullable|array',
             'roles.*' => 'string|exists:roles,name',
+            'company_id' => 'nullable|exists:companies,id',
+
         ];
     }
 }

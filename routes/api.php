@@ -12,7 +12,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // User resource routes
     Route::get('/users', [ApiController::class, 'indexUsers']);
     Route::post('/users', [ApiController::class, 'storeUser']);
-    Route::get('/users/{user}', [ApiController::class, 'showUser']);
+    Route::get('/users/{id}', [ApiController::class, 'showUser']);
     Route::put('/users/{user}', [ApiController::class, 'updateUser']);
     Route::delete('/users/{user}', [ApiController::class, 'deleteUser']);
     Route::patch('/users/{user}/toggle', [ApiController::class, 'toggleUser']);
@@ -26,4 +26,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/districts/{district}/cities', [ApiController::class, 'getCities']);
     Route::get('/cities/{city}/tehsils', [ApiController::class, 'getTehsils']);
     Route::get('/cities/{city}/pincodes', [ApiController::class, 'getPincodes']);
+
+    // For trip log point collection (can go in api.php if coming from mobile)
+    Route::post('/trip-logs', [TripController::class, 'logPoint'])->name('trip.log');
+
+    // For viewing trip route
+    Route::get('/trips/{trip}/map', [TripController::class, 'showRoute'])->name('trip.map');
 });

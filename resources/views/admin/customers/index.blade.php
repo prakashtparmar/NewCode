@@ -44,89 +44,72 @@
                             </div>
                         @endif
 
-                        <!-- Bulk Delete Form -->
-                        <form action="{{ route('customers.bulk-delete') }}" method="POST" id="bulk-delete-form">
-                            @csrf
-                            @method('DELETE')
-
-                            <button type="submit" class="btn btn-danger mb-3"
-                                onclick="return confirm('Are you sure you want to delete selected customers?')">
-                                Delete Selected
-                            </button>
-
-                            <table id="customers-table" class="table table-bordered table-striped align-middle">
-                                <thead class="table-light">
+                        <table id="customers-table" class="table table-bordered table-striped align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#ID</th>
+                                    <th>Full Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Address</th>
+                                    <th>Company</th>
+                                    <th>Executive</th>
+                                    @can('toggle_customers')
+                                        <th>Status</th>
+                                    @endcan
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($customers as $customer)
                                     <tr>
-                                        <th><input type="checkbox" id="select-all"></th>
-                                        <th>#ID</th>
-                                        <th>Full Name</th>
-                                        <th>Email</th>
-                                        <th>Phone</th>
-                                        <th>Address</th>
-                                        <th>Company</th>
-                                        <th>Executive</th>
+                                        <td>{{ $customer->id }}</td>
+                                        <td>{{ $customer->name }}</td>
+                                        <td>{{ $customer->email }}</td>
+                                        <td>{{ $customer->phone }}</td>
+                                        <td>{{ $customer->address }}</td>
+                                        <td>{{ optional($customer->company)->name ?? 'Demo Company' }}</td>
+                                        <td>{{ optional($customer->user)->name ?? 'Executive User' }}</td>
+
                                         @can('toggle_customers')
-                                            <th>Status</th>
-                                        @endcan
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($customers as $customer)
-                                        <tr>
                                             <td>
-                                                <input type="checkbox" name="ids[]" value="{{ $customer->id }}"
-                                                    class="customer-checkbox">
-                                            </td>
-                                            <td>{{ $customer->id }}</td>
-                                            <td>{{ $customer->name }}</td>
-                                            <td>{{ $customer->email }}</td>
-                                            <td>{{ $customer->phone }}</td>
-                                            <td>{{ $customer->address }}</td>
-                                            <td>{{ optional($customer->company)->name ?? 'Demo Company' }}</td>
-                                            <td>{{ optional($customer->user)->name ?? 'Executive User' }}</td>
-
-                                            @can('toggle_customers')
-                                                <td>
-                                                    <form action="{{ route('customers.toggle', $customer->id) }}" method="POST">
-                                                        @csrf
-                                                        @method('PATCH')
-                                                        <button type="submit"
-                                                            class="badge {{ $customer->is_active ? 'bg-success' : 'bg-danger' }}"
-                                                            onclick="return confirm('Are you sure you want to {{ $customer->is_active ? 'deactivate' : 'activate' }} this customer?')">
-                                                            {{ $customer->is_active ? 'Active' : 'Inactive' }}
-                                                        </button>
-                                                    </form>
-                                                </td>
-                                            @endcan
-
-                                            <td>
-                                                <a href="{{ route('customers.show', $customer) }}" class="text-info me-2" title="View">
-                                                    <i class="fas fa-eye"></i></a>
-                                                <a href="{{ route('customers.edit', $customer) }}" class="text-warning me-2" title="Edit">
-                                                    <i class="fas fa-edit"></i></a>
-                                                <form action="{{ route('customers.destroy', $customer) }}" method="POST" class="d-inline"
-                                                    onsubmit="return confirm('Are you sure you want to delete this customer?')">
+                                                <form action="{{ route('customers.toggle', $customer->id) }}" method="POST" style="display:inline;">
                                                     @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-link p-0 text-danger" title="Delete">
-                                                        <i class="fas fa-trash"></i>
+                                                    @method('PATCH')
+                                                    <button type="submit"
+                                                        class="badge {{ $customer->is_active ? 'bg-success' : 'bg-danger' }}"
+                                                        onclick="return confirm('Are you sure you want to {{ $customer->is_active ? 'deactivate' : 'activate' }} this customer?')">
+                                                        {{ $customer->is_active ? 'Active' : 'Inactive' }}
                                                     </button>
                                                 </form>
                                             </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="10" class="text-center">No customers found.</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </form>
+                                        @endcan
+
+                                        <td>
+                                            <a href="{{ route('customers.show', $customer) }}" class="text-info me-2" title="View">
+                                                <i class="fas fa-eye"></i></a>
+                                            <a href="{{ route('customers.edit', $customer) }}" class="text-warning me-2" title="Edit">
+                                                <i class="fas fa-edit"></i></a>
+                                            <form action="{{ route('customers.destroy', $customer) }}" method="POST" class="d-inline"
+                                                onsubmit="return confirm('Are you sure you want to delete this customer?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-link p-0 text-danger" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="9" class="text-center">No customers found.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div> <!-- /.card-body -->
                 </div> <!-- /.card -->
             </div> <!-- /.container-fluid -->
         </div> <!-- /.app-content -->
     </main>
 @endsection
-

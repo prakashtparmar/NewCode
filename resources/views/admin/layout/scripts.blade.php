@@ -6,13 +6,18 @@
 <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
 
 <!-- Third Party Plugin(OverlayScrollbars) -->
-<script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/browser/overlayscrollbars.browser.es6.min.js" integrity="sha256-dghWARbRe2eLlIJ56wNB+b760ywulqK3DzZYEpsg2fQ=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/browser/overlayscrollbars.browser.es6.min.js"
+    integrity="sha256-dghWARbRe2eLlIJ56wNB+b760ywulqK3DzZYEpsg2fQ=" crossorigin="anonymous"></script>
 
 <!-- Required Plugin(popperjs for Bootstrap 5) -->
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
+</script>
 
 <!-- Required Plugin(Bootstrap 5) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+    integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous">
+</script>
 
 <!-- Required Plugin(AdminLTE) -->
 <script src="{{ asset('admin/js/adminlte.js') }}"></script>
@@ -25,7 +30,7 @@
         scrollbarAutoHide: 'leave',
         scrollbarClickScroll: true,
     };
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         const sidebarWrapper = document.querySelector(SELECTOR_SIDEBAR_WRAPPER);
         if (sidebarWrapper && typeof OverlayScrollbarsGlobal?.OverlayScrollbars !== 'undefined') {
             OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, {
@@ -41,7 +46,8 @@
 
 <!-- OPTIONAL SCRIPTS -->
 <!-- sortablejs -->
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js" integrity="sha256-ipiJrswvAR4VAx/th+6zWsdeYmVae0iJuiR+6OqHJHQ=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"
+    integrity="sha256-ipiJrswvAR4VAx/th+6zWsdeYmVae0iJuiR+6OqHJHQ=" crossorigin="anonymous"></script>
 <script>
     const connectedSortables = document.querySelectorAll('.connectedSortable');
     connectedSortables.forEach((connectedSortable) => {
@@ -58,11 +64,14 @@
 </script>
 
 <!-- apexcharts -->
-<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js" integrity="sha256-+vh8GkaU7C9/wbSLIcwq82tQ2wTf44aOHA8HlBMwRI8=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js"
+    integrity="sha256-+vh8GkaU7C9/wbSLIcwq82tQ2wTf44aOHA8HlBMwRI8=" crossorigin="anonymous"></script>
 
 <!-- jsvectormap -->
-<script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/js/jsvectormap.min.js" integrity="sha256-/t1nN2956BT869E6H4V1dnt0X5pAQHPytli+1nTZm2Y=" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/maps/world.js" integrity="sha256-XPpPaZlU8S/HWf7FZLAncLg2SAkP8ScUTII89x9D3lY=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/js/jsvectormap.min.js"
+    integrity="sha256-/t1nN2956BT869E6H4V1dnt0X5pAQHPytli+1nTZm2Y=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/maps/world.js"
+    integrity="sha256-XPpPaZlU8S/HWf7FZLAncLg2SAkP8ScUTII89x9D3lY=" crossorigin="anonymous"></script>
 
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
@@ -71,14 +80,14 @@
 <script src="{{ url('admin/js/custom.js') }}"></script>
 
 <script>
-  $(document).ready(function () {
-    $("#roles-table").DataTable();
-    $("#users-table").DataTable();
-    $("#companies-table").DataTable();
-    $("#permissions-table").DataTable();
-    $("#customers-table").DataTable();
-    
-  });
+    $(document).ready(function() {
+        $("#roles-table").DataTable();
+        $("#users-table").DataTable();
+        $("#companies-table").DataTable();
+        $("#permissions-table").DataTable();
+        $("#customers-table").DataTable();
+
+    });
 </script>
 
 <!-- Additional Custom Logic Scripts -->
@@ -88,20 +97,21 @@
     const getTehsilsUrl = "{!! url('admin/get-tehsils') !!}/";
     const getPincodesUrl = "{!! url('admin/get-pincodes') !!}/";
 
-    $(document).ready(function () {
-        $('#state').on('change', function () {
+    $(document).ready(function() {
+        $('#state').on('change', function() {
             let stateID = $(this).val();
             $('#district').html('<option value="">Loading...</option>');
             if (stateID) {
                 $.get(getDistrictsUrl + stateID)
-                    .done(function (data) {
+                    .done(function(data) {
                         let options = '<option value="">Select District</option>';
                         data.forEach(d => {
-                            options += `<option value="${d.id}" ${d.id == '{{ old('district_id', $user->district_id ?? '') }}' ? 'selected' : ''}>${d.name}</option>`;
+                            options +=
+                                `<option value="${d.id}" ${d.id == '{{ old('district_id', $user->district_id ?? '') }}' ? 'selected' : ''}>${d.name}</option>`;
                         });
                         $('#district').html(options).trigger('change');
                     })
-                    .fail(function () {
+                    .fail(function() {
                         alert('Failed to load districts');
                         $('#district').html('<option value="">Select District</option>');
                     });
@@ -110,55 +120,58 @@
             }
         });
 
-        $('#district').on('change', function () {
+        $('#district').on('change', function() {
             let districtID = $(this).val();
             $('#city').html('<option value="">Loading...</option>');
             if (districtID) {
                 $.get(getCitiesUrl + districtID)
-                    .done(function (data) {
+                    .done(function(data) {
                         let options = '<option value="">Select City</option>';
                         data.forEach(c => {
-                            options += `<option value="${c.id}" ${c.id == '{{ old('city_id', $user->city_id ?? '') }}' ? 'selected' : ''}>${c.name}</option>`;
+                            options +=
+                                `<option value="${c.id}" ${c.id == '{{ old('city_id', $user->city_id ?? '') }}' ? 'selected' : ''}>${c.name}</option>`;
                         });
                         $('#city').html(options).trigger('change');
                     })
-                    .fail(function () {
+                    .fail(function() {
                         alert('Failed to load cities');
                         $('#city').html('<option value="">Select City</option>');
                     });
             }
         });
 
-        $('#city').on('change', function () {
+        $('#city').on('change', function() {
             let cityID = $(this).val();
             $('#tehsil').html('<option value="">Loading...</option>');
             $('#pincode').html('<option value="">Loading...</option>');
             if (cityID) {
                 // Load Tehsils
                 $.get(getTehsilsUrl + cityID)
-                    .done(function (data) {
+                    .done(function(data) {
                         let options = '<option value="">Select Tehsil</option>';
                         data.forEach(t => {
-                            options += `<option value="${t.id}" ${t.id == '{{ old('tehsil_id', $user->tehsil_id ?? '') }}' ? 'selected' : ''}>${t.name}</option>`;
+                            options +=
+                                `<option value="${t.id}" ${t.id == '{{ old('tehsil_id', $user->tehsil_id ?? '') }}' ? 'selected' : ''}>${t.name}</option>`;
                         });
                         $('#tehsil').html(options);
                     })
-                    .fail(function () {
+                    .fail(function() {
                         alert('Failed to load tehsils');
                         $('#tehsil').html('<option value="">Select Tehsil</option>');
                     });
 
                 // Load Pincodes
                 $.get(getPincodesUrl + cityID)
-                    .done(function (data) {
+                    .done(function(data) {
                         let options = '<option value="">Select Pincode</option>';
                         const selectedPincode = '{{ old('pincode_id', $user->pincode_id ?? '') }}';
                         data.forEach(p => {
-                            options += `<option value="${p.id}" ${p.id == selectedPincode ? 'selected' : ''}>${p.pincode}</option>`;
+                            options +=
+                                `<option value="${p.id}" ${p.id == selectedPincode ? 'selected' : ''}>${p.pincode}</option>`;
                         });
                         $('#pincode').html(options);
                     })
-                    .fail(function () {
+                    .fail(function() {
                         alert('Failed to load pincodes');
                         $('#pincode').html('<option value="">Select Pincode</option>');
                     });
@@ -185,7 +198,8 @@
                         setTimeout(() => {
                             $('#tehsil').val(preSelectedTehsil).trigger('change');
                             setTimeout(() => {
-                                $('#pincode').val(preSelectedPincode).trigger('change');
+                                $('#pincode').val(preSelectedPincode).trigger(
+                                    'change');
                             }, 500);
                         }, 500);
                     }, 500);
@@ -196,48 +210,48 @@
 </script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const companySelect = document.getElementById('company_id');
-    const executiveSelect = document.getElementById('user_id');
+    document.addEventListener('DOMContentLoaded', function() {
+        const companySelect = document.getElementById('company_id');
+        const executiveSelect = document.getElementById('user_id');
 
-    if (!companySelect || !executiveSelect) return;
+        if (!companySelect || !executiveSelect) return;
 
-    companySelect.addEventListener('change', function () {
-        const companyId = this.value;
+        companySelect.addEventListener('change', function() {
+            const companyId = this.value;
 
-        executiveSelect.innerHTML = '<option value="">-- Select Executive --</option>';
+            executiveSelect.innerHTML = '<option value="">-- Select Executive --</option>';
 
-        if (companyId) {
-            fetch(`/admin/companies/${companyId}/executives`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.executives && Array.isArray(data.executives)) {
-                        data.executives.forEach(exec => {
-                            const option = document.createElement('option');
-                            option.value = exec.id;
-                            option.textContent = exec.name;
-                            executiveSelect.appendChild(option);
-                        });
-                    } else {
-                        console.warn('Unexpected response format:', data);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching executives:', error);
-                });
-        }
+            if (companyId) {
+                fetch(`/admin/companies/${companyId}/executives`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.executives && Array.isArray(data.executives)) {
+                            data.executives.forEach(exec => {
+                                const option = document.createElement('option');
+                                option.value = exec.id;
+                                option.textContent = exec.name;
+                                executiveSelect.appendChild(option);
+                            });
+                        } else {
+                            console.warn('Unexpected response format:', data);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching executives:', error);
+                    });
+            }
+        });
     });
-});
 </script>
 
 <script>
     // Toggle all checkboxes
-    document.getElementById('select-all').addEventListener('change', function () {
+    document.getElementById('select-all').addEventListener('change', function() {
         const checkboxes = document.querySelectorAll('.customer-checkbox');
         checkboxes.forEach(cb => cb.checked = this.checked);
     });
@@ -246,7 +260,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 {{-- ----------------------------------------------------------------------------------------------- --}}
 {{-- <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_API_KEY&libraries=places"></script> --}}
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB_-uOyQimLqBkDW_Vr8d88GX6Qk0lyksI&libraries=places"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB_-uOyQimLqBkDW_Vr8d88GX6Qk0lyksI&libraries=places">
+</script>
 <script>
     function initMap() {
         const start = {
@@ -264,29 +279,30 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         const directionsService = new google.maps.DirectionsService();
-        const directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
+        const directionsRenderer = new google.maps.DirectionsRenderer({
+            map: map,
+            suppressMarkers: true // We'll add custom markers
+        });
 
-        directionsService.route(
-            {
-                origin: start,
-                destination: end,
-                travelMode: google.maps.TravelMode.DRIVING
-            },
-            function (response, status) {
-                if (status === "OK") {
-                    directionsRenderer.setDirections(response);
+        directionsService.route({
+            origin: start,
+            destination: end,
+            travelMode: google.maps.TravelMode.DRIVING
+        }, function(response, status) {
+            if (status === "OK") {
+                directionsRenderer.setDirections(response);
+                map.fitBounds(response.routes[0].bounds); // 🔥 Fit map to full route
 
-                    const distanceInMeters = response.routes[0].legs[0].distance.value;
-                    const distanceInKm = (distanceInMeters / 1000).toFixed(2);
-                    const display = document.getElementById("distance-display");
-                    if (display) display.innerText = distanceInKm + " km";
-                } else {
-                    alert("Directions request failed due to: " + status);
-                }
+                const distanceInMeters = response.routes[0].legs[0].distance.value;
+                const distanceInKm = (distanceInMeters / 1000).toFixed(2);
+                const display = document.getElementById("distance-display");
+                if (display) display.innerText = distanceInKm + " km";
+            } else {
+                alert("Directions request failed due to: " + status);
             }
-        );
+        });
 
-        // Start marker
+        // Custom Start Marker
         new google.maps.Marker({
             position: start,
             map: map,
@@ -294,7 +310,7 @@ document.addEventListener('DOMContentLoaded', function () {
             title: "Start Location"
         });
 
-        // End marker
+        // Custom End Marker
         new google.maps.Marker({
             position: end,
             map: map,
