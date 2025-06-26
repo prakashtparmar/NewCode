@@ -1,35 +1,48 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\ApiController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\TripController;
+use App\Http\Controllers\Api\LocationController;
+use App\Http\Controllers\Api\TripLogController;
 
 // Public routes
-Route::post('/register', [ApiController::class, 'register']);
-Route::post('/login', [ApiController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
-    // User resource routes
-    Route::get('/users', [ApiController::class, 'indexUsers']);
-    Route::post('/users', [ApiController::class, 'storeUser']);
-    Route::get('/users/{id}', [ApiController::class, 'showUser']);
-    Route::put('/users/{user}', [ApiController::class, 'updateUser']);
-    Route::delete('/users/{user}', [ApiController::class, 'deleteUser']);
-    Route::patch('/users/{user}/toggle', [ApiController::class, 'toggleUser']);
+    
+    // Auth
+    Route::post('/logout', [AuthController::class, 'logout']);
 
-    // Authenticated user profile & logout
-    Route::get('/profile', [ApiController::class, 'profile']);
-    Route::post('/logout', [ApiController::class, 'logout']);
+    // User
+    Route::get('/users', [UserController::class, 'indexUsers']);
+    Route::post('/users', [UserController::class, 'storeUser']);
+    Route::get('/users/{id}', [UserController::class, 'showUser']);
+    Route::put('/users/{user}', [UserController::class, 'updateUser']);
+    Route::delete('/users/{user}', [UserController::class, 'deleteUser']);
+    Route::post('/users/{user}/toggle', [UserController::class, 'toggleUser']);
+    Route::get('/profile', [UserController::class, 'profile']);
 
-    // Location routes
-    Route::get('/states/{state}/districts', [ApiController::class, 'getDistricts']);
-    Route::get('/districts/{district}/cities', [ApiController::class, 'getCities']);
-    Route::get('/cities/{city}/tehsils', [ApiController::class, 'getTehsils']);
-    Route::get('/cities/{city}/pincodes', [ApiController::class, 'getPincodes']);
+    // Location
+    Route::get('/districts/{state_id}', [LocationController::class, 'getDistricts']);
+    Route::get('/cities/{district_id}', [LocationController::class, 'getCities']);
+    Route::get('/tehsils/{city_id}', [LocationController::class, 'getTehsils']);
+    Route::get('/pincodes/{city_id}', [LocationController::class, 'getPincodes']);
 
-    // For trip log point collection (can go in api.php if coming from mobile)
-    Route::post('/trip-logs', [TripController::class, 'logPoint'])->name('trip.log');
+    // Trips
+    Route::get('/trips', [TripController::class, 'index']);
+    Route::post('/trips', [TripController::class, 'store']);
+    Route::get('/trips/{id}', [TripController::class, 'show']);
+    Route::put('/trips/{id}', [TripController::class, 'update']);
+    Route::delete('/trips/{id}', [TripController::class, 'destroy']);
+    Route::post('/trips/{id}/approve', [TripController::class, 'approve']);
+    Route::post('/trips/{id}/update-coordinates', [TripController::class, 'updateTripCoordinates']);
 
-    // For viewing trip route
-    Route::get('/trips/{trip}/map', [TripController::class, 'showRoute'])->name('trip.map');
+    // Trip Logs
+    Route::post('/trip-logs', [TripLogController::class, 'logPoint']);
+    Route::get('/trip-logs/{tripId}', [TripLogController::class, 'logs']);
+    Route::get('/trip-logs/{tripId}/distance', [TripLogController::class, 'calculateDistanceFromLogs']);
 });

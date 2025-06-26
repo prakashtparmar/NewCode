@@ -29,12 +29,12 @@ class TripWithLogsSeeder extends Seeder
                     'company_id'        => $user->company_id ?? 1,
                     'trip_date'         => now()->subDays($i)->toDateString(),
                     'start_time'        => '09:00:00',
-                    'end_time'          => '10:00:00',
+                    'end_time'          => '11:00:00',
                     'start_lat'         => $baseLat,
                     'start_lng'         => $baseLng,
-                    'end_lat'           => $baseLat + 0.09, // ~10km
-                    'end_lng'           => $baseLng + 0.09, // ~10km
-                    'total_distance_km' => 10.00,
+                    'end_lat'           => $baseLat + 0.2, // ~22km
+                    'end_lng'           => $baseLng + 0.2,
+                    'total_distance_km' => 22.0,
                     'travel_mode'       => 'car',
                     'purpose'           => 'Seeded trip demo',
                     'status'            => 'completed',
@@ -43,20 +43,20 @@ class TripWithLogsSeeder extends Seeder
                     'approved_at'       => now()
                 ]);
 
-                // Create 25 points (roughly 400m spacing for 10km)
-                $points = 25;
-                for ($j = 0; $j <= $points; $j++) {
-                    $fraction = $j / $points;
+                // Generate 100 logs (~every 1% of the route)
+                $logsCount = 100;
+                for ($j = 0; $j <= $logsCount; $j++) {
+                    $fraction = $j / $logsCount;
 
                     TripLog::create([
                         'trip_id'     => $trip->id,
                         'latitude'    => $trip->start_lat + ($trip->end_lat - $trip->start_lat) * $fraction,
                         'longitude'   => $trip->start_lng + ($trip->end_lng - $trip->start_lng) * $fraction,
-                        'recorded_at' => now()->subDays($i)->addMinutes($j * 2),
+                        'recorded_at' => now()->subDays($i)->addMinutes($j),
                     ]);
                 }
 
-                $this->command->info("Created trip #$i with 25 GPS logs.");
+                $this->command->info("✅ Created Trip #$i with $logsCount GPS logs.");
             }
         });
     }

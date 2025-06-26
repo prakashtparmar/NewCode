@@ -53,7 +53,7 @@
                 {{-- Customers --}}
                 <li class="nav-item {{ request()->is('admin/customers*') ? 'menu-open' : '' }}">
                     <a href="{{ url('admin/customers') }}" class="nav-link {{ request()->is('admin/customers*') ? 'active' : '' }}">
-                        <i class="bi bi-person-lines-fill me-2"></i> Customers
+                        <i class="bi bi-person-lines-fill me-2"></i> Party
                     </a>
                 </li>
 

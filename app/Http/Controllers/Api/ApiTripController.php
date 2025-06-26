@@ -1,66 +1,52 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\Trip;
 use App\Models\TripLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class TripController extends Controller
+class ApiTripController extends Controller
 {
     /**
-     * Display a listing of the trips based on user roles.
+     * Get trips for authenticated user based on their role.
      */
     public function index()
     {
         $user = Auth::user();
-
-        // Load related models with Eager Loading
         $query = Trip::with(['user', 'company', 'approvedByUser', 'tripLogs']);
 
         if ($user->hasRole('master_admin')) {
-            // Master admin sees all trips
             $trips = $query->latest()->get();
         } elseif ($user->hasRole('sub_admin')) {
-            // Sub-admin sees company trips
             $trips = $query->where('company_id', $user->company_id)->latest()->get();
         } else {
-            // Regular user sees their own trips
             $trips = $query->where('user_id', $user->id)->latest()->get();
         }
 
-        return view('admin.trips.index', compact('trips'));
+        return response()->json(['status' => 'success', 'trips' => $trips]);
     }
 
     /**
-     * Show the form for creating a new trip.
-     */
-    public function create()
-    {
-        return view('admin.trips.create');
-    }
-
-    /**
-     * Store a newly created trip in storage.
+     * Store a new trip.
      */
     public function store(Request $request)
     {
-        // Validate input data
         $validated = $request->validate([
-            'trip_date'      => 'required|date',
-            'start_time'     => 'required',
-            'end_time'       => 'required',
-            'start_lat'      => 'required|numeric',
-            'start_lng'      => 'required|numeric',
-            'end_lat'        => 'required|numeric',
-            'end_lng'        => 'required|numeric',
-            'travel_mode'    => 'required|string',
-            'purpose'        => 'nullable|string',
+            'trip_date'    => 'required|date',
+            'start_time'   => 'required',
+            'end_time'     => 'required',
+            'start_lat'    => 'required|numeric',
+            'start_lng'    => 'required|numeric',
+            'end_lat'      => 'required|numeric',
+            'end_lng'      => 'required|numeric',
+            'travel_mode'  => 'required|string',
+            'purpose'      => 'nullable|string',
         ]);
 
-        // Calculate distance between start and end coordinates
         $distance = $this->calculateDistance(
             $request->start_lat,
             $request->start_lng,
@@ -68,8 +54,7 @@ class TripController extends Controller
             $request->end_lng
         );
 
-        // Create a new trip record
-        Trip::create([
+        $trip = Trip::create([
             'user_id'           => Auth::id(),
             'company_id'        => Auth::user()->company_id,
             'trip_date'         => $request->trip_date,
@@ -86,36 +71,25 @@ class TripController extends Controller
             'approval_status'   => 'pending',
         ]);
 
-        return redirect()->route('trips.index')->with('success', 'Trip added successfully.');
+        return response()->json(['status' => 'success', 'trip' => $trip]);
     }
 
     /**
-     * Display the specified trip details along with trip logs.
+     * Show a specific trip with logs.
      */
-    public function show(Trip $trip)
+    public function show($id)
     {
-        // Fetch trip logs sorted by time
-        $tripLogs = TripLog::where('trip_id', $trip->id)
-            ->orderBy('recorded_at')
-            ->get(['latitude', 'longitude', 'recorded_at']);
-
-        return view('admin.trips.show', compact('trip', 'tripLogs'));
+        $trip = Trip::with('tripLogs')->findOrFail($id);
+        return response()->json(['status' => 'success', 'trip' => $trip]);
     }
 
     /**
-     * Show the form for editing the specified trip.
+     * Update a trip.
      */
-    public function edit(Trip $trip)
+    public function update(Request $request, $id)
     {
-        return view('admin.trips.edit', compact('trip'));
-    }
+        $trip = Trip::findOrFail($id);
 
-    /**
-     * Update the specified trip in storage.
-     */
-    public function update(Request $request, Trip $trip)
-    {
-        // Validate input data
         $validated = $request->validate([
             'trip_date'       => 'required|date',
             'start_time'      => 'required',
@@ -130,7 +104,6 @@ class TripController extends Controller
             'approval_reason' => 'nullable|string|max:255',
         ]);
 
-        // Update trip with new details
         $trip->update([
             'trip_date'         => $request->trip_date,
             'start_time'        => $request->start_time,
@@ -153,36 +126,33 @@ class TripController extends Controller
             'approved_at'       => in_array($request->approval_status, ['approved', 'denied']) ? now() : null,
         ]);
 
-        return redirect()->route('trips.index')->with('success', 'Trip updated successfully.');
+        return response()->json(['status' => 'success', 'message' => 'Trip updated']);
     }
 
     /**
-     * Remove the specified trip from storage.
+     * Delete a trip.
      */
-    public function destroy(Trip $trip)
+    public function destroy($id)
     {
+        $trip = Trip::findOrFail($id);
         $trip->delete();
-        return redirect()->route('trips.index')->with('success', 'Trip deleted successfully.');
+
+        return response()->json(['status' => 'success', 'message' => 'Trip deleted']);
     }
 
     /**
-     * Approve or deny a trip with optional reason and calculate distance from trip logs.
+     * Approve or deny a trip.
      */
     public function approve(Request $request, $id)
     {
         $trip = Trip::findOrFail($id);
-
         $status = $request->input('status', 'approved');
         $reason = $request->input('reason');
 
-        // Validate reason if trip is denied
         if ($status === 'denied') {
-            $request->validate([
-                'reason' => 'required|string|max:255'
-            ]);
+            $request->validate(['reason' => 'required|string|max:255']);
         }
 
-        // Calculate distance based on logs instead of coordinates
         $calculatedDistance = $this->calculateDistanceFromLogs($trip->id);
 
         $trip->update([
@@ -193,11 +163,11 @@ class TripController extends Controller
             'total_distance_km' => $calculatedDistance,
         ]);
 
-        return redirect()->back()->with('success', 'Trip approval status updated.');
+        return response()->json(['status' => 'success', 'message' => 'Trip approval updated']);
     }
 
     /**
-     * Add a single trip log point (used for live tracking).
+     * Log a GPS point for a trip.
      */
     public function logPoint(Request $request)
     {
@@ -219,17 +189,18 @@ class TripController extends Controller
     }
 
     /**
-     * Fetch all trip logs in JSON format (used for map or frontend replay).
+     * Return logs for a trip.
      */
-    public function logs(Trip $trip)
+    public function logs($id)
     {
-        return response()->json(
-            $trip->tripLogs()->select('latitude', 'longitude', 'recorded_at')->get()
-        );
+        $trip = Trip::findOrFail($id);
+        $logs = $trip->tripLogs()->select('latitude', 'longitude', 'recorded_at')->get();
+
+        return response()->json(['status' => 'success', 'logs' => $logs]);
     }
 
     /**
-     * Update trip's start and end coordinates using the first and last trip log.
+     * Update trip start/end coordinates using logs.
      */
     public function updateTripCoordinates($tripId)
     {
@@ -251,16 +222,18 @@ class TripController extends Controller
                 'end_lng'   => $endLog->longitude,
             ]);
         }
+
+        return response()->json(['status' => 'success', 'message' => 'Trip coordinates updated']);
     }
 
     /**
-     * Calculate distance between two latitude-longitude points using Haversine formula.
+     * Calculate direct distance using coordinates.
      */
     private function calculateDistance($lat1, $lon1, $lat2, $lon2)
     {
         $theta = $lon1 - $lon2;
         $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +
-                cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
         $dist = acos($dist);
         $dist = rad2deg($dist);
         $km = $dist * 60 * 1.1515 * 1.609344;
@@ -269,7 +242,7 @@ class TripController extends Controller
     }
 
     /**
-     * Calculate total trip distance using all logged points.
+     * Calculate total distance from logs.
      */
     private function calculateDistanceFromLogs($tripId)
     {
@@ -278,7 +251,6 @@ class TripController extends Controller
         if ($logs->count() < 2) return 0;
 
         $distance = 0;
-
         for ($i = 1; $i < $logs->count(); $i++) {
             $distance += $this->calculateDistance(
                 $logs[$i - 1]->latitude, $logs[$i - 1]->longitude,

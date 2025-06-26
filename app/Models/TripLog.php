@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TripLog extends Model
 {
@@ -13,7 +14,7 @@ class TripLog extends Model
         'recorded_at',
     ];
 
-    public function trip()
+    public function trip(): BelongsTo
     {
         return $this->belongsTo(Trip::class);
     }

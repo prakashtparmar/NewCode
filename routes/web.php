@@ -52,7 +52,9 @@ Route::prefix('admin')->group(function () {
             Route::patch('/customers/{id}/toggle', [CustomerController::class, 'toggleStatus'])->name('customers.toggle');
 
             Route::resource('trips', TripController::class);
-            Route::post('trips/{id}/approve', [TripController::class, 'approve'])->name('trips.approve');
+            Route::post('/trips/{trip}/approve', [TripController::class, 'approve'])->name('trips.approve');
+
+
 
             // ✅ AJAX Executive Fetch by Company (used in create/edit customer)
             Route::get('companies/{id}/executives', [CustomerController::class, 'getExecutives'])->name('company.executives');
@@ -74,5 +76,9 @@ Route::prefix('admin')->group(function () {
 
         // For viewing trip route
         Route::get('/trips/{trip}/map', [TripController::class, 'showRoute'])->name('trip.map');
+        Route::get('/trips/{trip}/logs', [TripController::class, 'logs'])->name('trips.logs');
+
+        
+
     });
 });

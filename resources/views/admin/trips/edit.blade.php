@@ -24,6 +24,12 @@
                         </div>
                     @endif
 
+                    {{-- Trip Info --}}
+                    <div class="mb-4">
+                        <p><strong>Created By:</strong> {{ $trip->user->name ?? 'N/A' }}</p>
+                        <p><strong>Company:</strong> {{ $trip->company->name ?? 'N/A' }}</p>
+                    </div>
+
                     {{-- Edit Form --}}
                     <form action="{{ route('trips.update', $trip) }}" method="POST">
                         @csrf
@@ -83,6 +89,20 @@
                             <input type="text" name="purpose" class="form-control" value="{{ old('purpose', $trip->purpose) }}">
                         </div>
 
+                        <div class="mb-3">
+                            <label for="approval_status" class="form-label">Approval Status</label>
+                            <select name="approval_status" id="approval_status" class="form-select" required onchange="toggleReasonField()">
+                                <option value="pending" {{ old('approval_status', $trip->approval_status) === 'pending' ? 'selected' : '' }}>Pending</option>
+                                <option value="approved" {{ old('approval_status', $trip->approval_status) === 'approved' ? 'selected' : '' }}>Approved</option>
+                                <option value="denied" {{ old('approval_status', $trip->approval_status) === 'denied' ? 'selected' : '' }}>Denied</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3" id="denial-reason-block" style="display: {{ old('approval_status', $trip->approval_status) === 'denied' ? 'block' : 'none' }};">
+                            <label for="approval_reason" class="form-label">Reason for Denial</label>
+                            <textarea name="approval_reason" id="approval_reason" class="form-control" rows="3">{{ old('approval_reason', $trip->approval_reason) }}</textarea>
+                        </div>
+
                         <div class="mt-4">
                             <button type="submit" class="btn btn-primary">Update Trip</button>
                             <a href="{{ route('trips.index') }}" class="btn btn-light">Cancel</a>
@@ -94,4 +114,13 @@
         </div>
     </div>
 </div>
+
+{{-- Script to toggle denial reason --}}
+<script>
+    function toggleReasonField() {
+        const status = document.getElementById('approval_status').value;
+        const reasonBlock = document.getElementById('denial-reason-block');
+        reasonBlock.style.display = (status === 'denied') ? 'block' : 'none';
+    }
+</script>
 @endsection

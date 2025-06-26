@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Trip extends Model
 {
@@ -20,27 +22,30 @@ class Trip extends Model
         'travel_mode',
         'purpose',
         'status',
+        'approval_status',
         'approval_reason',
         'approved_by',
-        'approved_at'
+        'approved_at',
     ];
 
-    public function user()
+    // Relationships
+
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function approver()
+    public function approvedByUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
 
-    public function company()
+    public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function logs()
+    public function tripLogs(): HasMany
     {
         return $this->hasMany(TripLog::class);
     }

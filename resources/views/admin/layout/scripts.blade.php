@@ -86,6 +86,7 @@
         $("#companies-table").DataTable();
         $("#permissions-table").DataTable();
         $("#customers-table").DataTable();
+        $("#trips-table").DataTable();
 
     });
 </script>
@@ -257,68 +258,142 @@
     });
 </script>
 
-
-{{-- ----------------------------------------------------------------------------------------------- --}}
-{{-- <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_API_KEY&libraries=places"></script> --}}
+{{-- Google Maps Script --}}
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB_-uOyQimLqBkDW_Vr8d88GX6Qk0lyksI&libraries=places">
 </script>
 <script>
     function initMap() {
-        const start = {
-            lat: parseFloat(document.getElementById('start_lat').value),
-            lng: parseFloat(document.getElementById('start_lng').value)
-        };
-        const end = {
-            lat: parseFloat(document.getElementById('end_lat').value),
-            lng: parseFloat(document.getElementById('end_lng').value)
-        };
+        // ✅ Check for enough trip logs
+        if (!tripLogs || tripLogs.length < 2) {
+            alert("Not enough trip logs to draw route.");
+            return;
+        }
 
+        // ✅ Prepare coordinates array from logs
+        const pathCoordinates = tripLogs.map(log => ({
+            lat: parseFloat(log.latitude),
+            lng: parseFloat(log.longitude),
+            recorded_at: log.recorded_at ?? ''
+        }));
+
+        // ✅ Initialize the map centered on first coordinate
         const map = new google.maps.Map(document.getElementById("map"), {
-            zoom: 7,
-            center: start
+            zoom: 13,
+            center: pathCoordinates[0],
         });
 
-        const directionsService = new google.maps.DirectionsService();
-        const directionsRenderer = new google.maps.DirectionsRenderer({
-            map: map,
-            suppressMarkers: true // We'll add custom markers
+        // ✅ Draw the polyline (route)
+        const tripPath = new google.maps.Polyline({
+            path: pathCoordinates,
+            geodesic: true,
+            strokeColor: "#007bff",
+            strokeOpacity: 1.0,
+            strokeWeight: 4,
+        });
+        tripPath.setMap(map);
+
+        // ✅ Adjust map view to fit entire route
+        const bounds = new google.maps.LatLngBounds();
+        pathCoordinates.forEach(coord => bounds.extend(coord));
+        map.fitBounds(bounds);
+
+        // // ✅ Add markers for ALL log points
+        // pathCoordinates.forEach((coord, index) => {
+        //     const marker = new google.maps.Marker({
+        //         position: {
+        //             lat: coord.lat,
+        //             lng: coord.lng
+        //         },
+        //         map: map,
+        //         label: (index === 0) ? "A" : (index === pathCoordinates.length - 1 ? "B" : ""),
+        //         title: `Log #${index + 1}\n${coord.recorded_at ?? ''}`,
+
+        //         // ✅ Different icon for start (green), end (red), and mid (blue)
+        //         icon: {
+        //             url: index === 0 ?
+        //                 "http://maps.google.com/mapfiles/ms/icons/green-dot.png" :
+        //                 index === pathCoordinates.length - 1 ?
+        //                 "http://maps.google.com/mapfiles/ms/icons/red-dot.png" :
+        //                 "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+        //         }
+        //     });
+
+        //     // ✅ Info window on marker click showing log details
+        //     const infoWindow = new google.maps.InfoWindow({
+        //         content: `<div>
+        //             <strong>Log #${index + 1}</strong><br>
+        //             Lat: ${coord.lat}<br>
+        //             Lng: ${coord.lng}<br>
+        //             ${coord.recorded_at}
+        //         </div>`
+        //     });
+
+        //     marker.addListener("click", () => {
+        //         infoWindow.open(map, marker);
+        //     });
+        // });
+
+        // // ✅ Add only start and end markers
+        [pathCoordinates[0], pathCoordinates[pathCoordinates.length - 1]].forEach((coord, index) => {
+            const marker = new google.maps.Marker({
+                position: {
+                    lat: coord.lat,
+                    lng: coord.lng
+                },
+                map: map,
+                label: index === 0 ? "A" : "B",
+                title: index === 0 ? "Start Point" : "End Point",
+                icon: {
+                    url: index === 0 ?
+                        "http://maps.google.com/mapfiles/ms/icons/green-dot.png" :
+                        "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+                }
+            });
+
+            const infoWindow = new google.maps.InfoWindow({
+                content: `<div>
+            <strong>${index === 0 ? 'Start' : 'End'} Point</strong><br>
+            Lat: ${coord.lat}<br>
+            Lng: ${coord.lng}<br>
+            ${coord.recorded_at}
+        </div>`
+            });
+
+            marker.addListener("click", () => {
+                infoWindow.open(map, marker);
+            });
         });
 
-        directionsService.route({
-            origin: start,
-            destination: end,
-            travelMode: google.maps.TravelMode.DRIVING
-        }, function(response, status) {
-            if (status === "OK") {
-                directionsRenderer.setDirections(response);
-                map.fitBounds(response.routes[0].bounds); // 🔥 Fit map to full route
 
-                const distanceInMeters = response.routes[0].legs[0].distance.value;
-                const distanceInKm = (distanceInMeters / 1000).toFixed(2);
-                const display = document.getElementById("distance-display");
-                if (display) display.innerText = distanceInKm + " km";
-            } else {
-                alert("Directions request failed due to: " + status);
-            }
-        });
+        // ✅ Calculate total distance using haversine formula
+        let distance = 0;
+        for (let i = 1; i < pathCoordinates.length; i++) {
+            distance += haversineDistance(pathCoordinates[i - 1], pathCoordinates[i]);
+        }
 
-        // Custom Start Marker
-        new google.maps.Marker({
-            position: start,
-            map: map,
-            label: "A",
-            title: "Start Location"
-        });
-
-        // Custom End Marker
-        new google.maps.Marker({
-            position: end,
-            map: map,
-            label: "B",
-            title: "End Location"
-        });
+        // ✅ Show calculated distance in designated span
+        document.getElementById("distance-display").innerText = distance.toFixed(2) + " km";
     }
 
+    // ✅ Converts degrees to radians
+    function toRad(value) {
+        return value * Math.PI / 180;
+    }
+
+    // ✅ Calculate distance between two coordinates
+    function haversineDistance(coord1, coord2) {
+        const R = 6371; // Earth radius in km
+        const dLat = toRad(coord2.lat - coord1.lat);
+        const dLon = toRad(coord2.lng - coord1.lng);
+        const lat1 = toRad(coord1.lat);
+        const lat2 = toRad(coord2.lat);
+
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+    }
+
+    // ✅ Initialize the map when page loads
     document.addEventListener("DOMContentLoaded", initMap);
 </script>
-
