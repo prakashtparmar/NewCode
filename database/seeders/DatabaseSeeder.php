@@ -32,8 +32,9 @@ class DatabaseSeeder extends Seeder
             PincodeSeeder::class,
             MultiCompanySeeder::class,
             CustomerSeeder::class,
-            TripSeeder::class,
+            // TripSeeder::class,
             TripWithLogsSeeder::class,
+            LookupTablesSeeder::class,
 
         ]);
 

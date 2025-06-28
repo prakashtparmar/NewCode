@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+
 class Trip extends Model
 {
     protected $fillable = [
@@ -21,11 +22,17 @@ class Trip extends Model
         'total_distance_km',
         'travel_mode',
         'purpose',
+        'tour_type',
+        'place_to_visit',
+        'starting_km',
+        'end_km',
         'status',
         'approval_status',
         'approval_reason',
         'approved_by',
         'approved_at',
+        'start_km_photo',
+        'end_km_photo',
     ];
 
     // Relationships

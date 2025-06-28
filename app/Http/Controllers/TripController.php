@@ -10,57 +10,55 @@ use Illuminate\Support\Facades\DB;
 
 class TripController extends Controller
 {
-    /**
-     * Display a listing of the trips based on user roles.
-     */
     public function index()
     {
         $user = Auth::user();
-
-        // Load related models with Eager Loading
         $query = Trip::with(['user', 'company', 'approvedByUser', 'tripLogs']);
 
         if ($user->hasRole('master_admin')) {
-            // Master admin sees all trips
             $trips = $query->latest()->get();
         } elseif ($user->hasRole('sub_admin')) {
-            // Sub-admin sees company trips
             $trips = $query->where('company_id', $user->company_id)->latest()->get();
         } else {
-            // Regular user sees their own trips
             $trips = $query->where('user_id', $user->id)->latest()->get();
         }
 
         return view('admin.trips.index', compact('trips'));
     }
 
-    /**
-     * Show the form for creating a new trip.
-     */
     public function create()
     {
         return view('admin.trips.create');
     }
 
-    /**
-     * Store a newly created trip in storage.
-     */
     public function store(Request $request)
     {
-        // Validate input data
         $validated = $request->validate([
             'trip_date'      => 'required|date',
             'start_time'     => 'required',
-            'end_time'       => 'required',
+            'end_time'       => 'nullable',
             'start_lat'      => 'required|numeric',
             'start_lng'      => 'required|numeric',
             'end_lat'        => 'required|numeric',
             'end_lng'        => 'required|numeric',
             'travel_mode'    => 'required|string',
             'purpose'        => 'nullable|string',
+            'tour_type'      => 'nullable|string',
+            'place_to_visit' => 'nullable|string',
+            'starting_km'    => 'nullable|string',
+            'end_km'         => 'nullable|string',
+            'start_km_photo' => 'nullable|mimes:jpeg,jpg,png,bmp,gif,svg,webp,tiff,ico|max:5120',
+            'end_km_photo'   => 'nullable|mimes:jpeg,jpg,png,bmp,gif,svg,webp,tiff,ico|max:5120',
         ]);
 
-        // Calculate distance between start and end coordinates
+        $startKmPhoto = $request->hasFile('start_km_photo')
+            ? $request->file('start_km_photo')->store('trip_photos', 'public')
+            : null;
+
+        $endKmPhoto = $request->hasFile('end_km_photo')
+            ? $request->file('end_km_photo')->store('trip_photos', 'public')
+            : null;
+
         $distance = $this->calculateDistance(
             $request->start_lat,
             $request->start_lng,
@@ -68,10 +66,11 @@ class TripController extends Controller
             $request->end_lng
         );
 
-        // Create a new trip record
+        $user = Auth::user();
+
         Trip::create([
-            'user_id'           => Auth::id(),
-            'company_id'        => Auth::user()->company_id,
+            'user_id'           => $user->id,
+            'company_id'        => $user->hasRole('master_admin') ? 1 : $user->company_id,
             'trip_date'         => $request->trip_date,
             'start_time'        => $request->start_time,
             'end_time'          => $request->end_time,
@@ -82,6 +81,12 @@ class TripController extends Controller
             'total_distance_km' => $distance,
             'travel_mode'       => $request->travel_mode,
             'purpose'           => $request->purpose,
+            'tour_type'         => $request->tour_type,
+            'place_to_visit'    => $request->place_to_visit,
+            'starting_km'       => $request->starting_km,
+            'end_km'            => $request->end_km,
+            'start_km_photo'    => $startKmPhoto,
+            'end_km_photo'      => $endKmPhoto,
             'status'            => 'pending',
             'approval_status'   => 'pending',
         ]);
@@ -89,12 +94,8 @@ class TripController extends Controller
         return redirect()->route('trips.index')->with('success', 'Trip added successfully.');
     }
 
-    /**
-     * Display the specified trip details along with trip logs.
-     */
     public function show(Trip $trip)
     {
-        // Fetch trip logs sorted by time
         $tripLogs = TripLog::where('trip_id', $trip->id)
             ->orderBy('recorded_at')
             ->get(['latitude', 'longitude', 'recorded_at']);
@@ -102,35 +103,43 @@ class TripController extends Controller
         return view('admin.trips.show', compact('trip', 'tripLogs'));
     }
 
-    /**
-     * Show the form for editing the specified trip.
-     */
     public function edit(Trip $trip)
     {
         return view('admin.trips.edit', compact('trip'));
     }
 
-    /**
-     * Update the specified trip in storage.
-     */
     public function update(Request $request, Trip $trip)
     {
-        // Validate input data
         $validated = $request->validate([
             'trip_date'       => 'required|date',
             'start_time'      => 'required',
-            'end_time'        => 'required',
+            'end_time'        => 'nullable',
             'start_lat'       => 'required|numeric',
             'start_lng'       => 'required|numeric',
             'end_lat'         => 'required|numeric',
             'end_lng'         => 'required|numeric',
             'travel_mode'     => 'required|string',
             'purpose'         => 'nullable|string',
+            'tour_type'       => 'nullable|string',
+            'place_to_visit'  => 'nullable|string',
+            'starting_km'     => 'nullable|string',
+            'end_km'          => 'nullable|string',
             'approval_status' => 'required|in:pending,approved,denied',
             'approval_reason' => 'nullable|string|max:255',
+            'start_km_photo'  => 'nullable|mimes:jpeg,jpg,png,bmp,gif,svg,webp,tiff,ico|max:5120',
+            'end_km_photo'    => 'nullable|mimes:jpeg,jpg,png,bmp,gif,svg,webp,tiff,ico|max:5120',
         ]);
 
-        // Update trip with new details
+        $startKmPhoto = $trip->start_km_photo;
+        if ($request->hasFile('start_km_photo')) {
+            $startKmPhoto = $request->file('start_km_photo')->store('trip_photos', 'public');
+        }
+
+        $endKmPhoto = $trip->end_km_photo;
+        if ($request->hasFile('end_km_photo')) {
+            $endKmPhoto = $request->file('end_km_photo')->store('trip_photos', 'public');
+        }
+
         $trip->update([
             'trip_date'         => $request->trip_date,
             'start_time'        => $request->start_time,
@@ -141,6 +150,12 @@ class TripController extends Controller
             'end_lng'           => $request->end_lng,
             'travel_mode'       => $request->travel_mode,
             'purpose'           => $request->purpose,
+            'tour_type'         => $request->tour_type,
+            'place_to_visit'    => $request->place_to_visit,
+            'starting_km'       => $request->starting_km,
+            'end_km'            => $request->end_km,
+            'start_km_photo'    => $startKmPhoto,
+            'end_km_photo'      => $endKmPhoto,
             'total_distance_km' => $this->calculateDistance(
                 $request->start_lat,
                 $request->start_lng,
@@ -156,33 +171,22 @@ class TripController extends Controller
         return redirect()->route('trips.index')->with('success', 'Trip updated successfully.');
     }
 
-    /**
-     * Remove the specified trip from storage.
-     */
     public function destroy(Trip $trip)
     {
         $trip->delete();
         return redirect()->route('trips.index')->with('success', 'Trip deleted successfully.');
     }
 
-    /**
-     * Approve or deny a trip with optional reason and calculate distance from trip logs.
-     */
     public function approve(Request $request, $id)
     {
         $trip = Trip::findOrFail($id);
-
         $status = $request->input('status', 'approved');
         $reason = $request->input('reason');
 
-        // Validate reason if trip is denied
         if ($status === 'denied') {
-            $request->validate([
-                'reason' => 'required|string|max:255'
-            ]);
+            $request->validate(['reason' => 'required|string|max:255']);
         }
 
-        // Calculate distance based on logs instead of coordinates
         $calculatedDistance = $this->calculateDistanceFromLogs($trip->id);
 
         $trip->update([
@@ -196,9 +200,6 @@ class TripController extends Controller
         return redirect()->back()->with('success', 'Trip approval status updated.');
     }
 
-    /**
-     * Add a single trip log point (used for live tracking).
-     */
     public function logPoint(Request $request)
     {
         $request->validate([
@@ -218,9 +219,6 @@ class TripController extends Controller
         return response()->json(['status' => 'success', 'log' => $log]);
     }
 
-    /**
-     * Fetch all trip logs in JSON format (used for map or frontend replay).
-     */
     public function logs(Trip $trip)
     {
         return response()->json(
@@ -228,20 +226,10 @@ class TripController extends Controller
         );
     }
 
-    /**
-     * Update trip's start and end coordinates using the first and last trip log.
-     */
     public function updateTripCoordinates($tripId)
     {
-        $startLog = DB::table('trip_logs')
-            ->where('trip_id', $tripId)
-            ->orderBy('recorded_at', 'asc')
-            ->first();
-
-        $endLog = DB::table('trip_logs')
-            ->where('trip_id', $tripId)
-            ->orderBy('recorded_at', 'desc')
-            ->first();
+        $startLog = DB::table('trip_logs')->where('trip_id', $tripId)->orderBy('recorded_at')->first();
+        $endLog   = DB::table('trip_logs')->where('trip_id', $tripId)->orderByDesc('recorded_at')->first();
 
         if ($startLog && $endLog) {
             DB::table('trips')->where('id', $tripId)->update([
@@ -253,39 +241,75 @@ class TripController extends Controller
         }
     }
 
-    /**
-     * Calculate distance between two latitude-longitude points using Haversine formula.
-     */
+    public function completeTrip($tripId)
+    {
+        $trip = Trip::findOrFail($tripId);
+        $endLog = TripLog::where('trip_id', $tripId)->orderByDesc('recorded_at')->first();
+
+        if ($endLog) {
+            $trip->end_lat = $endLog->latitude;
+            $trip->end_lng = $endLog->longitude;
+            $trip->end_time = now();
+        }
+
+        $trip->total_distance_km = $this->calculateDistanceFromLogs($tripId);
+        $trip->status = 'completed';
+        $trip->save();
+
+        return redirect()->back()->with('success', 'Trip marked as completed.');
+    }
+
+    public function toggleStatus(Request $request, Trip $trip)
+{
+    $trip->status = $request->status;
+    $trip->save();
+
+    return redirect()->back()->with('success', 'Trip status updated successfully.');
+}
+
+
     private function calculateDistance($lat1, $lon1, $lat2, $lon2)
     {
         $theta = $lon1 - $lon2;
         $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +
-                cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
         $dist = acos($dist);
         $dist = rad2deg($dist);
-        $km = $dist * 60 * 1.1515 * 1.609344;
-
+        $km   = $dist * 111.13384;
         return round($km, 2);
     }
 
-    /**
-     * Calculate total trip distance using all logged points.
-     */
     private function calculateDistanceFromLogs($tripId)
     {
         $logs = TripLog::where('trip_id', $tripId)->orderBy('recorded_at')->get();
-
         if ($logs->count() < 2) return 0;
 
         $distance = 0;
-
         for ($i = 1; $i < $logs->count(); $i++) {
             $distance += $this->calculateDistance(
-                $logs[$i - 1]->latitude, $logs[$i - 1]->longitude,
-                $logs[$i]->latitude, $logs[$i]->longitude
+                $logs[$i - 1]->latitude,
+                $logs[$i - 1]->longitude,
+                $logs[$i]->latitude,
+                $logs[$i]->longitude
             );
         }
-
         return round($distance, 2);
+    }
+
+    public function getDropdownValues($type)
+    {
+        $tableMap = [
+            'travel_mode' => 'travel_modes',
+            'purpose'     => 'purposes',
+            'tour_type'   => 'tour_types'
+        ];
+
+        if (!array_key_exists($type, $tableMap)) {
+            return response()->json(['status' => 'error', 'message' => 'Invalid type'], 400);
+        }
+
+        $values = DB::table($tableMap[$type])->orderBy('name')->pluck('name');
+
+        return response()->json(['status' => 'success', 'values' => $values]);
     }
 }

@@ -2,6 +2,7 @@
 
 @section('content')
     <main class="app-main">
+
         {{-- Header Section --}}
         <div class="app-content-header">
             <div class="container-fluid">
@@ -23,13 +24,11 @@
         <div class="app-content">
             <div class="container-fluid">
                 <div class="card mb-4">
-                    {{-- Card Header Section --}}
                     <div class="card-header">
                         <h5 class="card-title">Trip List</h5>
                         <a href="{{ route('trips.create') }}" class="btn btn-primary float-end">Add Trip</a>
                     </div>
 
-                    {{-- Card Body Section --}}
                     <div class="card-body table-responsive">
                         @if (session('success'))
                             <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
@@ -53,12 +52,19 @@
                                     <th>Date</th>
                                     <th>Mode</th>
                                     <th>Distance (km)</th>
+                                    <th>Place To Visit</th>
+                                    <th>Start KM</th>
+
+                                    <th>Start KM Photo</th>
+                                    <th>End KM</th>
+                                    <th>End KM Photo</th>
                                     <th>Status</th>
                                     <th>Approval</th>
                                     <th>Logs</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
+
                             <tbody>
                                 @forelse($trips as $trip)
                                     <tr>
@@ -67,59 +73,93 @@
                                         <td>{{ $trip->trip_date }}</td>
                                         <td>{{ $trip->travel_mode }}</td>
                                         <td>{{ $trip->total_distance_km }}</td>
+                                        <td>{{ $trip->place_to_visit ?? '-' }}</td>
+                                        <td>{{ $trip->starting_km ?? '-' }}</td>
+
+
+                                        {{-- Start KM Photo --}}
                                         <td>
-                                            <span
-                                                class="badge {{ $trip->status === 'completed' ? 'bg-success' : 'bg-warning' }}">
-                                                {{ ucfirst($trip->status) }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            @if ($trip->approval_status === 'pending')
-                                                <div class="dropdown">
-                                                    <button class="btn btn-sm btn-secondary dropdown-toggle" type="button"
-                                                        id="approvalDropdown{{ $trip->id }}" data-bs-toggle="dropdown"
-                                                        aria-expanded="false">
-                                                        Pending
-                                                    </button>
-                                                    <ul class="dropdown-menu"
-                                                        aria-labelledby="approvalDropdown{{ $trip->id }}">
-                                                        <li>
-                                                            <form method="POST"
-                                                                action="{{ route('trips.approve', $trip->id) }}">
-                                                                @csrf
-                                                                <input type="hidden" name="status" value="approved">
-                                                                <button type="submit" class="dropdown-item text-success">
-                                                                    Approve
-                                                                </button>
-                                                            </form>
-                                                        </li>
-                                                        <li>
-                                                            <a class="dropdown-item text-danger" href="#"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#denyModal{{ $trip->id }}">
-                                                                Deny
-                                                            </a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
+                                            @if ($trip->start_km_photo)
+                                                <a href="{{ asset('storage/' . $trip->start_km_photo) }}" target="_blank">
+                                                    <img src="{{ asset('storage/' . $trip->start_km_photo) }}"
+                                                        alt="Start Photo" width="50">
+                                                </a>
                                             @else
-                                                <span
-                                                    class="badge 
-                                                    @if ($trip->approval_status == 'approved') bg-success
-                                                    @elseif($trip->approval_status == 'denied') bg-danger
-                                                    @else bg-secondary @endif">
-                                                    {{ ucfirst($trip->approval_status) }}
-                                                </span>
-                                                @if ($trip->approval_status === 'denied' && $trip->approval_reason)
-                                                    <br><small class="text-muted">Reason:
-                                                        {{ $trip->approval_reason }}</small>
-                                                @endif
-                                                @if ($trip->approvedByUser)
-                                                    <br><small class="text-muted">By:
-                                                        {{ $trip->approvedByUser->name }}</small>
-                                                @endif
+                                                -
                                             @endif
                                         </td>
+
+                                        <td>{{ $trip->end_km ?? '-' }}</td>
+
+                                        {{-- End KM Photo --}}
+                                        <td>
+                                            @if ($trip->end_km_photo)
+                                                <a href="{{ asset('storage/' . $trip->end_km_photo) }}" target="_blank">
+                                                    <img src="{{ asset('storage/' . $trip->end_km_photo) }}"
+                                                        alt="End Photo" width="50">
+                                                </a>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+
+                                        <td>
+    <form method="POST" action="{{ route('trips.status.toggle', $trip->id) }}">
+        @csrf
+        <input type="hidden" name="status"
+            value="{{ $trip->status === 'completed' ? 'pending' : 'completed' }}">
+
+        <button type="submit"
+            class="badge {{ $trip->status === 'completed' ? 'bg-success' : 'bg-warning' }}"
+            onclick="return confirm('Are you sure you want to mark this trip as {{ $trip->status === 'completed' ? 'Pending' : 'Completed' }}?')">
+            {{ ucfirst($trip->status) }}
+        </button>
+    </form>
+</td>
+
+
+                                        <td>
+    @if ($trip->approval_status === 'pending')
+        <div class="dropdown">
+            <button class="badge bg-warning text-dark dropdown-toggle border-0"
+                type="button" id="approvalDropdown{{ $trip->id }}" data-bs-toggle="dropdown">
+                Pending
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <form method="POST" action="{{ route('trips.approve', $trip->id) }}">
+                        @csrf
+                        <input type="hidden" name="status" value="approved">
+                        <button type="submit" class="dropdown-item text-success">
+                            <i class="fas fa-check-circle me-2"></i> Approve
+                        </button>
+                    </form>
+                </li>
+                <li>
+                    <a class="dropdown-item text-danger" href="#"
+                        data-bs-toggle="modal" data-bs-target="#denyModal{{ $trip->id }}">
+                        <i class="fas fa-times-circle me-2"></i> Deny
+                    </a>
+                </li>
+            </ul>
+        </div>
+    @else
+        <span class="badge 
+            @if ($trip->approval_status == 'approved') bg-success
+            @elseif($trip->approval_status == 'denied') bg-danger
+            @else bg-secondary @endif">
+            {{ ucfirst($trip->approval_status) }}
+        </span>
+        @if ($trip->approval_status === 'denied' && $trip->approval_reason)
+            <br><small class="text-muted">Reason: {{ $trip->approval_reason }}</small>
+        @endif
+        @if ($trip->approvedByUser)
+            <br><small class="text-muted">By: {{ $trip->approvedByUser->name }}</small>
+        @endif
+    @endif
+</td>
+
+
                                         <td>
                                             {{ $trip->tripLogs->count() }} logs<br>
                                             <a href="#" class="text-primary" data-bs-toggle="modal"
@@ -127,7 +167,7 @@
 
                                             {{-- Log Modal --}}
                                             <div class="modal fade" id="logModal{{ $trip->id }}" tabindex="-1"
-                                                aria-labelledby="logModalLabel{{ $trip->id }}" aria-hidden="true">
+                                                aria-hidden="true">
                                                 <div class="modal-dialog modal-lg">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
@@ -168,19 +208,19 @@
                                                 </div>
                                             </div>
                                         </td>
+
                                         <td>
                                             <a href="{{ route('trips.show', $trip) }}" class="text-info me-2"
-                                                title="View">
-                                                <i class="fas fa-eye"></i></a>&nbsp;
+                                                title="View"><i class="fas fa-eye"></i></a>
                                             <a href="{{ route('trips.edit', $trip) }}" class="text-warning me-2"
-                                                title="Edit">
-                                                <i class="fas fa-edit"></i></a>&nbsp;
+                                                title="Edit"><i class="fas fa-edit"></i></a>
                                             <form action="{{ route('trips.destroy', $trip) }}" method="POST"
                                                 class="d-inline"
                                                 onsubmit="return confirm('Are you sure you want to delete this trip?')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-link p-0 text-danger" title="Delete">
+                                                <button type="submit" class="btn btn-link p-0 text-danger"
+                                                    title="Delete">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
@@ -188,7 +228,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="9" class="text-center">No trips found.</td>
+                                        <td colspan="14" class="text-center">No trips found.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -198,7 +238,7 @@
                         @foreach ($trips as $trip)
                             @if ($trip->approval_status === 'pending')
                                 <div class="modal fade" id="denyModal{{ $trip->id }}" tabindex="-1"
-                                    aria-labelledby="denyModalLabel{{ $trip->id }}" aria-hidden="true">
+                                    aria-hidden="true">
                                     <div class="modal-dialog">
                                         <form method="POST" action="{{ route('trips.approve', $trip->id) }}"
                                             class="modal-content">
@@ -235,5 +275,6 @@
                 </div>
             </div>
         </div>
+
     </main>
 @endsection

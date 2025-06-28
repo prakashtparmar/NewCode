@@ -44,9 +44,18 @@
                             {{ ucfirst($trip->approval_status) ?? 'Pending' }}
                         </span>
                     </div>
+
                     <div class="col-md-12 mb-3"><strong>Purpose:</strong><br>{{ $trip->purpose }}</div>
+
+                    <div class="col-md-6 mb-3"><strong>Tour Type:</strong><br>{{ $trip->tour_type }}</div>
+                    <div class="col-md-6 mb-3"><strong>Place To Visit:</strong><br>{{ $trip->place_to_visit }}</div>
+
+                    <div class="col-md-6 mb-3"><strong>Starting KM:</strong><br>{{ $trip->starting_km }}</div>
+                    <div class="col-md-6 mb-3"><strong>End KM:</strong><br>{{ $trip->end_km }}</div>
+
                     <div class="col-md-6 mb-3"><strong>Start Location:</strong><br>{{ $trip->start_lat }}, {{ $trip->start_lng }}</div>
                     <div class="col-md-6 mb-3"><strong>End Location:</strong><br>{{ $trip->end_lat }}, {{ $trip->end_lng }}</div>
+
                     <div class="col-md-6 mb-3">
                         <strong>Total Distance (km):</strong><br>
                         <span id="distance-display">{{ $trip->total_distance_km ?? 'Calculating...' }}</span>
@@ -59,12 +68,11 @@
                     </div>
 
                     <!-- Back Button -->
-<div class="col-md-12 mt-3">
-    <a href="{{ route('trips.index') }}" class="btn btn-secondary">
-        ← Back to Trips
-    </a>
-</div>
-
+                    <div class="col-md-12 mt-3">
+                        <a href="{{ route('trips.index') }}" class="btn btn-secondary">
+                            ← Back to Trips
+                        </a>
+                    </div>
 
                     <!-- Pass logs to JS -->
                     <script>
@@ -75,5 +83,4 @@
         </div>
     </div>
 </main>
-
 @endsection
