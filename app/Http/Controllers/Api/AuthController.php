@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Company;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -97,5 +98,22 @@ class AuthController extends BaseController
     {
         $request->user()->currentAccessToken()->delete();
         return $this->sendResponse(null, 'Log out successful');
+    }
+    public function userDetail()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return $this->sendError('User not found.', ['error' => 'User not found']);
+        }
+
+        if (!$user->hasRole('master_admin') && $user->company_id !== $user->company_id) {
+            return $this->sendError('Unauthorized', ['error' => 'User not found']);
+        }
+
+        $user->image = $user->image ? asset('storage/' . $user->image) : null;
+        $success['user'] =  $user;
+        // Return response with the token and user info
+        return $this->sendResponse($success, 'User detail fetched successfully.');
     }
 }

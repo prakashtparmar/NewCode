@@ -10,11 +10,12 @@ use App\Http\Controllers\Api\TripLogController;
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-
+Route::get('locations', [LocationController::class, 'index']);
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     
     // Auth
+    Route::post('/userDetail', [AuthController::class, 'userDetail']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // User
@@ -40,6 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/trips/{id}', [TripController::class, 'destroy']);
     Route::post('/trips/{id}/approve', [TripController::class, 'approve']);
     Route::post('/trips/{id}/update-coordinates', [TripController::class, 'updateTripCoordinates']);
+    Route::get('/trip/active}', [TripController::class, 'lastActive']);
 
     // Trip Logs
     Route::post('/trip-logs', [TripLogController::class, 'logPoint']);

@@ -17,8 +17,11 @@ class City extends Model
     }
 
     public function pincodes()
-{
-    return $this->hasMany(Pincode::class);
-}
-
+    {
+        return $this->hasMany(Pincode::class);
+    }
+    public function districts()
+    {
+        return $this->hasMany(District::class);
+    }
 }

@@ -7,9 +7,10 @@ use App\Models\District;
 use App\Models\City;
 use App\Models\Tehsil;
 use App\Models\Pincode;
+use App\Models\State;
 use Illuminate\Http\Request;
 
-class LocationController extends Controller
+class LocationController extends BaseController
 {
     public function getDistricts(Request $request, $state_id)
     {
@@ -29,5 +30,14 @@ class LocationController extends Controller
     public function getPincodes(Request $request, $city_id)
     {
         return response()->json(Pincode::where('city_id', $city_id)->get());
+    }
+
+    public function index()
+    {
+        $states = State::with([
+            'cities.districts.tehsils' // Correct relationship chain
+        ])
+            ->get();
+        return $this->sendResponse($states, 'User detail fetched successfully.');
     }
 }

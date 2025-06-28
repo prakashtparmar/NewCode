@@ -8,11 +8,11 @@ use App\Models\Trip;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class TripController extends Controller
+class TripController extends BaseController
 {
     public function index()
     {
-        $user = Auth::user();
+        $user = Auth::user()->load("role");
         $query = Trip::with(['user', 'company', 'approvedByUser', 'tripLogs']);
 
         if ($user->hasRole('master_admin')) {
@@ -30,12 +30,11 @@ class TripController extends Controller
     {
         $validated = $request->validate([
             'trip_date'    => 'required|date',
-            'start_time'   => 'required',
-            'end_time'     => 'required',
+            'start_time'   => 'required|time',
             'start_lat'    => 'required|numeric',
             'start_lng'    => 'required|numeric',
-            'end_lat'      => 'required|numeric',
-            'end_lng'      => 'required|numeric',
+            'end_lat'      => 'nullable|numeric',
+            'end_lng'      => 'nullable|numeric',
             'travel_mode'  => 'required|string',
             'purpose'      => 'nullable|string',
         ]);
@@ -63,8 +62,7 @@ class TripController extends Controller
             'status'            => 'pending',
             'approval_status'   => 'pending',
         ]);
-
-        return response()->json(['status' => 'success', 'trip' => $trip]);
+        return $this->sendResponse($trip, "Trip has been created");
     }
 
     public function show($id)
@@ -76,6 +74,7 @@ class TripController extends Controller
     public function update(Request $request, $id)
     {
         $trip = Trip::findOrFail($id);
+        $user = Auth::user();
 
         $validated = $request->validate([
             'trip_date'       => 'required|date',
@@ -109,11 +108,11 @@ class TripController extends Controller
             ),
             'approval_status'   => $request->approval_status,
             'approval_reason'   => $request->approval_status === 'denied' ? $request->approval_reason : null,
-            'approved_by'       => in_array($request->approval_status, ['approved', 'denied']) ? auth()->id() : null,
+            'approved_by'       => in_array($request->approval_status, ['approved', 'denied']) ? $user->id() : null,
             'approved_at'       => in_array($request->approval_status, ['approved', 'denied']) ? now() : null,
         ]);
 
-        return response()->json(['status' => 'success', 'message' => 'Trip updated']);
+        return $this->sendResponse($trip, "Trip has been updated");
     }
 
     public function destroy($id)
@@ -181,5 +180,20 @@ class TripController extends Controller
         $km = $dist * 60 * 1.1515 * 1.609344;
 
         return round($km, 2);
+    }
+    public function lastActive()
+    {
+        $user = Auth::user();
+        $trip = Trip::where('user_id', $user->id)
+            ->whereIn('status', ['pending', 'approved'])
+            ->latest('trip_date')
+            ->latest('start_time')
+            ->first();
+
+        if (!$trip) {
+            return response()->json(['message' => 'No active trips found'], 404);
+        }
+
+        return response()->json($trip);
     }
 }
