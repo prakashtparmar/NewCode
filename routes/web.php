@@ -25,13 +25,15 @@ Route::prefix('admin')->group(function () {
     Route::post('login', [AdminController::class, 'store'])->name('auth.login.request');
     Route::get('logout', [AdminController::class, 'destroy'])->name('admin.logout');
 
+    // ✅ Public AJAX dropdown data route (before middleware)
+    Route::get('dropdown-values/{type}', [TripController::class, 'getDropdownValues'])->name('dropdown.values');
+
     // Protected Routes
     Route::middleware(['admin', 'last_seen'])->group(function () {
 
         // Dashboard
         Route::get('dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
         Route::delete('/customers/bulk-delete', [CustomerController::class, 'bulkDelete'])->name('customers.bulk-delete');
-
 
         // Multi-Tenant Group
         Route::middleware(['company.access'])->group(function () {
@@ -48,12 +50,16 @@ Route::prefix('admin')->group(function () {
 
             // Customers
             Route::resource('customers', CustomerController::class);
-            // Route::patch('customers/{id}/toggle', [CustomerController::class, 'toggle'])->name('customers.toggle');
             Route::patch('/customers/{id}/toggle', [CustomerController::class, 'toggleStatus'])->name('customers.toggle');
 
+            // Trips
             Route::resource('trips', TripController::class);
             Route::post('/trips/{trip}/approve', [TripController::class, 'approve'])->name('trips.approve');
 
+            // ✅ New: Mark trip complete
+            // Route::post('/trips/{trip}/complete', [TripController::class, 'completeTrip'])->name('trips.complete');
+            Route::post('/admin/trips/{id}/complete', [TripController::class, 'completeTrip'])->name('trips.complete');
+            Route::post('/trips/{trip}/toggle-status', [TripController::class, 'toggleStatus'])->name('trips.status.toggle');
 
 
             // ✅ AJAX Executive Fetch by Company (used in create/edit customer)
@@ -77,8 +83,6 @@ Route::prefix('admin')->group(function () {
         // For viewing trip route
         Route::get('/trips/{trip}/map', [TripController::class, 'showRoute'])->name('trip.map');
         Route::get('/trips/{trip}/logs', [TripController::class, 'logs'])->name('trips.logs');
-
-        
 
     });
 });

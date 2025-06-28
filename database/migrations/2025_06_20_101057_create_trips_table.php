@@ -22,6 +22,13 @@ return new class extends Migration {
             $table->decimal('total_distance_km', 8, 2)->nullable();
             $table->string('travel_mode');
             $table->string('purpose')->nullable();
+            $table->string('tour_type')->nullable();
+            $table->string('place_to_visit')->nullable();
+            $table->string('starting_km')->nullable();
+            $table->string('end_km')->nullable();
+            $table->string('start_km_photo')->nullable();
+            $table->string('end_km_photo')->nullable();
+
             $table->enum('status', ['pending', 'approved', 'denied', 'completed'])->default('pending');
 
             // ✅ Add approval_status field
