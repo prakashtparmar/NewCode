@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
-class UserController extends Controller
+class UserController extends BaseController
 {
     public function indexUsers(Request $request)
     {
@@ -71,16 +71,17 @@ class UserController extends Controller
         $user = User::find($id);
 
         if (!$user) {
-            return response()->json(['status' => false, 'message' => 'User not found'], 404);
+            return $this->sendError('User not found.', ['error' => 'User not found']);
         }
 
         if (!$request->user()->hasRole('master_admin') && $user->company_id !== $request->user()->company_id) {
-            return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
+            return $this->sendError('Unauthorized', ['error' => 'User not found']);
         }
 
         $user->image = $user->image ? asset('storage/' . $user->image) : null;
-
-        return response()->json(['status' => true, 'data' => $user]);
+        return $this->sendResponse([
+            'user' => $user
+        ], 'User fetch successfully.');
     }
 
     public function updateUser(Request $request, User $user)

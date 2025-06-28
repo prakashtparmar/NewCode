@@ -9,7 +9,7 @@ use App\Models\Company;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
-class AuthController extends Controller
+class AuthController extends BaseController
 {
     public function register(Request $request)
     {
@@ -42,12 +42,10 @@ class AuthController extends Controller
         $token = $user->createToken('api-token')->plainTextToken;
 
         $user->image = $user->image ? asset('storage/' . $user->image) : null;
-
-        return response()->json([
-            'message' => 'User registered successfully.',
-            'user'    => $user,
-            'token'   => $token,
-        ], 201);
+        return $this->sendResponse([
+            'token' => $token,
+            'user' => $user
+        ], 'User registered successfully.');
     }
 
     public function login(Request $request)
@@ -69,38 +67,35 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['status' => false, 'message' => 'Invalid credentials'], 401);
+            return $this->sendError('Unauthorized access.', ['error' => 'Invalid credentials']);
         }
 
         if (!$user->is_active) {
-            return response()->json(['status' => false, 'message' => 'Your account is inactive. Please contact the administrator.'], 403);
+            return $this->sendError('Unauthorized access.', ['error' => 'Your account is inactive. Please contact the administrator.']);
         }
 
         if ($user->roles()->count() === 0) {
-            return response()->json(['status' => false, 'message' => 'Role not assigned. Contact admin.'], 403);
+            return $this->sendError('Unauthorized Role.', ['error' => 'Role not assigned. Contact admin.']);
         }
 
         if (!$user->hasRole('master_admin')) {
             $company = Company::where('code', $request->company_id)->first();
             if (!$company || $user->company_id !== $company->id) {
-                return response()->json(['status' => false, 'message' => 'Invalid or mismatched company code!'], 403);
+                return $this->sendError('Unauthorized domain.', ['error' => 'Domain does not match user company']);
             }
         }
 
         $user->tokens()->where('name', 'api-token')->delete();
         $token = $user->createToken('api-token')->plainTextToken;
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Login successful',
-            'user' => $user->only(['id', 'name', 'email', 'company_id']),
+        return $this->sendResponse([
             'token' => $token,
-        ]);
+            'user' => $user
+        ], 'Login successful');
     }
 
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        return response()->json(['status' => true, 'message' => 'Logged out']);
+        return $this->sendResponse(null, 'Log out successful');
     }
 }
