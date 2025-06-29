@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Trip;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -12,18 +13,18 @@ class TripController extends BaseController
 {
     public function index()
     {
-        $user = Auth::user()->load("role");
+        $user = Auth::user()->load("roles");
         $query = Trip::with(['user', 'company', 'approvedByUser', 'tripLogs']);
 
         if ($user->hasRole('master_admin')) {
-            $trips = $query->latest()->get();
+            $trips = $query->latest()->paginate(10);
         } elseif ($user->hasRole('sub_admin')) {
-            $trips = $query->where('company_id', $user->company_id)->latest()->get();
+            $trips = $query->where('company_id', $user->company_id)->latest()->paginate(10);
         } else {
-            $trips = $query->where('user_id', $user->id)->latest()->get();
+            $trips = $query->where('user_id', $user->id)->latest()->paginate(10);
         }
 
-        return response()->json(['status' => 'success', 'trips' => $trips]);
+        return $this->sendResponse($trips, "Trips fetched successfully");
     }
 
     public function store(Request $request)
@@ -33,12 +34,16 @@ class TripController extends BaseController
             'start_time'   => 'required|time',
             'start_lat'    => 'required|numeric',
             'start_lng'    => 'required|numeric',
-            'end_lat'      => 'nullable|numeric',
-            'end_lng'      => 'nullable|numeric',
             'travel_mode'  => 'required|string',
-            'purpose'      => 'nullable|string',
+            'purpose'      => 'required|string',
+            'tour_type'      => 'required|string',
+            'place_to_visit' => 'required|string',
+            'starting_km'    => 'required|string',
+            'start_km_photo' => 'required|mimes:jpeg,jpg,png,bmp,gif,svg,webp,tiff,ico|max:5120',
         ]);
-
+        $startKmPhoto = $request->hasFile('start_km_photo')
+            ? $request->file('start_km_photo')->store('trip_photos', 'public')
+            : null;
         $distance = $this->calculateDistance(
             $request->start_lat,
             $request->start_lng,
@@ -51,18 +56,18 @@ class TripController extends BaseController
             'company_id'        => Auth::user()->company_id,
             'trip_date'         => $request->trip_date,
             'start_time'        => $request->start_time,
-            'end_time'          => $request->end_time,
             'start_lat'         => $request->start_lat,
             'start_lng'         => $request->start_lng,
-            'end_lat'           => $request->end_lat,
-            'end_lng'           => $request->end_lng,
-            'total_distance_km' => $distance,
             'travel_mode'       => $request->travel_mode,
             'purpose'           => $request->purpose,
+            'tour_type'         => $request->tour_type,
+            'place_to_visit'    => $request->place_to_visit,
+            'starting_km'       => $request->starting_km,
+            'start_km_photo'    => $startKmPhoto,
             'status'            => 'pending',
             'approval_status'   => 'pending',
         ]);
-        return $this->sendResponse($trip, "Trip has been created");
+        return $this->sendResponse($trip, "Trip has been created successfully");
     }
 
     public function show($id)
@@ -118,6 +123,10 @@ class TripController extends BaseController
     public function destroy($id)
     {
         $trip = Trip::findOrFail($id);
+        $user = Auth::user();
+        if ($trip->user_id !== $user->id) {
+            return $this->sendError('Trip is not assigned you', [], 403);
+        }
         $trip->delete();
 
         return response()->json(['status' => 'success', 'message' => 'Trip deleted']);
@@ -195,5 +204,50 @@ class TripController extends BaseController
         }
 
         return response()->json($trip);
+    }
+    public function close(Request $request, $id)
+    {
+        // 1️⃣  Authorise: only the owner (or an admin) may close the trip.
+
+        $trip = Trip::find($id);
+        if (!$trip) {
+            return $this->sendError('Trip not found.', [], 200);
+        }
+        // 2️⃣  Validate incoming data.
+        $validated = $request->validate([
+            'end_time' => 'required|date_format:H:i:s',   // send as 24h time, e.g. 17:45:00
+            'end_lat'  => 'required|numeric',
+            'end_lng'  => 'required|numeric',
+            'end_km'         => 'required|string',
+            'end_km_photo'   => 'required|mimes:jpeg,jpg,png,bmp,gif,svg,webp,tiff,ico|max:5120',
+            'status'   => 'in:completed',                 // optional override; default below
+        ]);
+
+        $user = Auth::user();
+        if ($trip->user_id !== $user->id) {
+            return $this->sendError('Trip is not assigned you', [], 403);
+        }
+
+        // 3️⃣ Already closed
+        if ($trip->status === 'completed') {
+            return $this->sendError('Trip is already closed.', [], 400);
+        }
+        $endKmPhoto = $request->hasFile('end_km_photo')
+            ? $request->file('end_km_photo')->store('trip_photos', 'public')
+            : null;
+
+        // 4️⃣  Update the trip.
+        $trip->update([
+            'end_time'          => $validated['end_time'],
+            'end_lat'           => $validated['end_lat'],
+            'end_lng'           => $validated['end_lng'],
+            'end_km'            => $request->end_km,
+            'end_km_photo'      => $endKmPhoto,
+            'status'            => $validated['status']   ?? 'completed',
+            'updated_at'        => Carbon::now(),         // or leave for Eloquent timestamps
+        ]);
+
+        // 5️⃣  Return a consistent API response.
+        return $this->sendResponse($trip, "Trip has been closed");
     }
 }

@@ -42,6 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/trips/{id}/approve', [TripController::class, 'approve']);
     Route::post('/trips/{id}/update-coordinates', [TripController::class, 'updateTripCoordinates']);
     Route::get('/trip/active}', [TripController::class, 'lastActive']);
+    Route::put('/trips/{trip}/close', [TripController::class, 'close']);
 
     // Trip Logs
     Route::post('/trip-logs', [TripLogController::class, 'logPoint']);
