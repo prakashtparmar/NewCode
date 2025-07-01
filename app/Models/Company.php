@@ -17,4 +17,12 @@ class Company extends Model
     {
         return $this->hasMany(\Spatie\Permission\Models\Role::class);
     }
+
+    /**
+     * Get the designations for the company.
+     */
+    public function designations()
+    {
+        return $this->hasMany(Designation::class);
+    }
 }

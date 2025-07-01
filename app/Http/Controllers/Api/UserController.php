@@ -5,6 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Company;
+use App\Models\State;
+use App\Models\District;
+use App\Models\City;
+use App\Models\Tehsil;
+use App\Models\Pincode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -165,5 +170,33 @@ class UserController extends Controller
         $user->image = $user->image ? asset('storage/' . $user->image) : null;
 
         return response()->json(['status' => true, 'data' => $user]);
+    }
+
+    // ✅ NEW — Get Districts by State ID
+    public function getDistricts($state_id)
+    {
+        $districts = District::where('state_id', $state_id)->get();
+        return response()->json(['status' => true, 'data' => $districts]);
+    }
+
+    // ✅ NEW — Get Cities by District ID
+    public function getCities($district_id)
+    {
+        $cities = City::where('district_id', $district_id)->get();
+        return response()->json(['status' => true, 'data' => $cities]);
+    }
+
+    // ✅ NEW — Get Tehsils by City ID
+    public function getTehsils($city_id)
+    {
+        $tehsils = Tehsil::where('city_id', $city_id)->get();
+        return response()->json(['status' => true, 'data' => $tehsils]);
+    }
+
+    // ✅ NEW — Get Pincodes by City ID
+    public function getPincodes($city_id)
+    {
+        $pincodes = Pincode::where('city_id', $city_id)->get();
+        return response()->json(['status' => true, 'data' => $pincodes]);
     }
 }

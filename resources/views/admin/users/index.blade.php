@@ -142,8 +142,10 @@
                                                         <td>{{ $user->created_at->format('Y-m-d') }}</td>
                                                         <td>{{ $user->user_code ?? '-' }}</td>
                                                         <td>{{ $user->mobile ?? '-' }}</td>
-                                                        <td>{{ $user->designation ?? '-' }}</td>
-                                                        <td>{{ $user->reporting_to ?? '-' }}</td>
+                                                        <td>{{ $user->designation->name ?? '-' }}</td>
+
+                                                        <td>{{ $user->reportingManager->name ?? '-' }}</td>
+
                                                         <td>{{ $user->headquarter ?? '-' }}</td>
                                                         <td>{{ $user->state->name ?? '-' }}</td>
                                                         <td>{{ $user->district->name ?? '-' }}</td>

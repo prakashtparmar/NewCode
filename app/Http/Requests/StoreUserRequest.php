@@ -33,7 +33,7 @@ class StoreUserRequest extends FormRequest
             'latitude' => 'nullable|string',
             'longitude' => 'nullable|string',
             'user_code' => 'nullable|string',
-            'designation' => 'nullable|string',
+            'designation_id' => 'nullable|exists:designations,id',
             'reporting_to' => 'nullable|string',
             'headquarter' => 'nullable|string',
             'user_type' => 'nullable|string',

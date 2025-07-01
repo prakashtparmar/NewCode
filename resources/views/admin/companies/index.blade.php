@@ -25,9 +25,11 @@
                         <div class="card mb-4">
                             <div class="card-header">
                                 <h3 class="card-title">Company Control Panel</h3>
-                                <a href="{{ route('companies.create') }}" class="btn btn-primary float-end">
-                                    Add New Company
-                                </a>
+                                @can('create_companies')
+                                    <a href="{{ route('companies.create') }}" class="btn btn-primary float-end">
+                                        Add New Company
+                                    </a>
+                                @endcan
                             </div>
 
                             <div class="card-body">
@@ -39,6 +41,7 @@
                                     </div>
                                 @endif
 
+                                @can('view_companies')
                                 <div class="table-responsive">
                                     <table id="companies-table" class="table table-bordered table-striped align-middle">
                                         <thead class="table-light">
@@ -51,7 +54,6 @@
                                                 @can('toggle_companies')
                                                     <th>Status</th>
                                                 @endcan
-
                                                 <th>Created At</th>
                                                 <th>Updated At</th>
                                                 <th>Actions</th>
@@ -65,10 +67,10 @@
                                                     <td>{{ $company->code ?? '-' }}</td>
                                                     <td>{{ $company->email ?? '-' }}</td>
                                                     <td>{{ $company->address ?? '-' }}</td>
+
                                                     @can('toggle_companies')
                                                         <td>
-                                                            <form action="{{ route('companies.toggle', $company->id) }}"
-                                                                method="POST">
+                                                            <form action="{{ route('companies.toggle', $company->id) }}" method="POST">
                                                                 @csrf
                                                                 @method('PATCH')
                                                                 <button type="submit"
@@ -79,36 +81,39 @@
                                                             </form>
                                                         </td>
                                                     @endcan
+
                                                     <td>{{ $company->created_at->format('Y-m-d H:i') }}</td>
                                                     <td>{{ $company->updated_at->format('Y-m-d H:i') }}</td>
                                                     <td>
-                                                        <a href="{{ route('companies.show', $company) }}"
-                                                            class="text-info me-2" title="View">
+                                                        <a href="{{ route('companies.show', $company) }}" class="text-info me-2" title="View">
                                                             <i class="fas fa-eye"></i></a>&nbsp;&nbsp;
-                                                        <a href="{{ route('companies.edit', $company) }}"
-                                                            class="text-warning me-2" title="Edit">
-                                                            <i class="fas fa-edit"></i></a>&nbsp;&nbsp;
-                                                        <form action="{{ route('companies.destroy', $company) }}"
-                                                            method="POST" class="d-inline"
-                                                            onsubmit="return confirm('Are you sure to delete this company?')">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn btn-link p-0 text-danger"
-                                                                title="Delete">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>
-                                                        </form>
+
+                                                        @can('edit_companies')
+                                                            <a href="{{ route('companies.edit', $company) }}" class="text-warning me-2" title="Edit">
+                                                                <i class="fas fa-edit"></i></a>&nbsp;&nbsp;
+                                                        @endcan
+
+                                                        @can('delete_companies')
+                                                            <form action="{{ route('companies.destroy', $company) }}" method="POST" class="d-inline"
+                                                                onsubmit="return confirm('Are you sure to delete this company?')">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-link p-0 text-danger" title="Delete">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </form>
+                                                        @endcan
                                                     </td>
                                                 </tr>
                                             @empty
                                                 <tr>
-                                                    <td colspan="9" class="text-center text-muted">No companies found.
-                                                    </td>
+                                                    <td colspan="9" class="text-center text-muted">No companies found.</td>
                                                 </tr>
                                             @endforelse
                                         </tbody>
                                     </table>
                                 </div>
+                                @endcan
 
                             </div>
                         </div>

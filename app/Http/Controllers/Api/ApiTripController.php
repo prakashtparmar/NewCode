@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Trip;
@@ -11,9 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class ApiTripController extends Controller
 {
-    /**
-     * Get trips for authenticated user based on their role.
-     */
     public function index()
     {
         $user = Auth::user();
@@ -30,21 +27,17 @@ class ApiTripController extends Controller
         return response()->json(['status' => 'success', 'trips' => $trips]);
     }
 
-    /**
-     * Store a new trip.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'trip_date'    => 'required|date',
-            'start_time'   => 'required',
-            'end_time'     => 'required',
-            'start_lat'    => 'required|numeric',
-            'start_lng'    => 'required|numeric',
-            'end_lat'      => 'required|numeric',
-            'end_lng'      => 'required|numeric',
-            'travel_mode'  => 'required|string',
-            'purpose'      => 'nullable|string',
+            'trip_date'      => 'required|date',
+            'start_time'     => 'required',
+            'end_time'       => 'nullable',
+            'start_lat'      => 'required|numeric',
+            'start_lng'      => 'required|numeric',
+            'end_lat'        => 'required|numeric',
+            'end_lng'        => 'required|numeric',
+            'travel_mode'    => 'required|string',
         ]);
 
         $distance = $this->calculateDistance(
@@ -54,9 +47,11 @@ class ApiTripController extends Controller
             $request->end_lng
         );
 
+        $user = Auth::user();
+
         $trip = Trip::create([
-            'user_id'           => Auth::id(),
-            'company_id'        => Auth::user()->company_id,
+            'user_id'           => $user->id,
+            'company_id'        => $user->hasRole('master_admin') ? 1 : $user->company_id,
             'trip_date'         => $request->trip_date,
             'start_time'        => $request->start_time,
             'end_time'          => $request->end_time,
@@ -66,7 +61,6 @@ class ApiTripController extends Controller
             'end_lng'           => $request->end_lng,
             'total_distance_km' => $distance,
             'travel_mode'       => $request->travel_mode,
-            'purpose'           => $request->purpose,
             'status'            => 'pending',
             'approval_status'   => 'pending',
         ]);
@@ -74,34 +68,23 @@ class ApiTripController extends Controller
         return response()->json(['status' => 'success', 'trip' => $trip]);
     }
 
-    /**
-     * Show a specific trip with logs.
-     */
-    public function show($id)
+    public function show(Trip $trip)
     {
-        $trip = Trip::with('tripLogs')->findOrFail($id);
+        $trip->load('tripLogs');
         return response()->json(['status' => 'success', 'trip' => $trip]);
     }
 
-    /**
-     * Update a trip.
-     */
-    public function update(Request $request, $id)
+    public function update(Request $request, Trip $trip)
     {
-        $trip = Trip::findOrFail($id);
-
         $validated = $request->validate([
             'trip_date'       => 'required|date',
             'start_time'      => 'required',
-            'end_time'        => 'required',
             'start_lat'       => 'required|numeric',
             'start_lng'       => 'required|numeric',
             'end_lat'         => 'required|numeric',
             'end_lng'         => 'required|numeric',
             'travel_mode'     => 'required|string',
-            'purpose'         => 'nullable|string',
             'approval_status' => 'required|in:pending,approved,denied',
-            'approval_reason' => 'nullable|string|max:255',
         ]);
 
         $trip->update([
@@ -113,7 +96,6 @@ class ApiTripController extends Controller
             'end_lat'           => $request->end_lat,
             'end_lng'           => $request->end_lng,
             'travel_mode'       => $request->travel_mode,
-            'purpose'           => $request->purpose,
             'total_distance_km' => $this->calculateDistance(
                 $request->start_lat,
                 $request->start_lng,
@@ -126,109 +108,56 @@ class ApiTripController extends Controller
             'approved_at'       => in_array($request->approval_status, ['approved', 'denied']) ? now() : null,
         ]);
 
-        return response()->json(['status' => 'success', 'message' => 'Trip updated']);
+        return response()->json(['status' => 'success', 'trip' => $trip]);
     }
 
-    /**
-     * Delete a trip.
-     */
-    public function destroy($id)
+    public function destroy(Trip $trip)
     {
-        $trip = Trip::findOrFail($id);
         $trip->delete();
-
-        return response()->json(['status' => 'success', 'message' => 'Trip deleted']);
+        return response()->json(['status' => 'success']);
     }
 
-    /**
-     * Approve or deny a trip.
-     */
-    public function approve(Request $request, $id)
-    {
-        $trip = Trip::findOrFail($id);
-        $status = $request->input('status', 'approved');
-        $reason = $request->input('reason');
-
-        if ($status === 'denied') {
-            $request->validate(['reason' => 'required|string|max:255']);
-        }
-
-        $calculatedDistance = $this->calculateDistanceFromLogs($trip->id);
-
-        $trip->update([
-            'approval_status'   => $status,
-            'approval_reason'   => $status === 'denied' ? $reason : null,
-            'approved_by'       => Auth::id(),
-            'approved_at'       => now(),
-            'total_distance_km' => $calculatedDistance,
-        ]);
-
-        return response()->json(['status' => 'success', 'message' => 'Trip approval updated']);
-    }
-
-    /**
-     * Log a GPS point for a trip.
-     */
     public function logPoint(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'trip_id'     => 'required|exists:trips,id',
             'latitude'    => 'required|numeric',
             'longitude'   => 'required|numeric',
-            'recorded_at' => 'nullable|date',
         ]);
 
         $log = TripLog::create([
             'trip_id'     => $request->trip_id,
             'latitude'    => $request->latitude,
             'longitude'   => $request->longitude,
-            'recorded_at' => $request->recorded_at ?? now(),
+            'recorded_at' => now(),
         ]);
 
         return response()->json(['status' => 'success', 'log' => $log]);
     }
 
-    /**
-     * Return logs for a trip.
-     */
-    public function logs($id)
+    public function logs(Trip $trip)
     {
-        $trip = Trip::findOrFail($id);
-        $logs = $trip->tripLogs()->select('latitude', 'longitude', 'recorded_at')->get();
-
-        return response()->json(['status' => 'success', 'logs' => $logs]);
+        return response()->json(['status' => 'success', 'logs' => $trip->tripLogs]);
     }
 
-    /**
-     * Update trip start/end coordinates using logs.
-     */
-    public function updateTripCoordinates($tripId)
+    public function completeTrip($tripId)
     {
-        $startLog = DB::table('trip_logs')
-            ->where('trip_id', $tripId)
-            ->orderBy('recorded_at', 'asc')
-            ->first();
+        $trip = Trip::findOrFail($tripId);
+        $endLog = TripLog::where('trip_id', $tripId)->orderByDesc('recorded_at')->first();
 
-        $endLog = DB::table('trip_logs')
-            ->where('trip_id', $tripId)
-            ->orderBy('recorded_at', 'desc')
-            ->first();
-
-        if ($startLog && $endLog) {
-            DB::table('trips')->where('id', $tripId)->update([
-                'start_lat' => $startLog->latitude,
-                'start_lng' => $startLog->longitude,
-                'end_lat'   => $endLog->latitude,
-                'end_lng'   => $endLog->longitude,
-            ]);
+        if ($endLog) {
+            $trip->end_lat = $endLog->latitude;
+            $trip->end_lng = $endLog->longitude;
+            $trip->end_time = now();
         }
 
-        return response()->json(['status' => 'success', 'message' => 'Trip coordinates updated']);
+        $trip->total_distance_km = $this->calculateDistanceFromLogs($tripId);
+        $trip->status = 'completed';
+        $trip->save();
+
+        return response()->json(['status' => 'success', 'trip' => $trip]);
     }
 
-    /**
-     * Calculate direct distance using coordinates.
-     */
     private function calculateDistance($lat1, $lon1, $lat2, $lon2)
     {
         $theta = $lon1 - $lon2;
@@ -236,28 +165,48 @@ class ApiTripController extends Controller
             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
         $dist = acos($dist);
         $dist = rad2deg($dist);
-        $km = $dist * 60 * 1.1515 * 1.609344;
-
+        $km   = $dist * 111.13384;
         return round($km, 2);
     }
 
-    /**
-     * Calculate total distance from logs.
-     */
     private function calculateDistanceFromLogs($tripId)
     {
         $logs = TripLog::where('trip_id', $tripId)->orderBy('recorded_at')->get();
-
         if ($logs->count() < 2) return 0;
 
         $distance = 0;
         for ($i = 1; $i < $logs->count(); $i++) {
             $distance += $this->calculateDistance(
-                $logs[$i - 1]->latitude, $logs[$i - 1]->longitude,
-                $logs[$i]->latitude, $logs[$i]->longitude
+                $logs[$i - 1]->latitude,
+                $logs[$i - 1]->longitude,
+                $logs[$i]->latitude,
+                $logs[$i]->longitude
             );
         }
-
         return round($distance, 2);
+    }
+
+    public function getDropdownValues($type)
+    {
+        $tableMap = [
+            'travel_mode' => 'travel_modes',
+            'purpose'     => 'purposes',
+            'tour_type'   => 'tour_types'
+        ];
+
+        if (!array_key_exists($type, $tableMap)) {
+            return response()->json(['status' => 'error', 'message' => 'Invalid type'], 400);
+        }
+
+        $user = Auth::user();
+        $query = DB::table($tableMap[$type])->orderBy('name');
+
+        if (!$user->hasRole('master_admin')) {
+            $query->where('company_id', $user->company_id);
+        }
+
+        $values = $query->pluck('name');
+
+        return response()->json(['status' => 'success', 'values' => $values]);
     }
 }

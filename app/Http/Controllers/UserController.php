@@ -14,6 +14,8 @@ use App\Models\District;
 use App\Models\City;
 use App\Models\Tehsil;
 use App\Models\Pincode;
+use App\Models\Designation;
+
 
 class UserController extends Controller
 {
@@ -24,7 +26,7 @@ class UserController extends Controller
     {
         Session::put('page', 'dashboard');
 
-        $query = User::with(['roles', 'permissions', 'state', 'district', 'tehsil', 'city'])->latest();
+        $query = User::with(['roles', 'permissions', 'state', 'district', 'tehsil', 'city', 'reportingManager'])->latest();
 
         // 🔐 Restrict users to current user's company unless master_admin
         if (auth()->user()->user_level !== 'master_admin') {
@@ -40,63 +42,71 @@ class UserController extends Controller
      * Show the form to create a new user.
      */
     public function create()
-{
-    $authUser = auth()->user();
+    {
+        $authUser = auth()->user();
 
-    $roles = $authUser->user_level === 'master_admin'
-        ? Role::all()
-        : Role::where('company_id', $authUser->company_id)->get();
+        $roles = $authUser->user_level === 'master_admin'
+            ? Role::all()
+            : Role::where('company_id', $authUser->company_id)->get();
 
-    $companies = $authUser->user_level === 'master_admin'
-        ? \App\Models\Company::all()
-        : collect(); // empty for non-master
+        $companies = $authUser->user_level === 'master_admin'
+            ? \App\Models\Company::all()
+            : collect(); // empty for non-master
 
-    return view('admin.users.create', [
-        'roles' => $roles,
-        'permissions' => Permission::all(),
-        'states' => State::all(),
-        'companies' => $companies,
-        'authUser' => $authUser,
-    ]);
-}
+        // ✅ Added: get users of same company for 'Reporting To' dropdown
+        $users = User::when($authUser->user_level !== 'master_admin', function ($query) use ($authUser) {
+                $query->where('company_id', $authUser->company_id);
+            })->get();
+
+        $designations = $authUser->user_level === 'master_admin'
+    ? Designation::all()
+    : Designation::where('company_id', $authUser->company_id)->get();
+
+        
+        return view('admin.users.create', [
+            'roles' => $roles,
+            'permissions' => Permission::all(),
+            'states' => State::all(),
+            'companies' => $companies,
+            'authUser' => $authUser,
+            'users' => $users, // ✅ added here
+            'designations' => $designations // ✅ passed to view
+        ]);
+    }
 
     /**
      * Store a newly created user in the database.
      */
     public function store(StoreUserRequest $request)
-{
-    $data = $request->validated();
+    {
+        $data = $request->validated();
 
-    if (!empty($data['password'])) {
-        $data['password'] = bcrypt($data['password']);
+        if (!empty($data['password'])) {
+            $data['password'] = bcrypt($data['password']);
+        }
+
+        if (auth()->user()->user_level !== 'master_admin') {
+            $data['company_id'] = auth()->user()->company_id;
+        }
+
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('users', 'public');
+        }
+
+        $user = User::create($data);
+
+        if ($request->filled('roles')) {
+            $user->syncRoles($request->input('roles'));
+        }
+
+        return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
-
-    // Conditionally assign company_id only if not master_admin
-    if (auth()->user()->user_level !== 'master_admin') {
-        $data['company_id'] = auth()->user()->company_id;
-    }
-
-    // Handle file upload
-    if ($request->hasFile('image')) {
-        $data['image'] = $request->file('image')->store('users', 'public');
-    }
-
-    $user = User::create($data);
-
-    // Safely sync roles if present
-    if ($request->filled('roles')) {
-        $user->syncRoles($request->input('roles'));
-    }
-
-    return redirect()->route('users.index')->with('success', 'User created successfully.');
-}
 
     /**
      * Display a specific user's details.
      */
     public function show(User $user)
     {
-        // 🔐 Restrict show access to same company
         if (auth()->user()->user_level !== 'master_admin' && $user->company_id !== auth()->user()->company_id) {
             abort(403, 'Unauthorized access to user.');
         }
@@ -105,26 +115,34 @@ class UserController extends Controller
     }
 
     /**
-     * Show the form to edit an existing user.
-     */
-    public function edit(User $user)
+ * Show the form to edit an existing user.
+ */
+public function edit(User $user)
 {
-    // 🔐 Restrict edit access to same company
     if (auth()->user()->user_level !== 'master_admin' && $user->company_id !== auth()->user()->company_id) {
         abort(403, 'Unauthorized access to user.');
     }
 
     $authUser = auth()->user();
 
-    // ✅ Show only roles for the logged-in user's company (unless master_admin)
     $roles = $authUser->user_level === 'master_admin'
         ? Role::all()
         : Role::where('company_id', $authUser->company_id)->get();
 
-    // ✅ Show all companies only to master_admin
     $companies = $authUser->user_level === 'master_admin'
         ? \App\Models\Company::all()
-        : collect(); // Empty for non-master
+        : collect();
+
+    // ✅ Added: get users of same company for 'Reporting To' dropdown
+    $users = User::when($authUser->user_level !== 'master_admin', function ($query) use ($authUser) {
+            $query->where('company_id', $authUser->company_id);
+        })
+        ->where('id', '!=', $user->id)  // 👈 exclude the currently edited user
+        ->get();
+
+        $designations = $authUser->user_level === 'master_admin'
+    ? Designation::all()
+    : Designation::where('company_id', $authUser->company_id)->get();
 
     return view('admin.users.edit', [
         'user' => $user,
@@ -137,16 +155,16 @@ class UserController extends Controller
         'pincodes' => Pincode::where('city_id', $user->city_id)->get(),
         'companies' => $companies,
         'authUser' => $authUser,
+        'users' => $users, // ✅ passed this for Reporting To dropdown
+        'designations' => $designations // ✅ passed to edit view
     ]);
 }
-
 
     /**
      * Update a specific user in the database.
      */
     public function update(UpdateUserRequest $request, User $user)
     {
-        // 🔐 Restrict update to same company
         if (auth()->user()->user_level !== 'master_admin' && $user->company_id !== auth()->user()->company_id) {
             abort(403, 'Unauthorized update attempt.');
         }
@@ -176,7 +194,6 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        // 🔐 Restrict delete to same company
         if (auth()->user()->user_level !== 'master_admin' && $user->company_id !== auth()->user()->company_id) {
             abort(403, 'Unauthorized delete attempt.');
         }
@@ -191,7 +208,6 @@ class UserController extends Controller
      */
     public function toggle(User $user)
     {
-        // 🔐 Restrict status toggle to same company
         if (auth()->user()->user_level !== 'master_admin' && $user->company_id !== auth()->user()->company_id) {
             abort(403, 'Unauthorized toggle attempt.');
         }

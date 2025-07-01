@@ -26,7 +26,9 @@
                     <!-- Card Header -->
                     <div class="card-header">
                         <h5 class="card-title">Customer List</h5>
-                        <a href="{{ route('customers.create') }}" class="btn btn-primary float-end">Add Customer</a>
+                        @can('create_customers')
+                            <a href="{{ route('customers.create') }}" class="btn btn-primary float-end">Add Customer</a>
+                        @endcan
                     </div>
 
                     <!-- Card Body -->
@@ -44,6 +46,7 @@
                             </div>
                         @endif
 
+                        @can('view_customers')
                         <table id="customers-table" class="table table-bordered table-striped align-middle">
                             <thead class="table-light">
                                 <tr>
@@ -88,16 +91,22 @@
                                         <td>
                                             <a href="{{ route('customers.show', $customer) }}" class="text-info me-2" title="View">
                                                 <i class="fas fa-eye"></i></a>
-                                            <a href="{{ route('customers.edit', $customer) }}" class="text-warning me-2" title="Edit">
-                                                <i class="fas fa-edit"></i></a>
-                                            <form action="{{ route('customers.destroy', $customer) }}" method="POST" class="d-inline"
-                                                onsubmit="return confirm('Are you sure you want to delete this customer?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-link p-0 text-danger" title="Delete">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
+                                            
+                                            @can('edit_customers')
+                                                <a href="{{ route('customers.edit', $customer) }}" class="text-warning me-2" title="Edit">
+                                                    <i class="fas fa-edit"></i></a>
+                                            @endcan
+
+                                            @can('delete_customers')
+                                                <form action="{{ route('customers.destroy', $customer) }}" method="POST" class="d-inline"
+                                                    onsubmit="return confirm('Are you sure you want to delete this customer?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-link p-0 text-danger" title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            @endcan
                                         </td>
                                     </tr>
                                 @empty
@@ -107,6 +116,8 @@
                                 @endforelse
                             </tbody>
                         </table>
+                        @endcan
+
                     </div> <!-- /.card-body -->
                 </div> <!-- /.card -->
             </div> <!-- /.container-fluid -->

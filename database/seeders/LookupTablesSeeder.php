@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB; // <-- This was missing
+use Illuminate\Support\Facades\DB;
 
 class LookupTablesSeeder extends Seeder
 {
@@ -13,22 +12,24 @@ class LookupTablesSeeder extends Seeder
      */
     public function run(): void
     {
+        $companyId = 1; // 👈 default master admin company id — replace if needed
+
         DB::table('travel_modes')->insert([
-            ['name' => 'Car'],
-            ['name' => 'Bike'],
-            ['name' => 'Walk'],
+            ['name' => 'Car',  'company_id' => $companyId],
+            ['name' => 'Bike', 'company_id' => $companyId],
+            ['name' => 'Walk', 'company_id' => $companyId],
         ]);
 
         DB::table('purposes')->insert([
-            ['name' => 'Official'],
-            ['name' => 'Client Visit'],
-            ['name' => 'Inspection'],
+            ['name' => 'Official',     'company_id' => $companyId],
+            ['name' => 'Client Visit', 'company_id' => $companyId],
+            ['name' => 'Inspection',   'company_id' => $companyId],
         ]);
 
         DB::table('tour_types')->insert([
-            ['name' => 'Local'],
-            ['name' => 'Outstation'],
-            ['name' => 'International'],
+            ['name' => 'Local',        'company_id' => $companyId],
+            ['name' => 'Outstation',   'company_id' => $companyId],
+            ['name' => 'International','company_id' => $companyId],
         ]);
     }
 }

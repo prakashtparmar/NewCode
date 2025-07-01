@@ -24,7 +24,7 @@ class UpdateUserRequest extends FormRequest
 
             // Personal & Contact Information
             'user_code' => 'nullable|string|max:100',
-            'designation' => 'nullable|string|max:255',
+            'designation_id' => 'nullable|exists:designations,id',
             'reporting_to' => 'nullable|string|max:255',
             'headquarter' => 'nullable|string|max:255',
             'user_type' => 'nullable|string|max:100',

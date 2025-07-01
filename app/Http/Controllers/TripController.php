@@ -297,19 +297,27 @@ class TripController extends Controller
     }
 
     public function getDropdownValues($type)
-    {
-        $tableMap = [
-            'travel_mode' => 'travel_modes',
-            'purpose'     => 'purposes',
-            'tour_type'   => 'tour_types'
-        ];
+{
+    $tableMap = [
+        'travel_mode' => 'travel_modes',
+        'purpose'     => 'purposes',
+        'tour_type'   => 'tour_types'
+    ];
 
-        if (!array_key_exists($type, $tableMap)) {
-            return response()->json(['status' => 'error', 'message' => 'Invalid type'], 400);
-        }
-
-        $values = DB::table($tableMap[$type])->orderBy('name')->pluck('name');
-
-        return response()->json(['status' => 'success', 'values' => $values]);
+    if (!array_key_exists($type, $tableMap)) {
+        return response()->json(['status' => 'error', 'message' => 'Invalid type'], 400);
     }
+
+    $user = Auth::user();
+    $query = DB::table($tableMap[$type])->orderBy('name');
+
+    if (!$user->hasRole('master_admin')) {
+        $query->where('company_id', $user->company_id);
+    }
+
+    $values = $query->pluck('name');
+
+    return response()->json(['status' => 'success', 'values' => $values]);
+}
+
 }
