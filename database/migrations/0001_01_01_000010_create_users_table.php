@@ -50,7 +50,7 @@ return new class extends Migration
             $table->string('emergency_contact_no')->nullable();
             $table->string('gender')->nullable();
             $table->string('marital_status')->nullable();
-            $table->string('designation')->nullable();
+            $table->string('designation_id')->nullable();
             $table->string('role_rights')->nullable();
             $table->string('reporting_to')->nullable();
             $table->boolean('is_self_sale')->default(false);

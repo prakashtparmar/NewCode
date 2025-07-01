@@ -29,7 +29,7 @@ return new class extends Migration {
             $table->string('start_km_photo')->nullable();
             $table->string('end_km_photo')->nullable();
 
-            $table->enum('status', ['pending', 'approved', 'denied', 'completed'])->default('pending');
+            $table->enum('status', ['pending', 'approved', 'denied', 'completed', 'started'])->default('pending');
 
             // ✅ Add approval_status field
             $table->enum('approval_status', ['pending', 'approved', 'denied'])->default('pending');

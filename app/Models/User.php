@@ -38,7 +38,7 @@ class User extends Authenticatable
         'emergency_contact_no',
         'gender',
         'marital_status',
-        'designation',
+        'designation_id',
         'role_rights',
         'reporting_to',
         'is_self_sale',
@@ -116,5 +116,17 @@ class User extends Authenticatable
     {
         return $this->getAllPermissions()->pluck('name');
     }
+
+    public function reportingManager()
+{
+    return $this->belongsTo(User::class, 'reporting_to');
+}
+
+public function designation()
+{
+    return $this->belongsTo(Designation::class);
+}
+
+
 
 }

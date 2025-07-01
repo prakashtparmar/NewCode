@@ -35,7 +35,7 @@ class DatabaseSeeder extends Seeder
             // TripSeeder::class,
             TripWithLogsSeeder::class,
             LookupTablesSeeder::class,
-
+            DesignationSeeder::class,
         ]);
 
 

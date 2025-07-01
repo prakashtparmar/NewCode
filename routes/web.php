@@ -12,6 +12,10 @@ use App\Http\Controllers\CityController;
 use App\Http\Controllers\TehsilController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\TripController;
+use App\Http\Controllers\DesignationController;
+use App\Http\Controllers\TravelModeController;
+use App\Http\Controllers\PurposeController;
+use App\Http\Controllers\TourTypeController;
 
 // Redirect root URL to admin login
 Route::get('/', function () {
@@ -43,6 +47,20 @@ Route::prefix('admin')->group(function () {
             Route::resource('permissions', PermissionController::class);
             Route::resource('users', UserController::class);
             Route::post('/users/{user}/toggle', [UserController::class, 'toggle'])->name('users.toggle');
+
+
+            Route::resource('/hr/designations', DesignationController::class);
+
+
+            Route::prefix('trips')->group(function () {
+                Route::resource('travelmode', TravelModeController::class)->names('travelmode');
+                Route::resource('tourtype', TourTypeController::class)->names('tourtype');
+                Route::resource('purpose', PurposeController::class)->names('purpose');
+            });
+
+
+
+
 
             // Companies
             Route::resource('companies', CompanyController::class);
@@ -83,6 +101,5 @@ Route::prefix('admin')->group(function () {
         // For viewing trip route
         Route::get('/trips/{trip}/map', [TripController::class, 'showRoute'])->name('trip.map');
         Route::get('/trips/{trip}/logs', [TripController::class, 'logs'])->name('trips.logs');
-
     });
 });

@@ -189,16 +189,32 @@
                                             <input type="text" name="user_code" class="form-control"
                                                 value="{{ old('user_code') }}">
                                         </div>
+
                                         <div class="col-md-4">
                                             <label class="form-label">Designation</label>
-                                            <input type="text" name="designation" class="form-control"
-                                                value="{{ old('designation') }}">
+                                            <select name="designation_id" class="form-select">
+                                                <option value="">Select Designation</option>
+                                                @foreach ($designations as $designation)
+                                                    <option value="{{ $designation->id }}"
+                                                        {{ old('designation_id') == $designation->id ? 'selected' : '' }}>
+                                                        {{ $designation->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
                                         </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label">Reporting To</label>
-                                            <input type="text" name="reporting_to" class="form-control"
-                                                value="{{ old('reporting_to') }}">
-                                        </div>
+
+
+                                        <select name="reporting_to" class="form-select">
+                                            <option value="">Select Reporting To</option>
+                                            @foreach ($users as $user)
+                                                <option value="{{ $user->id }}"
+                                                    {{ old('reporting_to') == $user->id ? 'selected' : '' }}>
+                                                    {{ $user->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+
+
                                         <div class="col-md-4">
                                             <label class="form-label">Headquarter</label>
                                             <input type="text" name="headquarter" class="form-control"

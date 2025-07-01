@@ -13,8 +13,11 @@ return new class extends Migration
     {
         Schema::create('tour_types', function (Blueprint $table) {
     $table->id();
+    $table->unsignedBigInteger('company_id'); // 👈 Added
     $table->string('name');
     $table->timestamps();
+
+    $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
 });
 
     }

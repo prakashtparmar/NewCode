@@ -16,12 +16,26 @@ class TripController extends Controller
         $query = Trip::with(['user', 'company', 'approvedByUser', 'tripLogs']);
 
         if ($user->hasRole('master_admin')) {
-            $trips = $query->latest()->get();
-        } elseif ($user->hasRole('sub_admin')) {
-            $trips = $query->where('company_id', $user->company_id)->latest()->get();
-        } else {
-            $trips = $query->where('user_id', $user->id)->latest()->get();
+    $trips = $query->latest()->get();
+} elseif ($user->hasRole('sub_admin')) {
+    $trips = $query->where('company_id', $user->company_id)->latest()->get();
+} else {
+    $trips = $query->where(function ($q) use ($user) {
+        // Own trips
+        $q->where('user_id', $user->id);
+
+        // Or trips of users who report to me where approval is pending
+        $subordinateIds = \App\Models\User::where('reporting_to', $user->id)->pluck('id');
+
+        if ($subordinateIds->isNotEmpty()) {
+            $q->orWhere(function ($inner) use ($subordinateIds) {
+                $inner->whereIn('user_id', $subordinateIds)
+                      ->where('approval_status', 'pending');
+            });
         }
+    })->latest()->get();
+}
+
 
         return view('admin.trips.index', compact('trips'));
     }
@@ -297,19 +311,27 @@ class TripController extends Controller
     }
 
     public function getDropdownValues($type)
-    {
-        $tableMap = [
-            'travel_mode' => 'travel_modes',
-            'purpose'     => 'purposes',
-            'tour_type'   => 'tour_types'
-        ];
+{
+    $tableMap = [
+        'travel_mode' => 'travel_modes',
+        'purpose'     => 'purposes',
+        'tour_type'   => 'tour_types'
+    ];
 
-        if (!array_key_exists($type, $tableMap)) {
-            return response()->json(['status' => 'error', 'message' => 'Invalid type'], 400);
-        }
-
-        $values = DB::table($tableMap[$type])->orderBy('name')->pluck('name');
-
-        return response()->json(['status' => 'success', 'values' => $values]);
+    if (!array_key_exists($type, $tableMap)) {
+        return response()->json(['status' => 'error', 'message' => 'Invalid type'], 400);
     }
+
+    $user = Auth::user();
+    $query = DB::table($tableMap[$type])->orderBy('name');
+
+    if (!$user->hasRole('master_admin')) {
+        $query->where('company_id', $user->company_id);
+    }
+
+    $values = $query->pluck('name');
+
+    return response()->json(['status' => 'success', 'values' => $values]);
+}
+
 }

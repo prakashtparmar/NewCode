@@ -58,7 +58,14 @@ class MultiCompanySeeder extends Seeder
             'create_customers',
             'edit_customers',
             'delete_customers',
-            'toggle_customers'
+            'toggle_customers',
+            'view_trips',
+            'create_trips',
+            'edit_trips',
+            'delete_trips',
+            'trip_approvals',
+            'view_trip_logs'
+
         ];
 
         foreach ($permissions as $permission) {
@@ -92,6 +99,18 @@ class MultiCompanySeeder extends Seeder
             'create_companies',
             'edit_companies',
             'delete_companies',
+            'toggle_companies',
+            'view_customers',
+            'create_customers',
+            'edit_customers',
+            'delete_customers',
+            'toggle_customers',
+            'view_trips',
+            'create_trips',
+            'edit_trips',
+            'delete_trips',
+            'trip_approvals',
+            'view_trip_logs'
         ]);
 
         $executiveRole->syncPermissions(['view_users']);
