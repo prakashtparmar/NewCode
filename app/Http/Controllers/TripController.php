@@ -7,46 +7,54 @@ use App\Models\TripLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Customer;
 
 class TripController extends Controller
 {
     public function index()
     {
         $user = Auth::user();
-        $query = Trip::with(['user', 'company', 'approvedByUser', 'tripLogs']);
+        $query = Trip::with(['user', 'company', 'approvedByUser', 'tripLogs', 'customers']);
 
         if ($user->hasRole('master_admin')) {
-    $trips = $query->latest()->get();
-} elseif ($user->hasRole('sub_admin')) {
-    $trips = $query->where('company_id', $user->company_id)->latest()->get();
-} else {
-    $trips = $query->where(function ($q) use ($user) {
-        // Own trips
-        $q->where('user_id', $user->id);
+            $trips = $query->latest()->get();
+        } elseif ($user->hasRole('sub_admin')) {
+            $trips = $query->where('company_id', $user->company_id)->latest()->get();
+        } else {
+            $trips = $query->where(function ($q) use ($user) {
+                // Own trips
+                $q->where('user_id', $user->id);
 
-        // Or trips of users who report to me where approval is pending
-        $subordinateIds = \App\Models\User::where('reporting_to', $user->id)->pluck('id');
+                // Or trips of users who report to me where approval is pending
+                $subordinateIds = \App\Models\User::where('reporting_to', $user->id)->pluck('id');
 
-        if ($subordinateIds->isNotEmpty()) {
-            $q->orWhere(function ($inner) use ($subordinateIds) {
-                $inner->whereIn('user_id', $subordinateIds)
-                      ->where('approval_status', 'pending');
-            });
+                if ($subordinateIds->isNotEmpty()) {
+                    $q->orWhere(function ($inner) use ($subordinateIds) {
+                        $inner->whereIn('user_id', $subordinateIds)
+                            ->where('approval_status', 'pending');
+                    });
+                }
+            })->latest()->get();
         }
-    })->latest()->get();
-}
 
 
         return view('admin.trips.index', compact('trips'));
     }
 
     public function create()
-    {
-        return view('admin.trips.create');
-    }
+{
+    $customers = Customer::where('is_active', true)->get();
+    $travelModes = DB::table('travel_modes')->orderBy('name')->get();
+    $purposes = DB::table('purposes')->orderBy('name')->get();
+    $tourTypes = DB::table('tour_types')->orderBy('name')->get();
+
+    return view('admin.trips.create', compact('customers', 'travelModes', 'purposes', 'tourTypes'));
+}
+
 
     public function store(Request $request)
     {
+        // print($request->travel_mode);exit;
         $validated = $request->validate([
             'trip_date'      => 'required|date',
             'start_time'     => 'required',
@@ -55,14 +63,15 @@ class TripController extends Controller
             'start_lng'      => 'required|numeric',
             'end_lat'        => 'required|numeric',
             'end_lng'        => 'required|numeric',
-            'travel_mode'    => 'required|string',
-            'purpose'        => 'nullable|string',
-            'tour_type'      => 'nullable|string',
+            'travel_mode'    => 'required|exists:travel_modes,id',
+            'purpose'        => 'required|exists:purposes,id',
+            'tour_type'      => 'required|exists:tour_types,id',
             'place_to_visit' => 'nullable|string',
             'starting_km'    => 'nullable|string',
             'end_km'         => 'nullable|string',
             'start_km_photo' => 'nullable|mimes:jpeg,jpg,png,bmp,gif,svg,webp,tiff,ico|max:5120',
             'end_km_photo'   => 'nullable|mimes:jpeg,jpg,png,bmp,gif,svg,webp,tiff,ico|max:5120',
+
         ]);
 
         $startKmPhoto = $request->hasFile('start_km_photo')
@@ -82,7 +91,7 @@ class TripController extends Controller
 
         $user = Auth::user();
 
-        Trip::create([
+        $trip = Trip::create([
             'user_id'           => $user->id,
             'company_id'        => $user->hasRole('master_admin') ? 1 : $user->company_id,
             'trip_date'         => $request->trip_date,
@@ -105,6 +114,11 @@ class TripController extends Controller
             'approval_status'   => 'pending',
         ]);
 
+        // Attach customers to trip
+        if ($request->has('customer_ids')) {
+            $trip->customers()->attach($request->customer_ids);
+        }
+
         return redirect()->route('trips.index')->with('success', 'Trip added successfully.');
     }
 
@@ -119,7 +133,11 @@ class TripController extends Controller
 
     public function edit(Trip $trip)
     {
-        return view('admin.trips.edit', compact('trip'));
+        $customers = Customer::where('is_active', true)->get();
+        $travelModes = DB::table('travel_modes')->orderBy('name')->get();
+    $purposes = DB::table('purposes')->orderBy('name')->get();
+    $tourTypes = DB::table('tour_types')->orderBy('name')->get();
+        return view('admin.trips.edit', compact('trip', 'customers', 'travelModes', 'purposes', 'tourTypes'));
     }
 
     public function update(Request $request, Trip $trip)
@@ -132,9 +150,9 @@ class TripController extends Controller
             'start_lng'       => 'required|numeric',
             'end_lat'         => 'required|numeric',
             'end_lng'         => 'required|numeric',
-            'travel_mode'     => 'required|string',
-            'purpose'         => 'nullable|string',
-            'tour_type'       => 'nullable|string',
+            'travel_mode'    => 'required|exists:travel_modes,id',
+            'purpose'        => 'required|exists:purposes,id',
+            'tour_type'      => 'required|exists:tour_types,id',
             'place_to_visit'  => 'nullable|string',
             'starting_km'     => 'nullable|string',
             'end_km'          => 'nullable|string',
@@ -181,6 +199,11 @@ class TripController extends Controller
             'approved_by'       => in_array($request->approval_status, ['approved', 'denied']) ? auth()->id() : null,
             'approved_at'       => in_array($request->approval_status, ['approved', 'denied']) ? now() : null,
         ]);
+
+        if ($request->has('customer_ids')) {
+            $trip->customers()->sync($request->customer_ids);
+        }
+
 
         return redirect()->route('trips.index')->with('success', 'Trip updated successfully.');
     }
@@ -274,12 +297,12 @@ class TripController extends Controller
     }
 
     public function toggleStatus(Request $request, Trip $trip)
-{
-    $trip->status = $request->status;
-    $trip->save();
+    {
+        $trip->status = $request->status;
+        $trip->save();
 
-    return redirect()->back()->with('success', 'Trip status updated successfully.');
-}
+        return redirect()->back()->with('success', 'Trip status updated successfully.');
+    }
 
 
     private function calculateDistance($lat1, $lon1, $lat2, $lon2)
@@ -310,28 +333,28 @@ class TripController extends Controller
         return round($distance, 2);
     }
 
-    public function getDropdownValues($type)
-{
-    $tableMap = [
-        'travel_mode' => 'travel_modes',
-        'purpose'     => 'purposes',
-        'tour_type'   => 'tour_types'
-    ];
+    // public function getDropdownValues($type)
+    // {
+    //     $tableMap = [
+    //         'travel_mode' => 'travel_modes',
+    //         'purpose'     => 'purposes',
+    //         'tour_type'   => 'tour_types'
+    //     ];
 
-    if (!array_key_exists($type, $tableMap)) {
-        return response()->json(['status' => 'error', 'message' => 'Invalid type'], 400);
-    }
+    //     if (!array_key_exists($type, $tableMap)) {
+    //         return response()->json(['status' => 'error', 'message' => 'Invalid type'], 400);
+    //     }
 
-    $user = Auth::user();
-    $query = DB::table($tableMap[$type])->orderBy('name');
+    //     $user = Auth::user();
+    //     $query = DB::table($tableMap[$type])->orderBy('name');
 
-    if (!$user->hasRole('master_admin')) {
-        $query->where('company_id', $user->company_id);
-    }
+    //     if (!$user->hasRole('master_admin')) {
+    //         $query->where('company_id', $user->company_id);
+    //     }
 
-    $values = $query->pluck('name');
+    //     // $values = $query->pluck('name');
+    //     $values = $query->get(['id', 'name']);
 
-    return response()->json(['status' => 'success', 'values' => $values]);
-}
-
+    //     return response()->json(['status' => 'success', 'values' => $values]);
+    // }
 }

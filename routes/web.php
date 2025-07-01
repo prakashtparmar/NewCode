@@ -30,7 +30,7 @@ Route::prefix('admin')->group(function () {
     Route::get('logout', [AdminController::class, 'destroy'])->name('admin.logout');
 
     // ✅ Public AJAX dropdown data route (before middleware)
-    Route::get('dropdown-values/{type}', [TripController::class, 'getDropdownValues'])->name('dropdown.values');
+    // Route::get('dropdown-values/{type}', [TripController::class, 'getDropdownValues'])->name('dropdown.values');
 
     // Protected Routes
     Route::middleware(['admin', 'last_seen'])->group(function () {

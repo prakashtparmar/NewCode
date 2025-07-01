@@ -40,4 +40,10 @@ class Customer extends Model
     {
         return $query->where('is_active', true);
     }
+
+    public function trips()
+{
+    return $this->belongsToMany(Trip::class, 'customer_trip');
+}
+
 }

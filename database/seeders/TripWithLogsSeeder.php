@@ -35,8 +35,9 @@ class TripWithLogsSeeder extends Seeder
                     'end_lat'           => $baseLat + 0.2, // ~22km
                     'end_lng'           => $baseLng + 0.2,
                     'total_distance_km' => 22.0,
-                    'travel_mode'       => 'car',
-                    'purpose'           => 'Seeded trip demo',
+                    'travel_mode'       => 1,
+                    'purpose'           => 1,
+                    'tour_type'         => 1,
                     'status'            => 'completed',
                     'approval_status'   => 'approved',
                     'approved_by'       => $user->id,

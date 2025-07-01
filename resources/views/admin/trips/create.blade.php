@@ -75,26 +75,59 @@
                                             value="{{ old('end_time') }}">
                                     </div>
 
-                                    <div class="mb-3 col-md-6">
+                                    {{-- <div class="mb-3 col-md-6">
                                         <label for="travel_mode" class="form-label">Travel Mode</label>
                                         <select name="travel_mode" id="travel_mode" class="form-select" required>
                                             <option value="">-- Select Mode --</option>
                                         </select>
+                                    </div> --}}
+
+                                    <div class="mb-3 col-md-6">
+                                        <label for="travel_mode" class="form-label">Travel Mode</label>
+                                    <select name="travel_mode" id="travel_mode" class="form-select" required>
+                                        <option value="">-- Select Mode --</option>
+                                        @foreach ($travelModes as $mode)
+                                            <option value="{{ $mode->id }}">{{ $mode->name }}</option>
+                                        @endforeach
+                                    </select>
                                     </div>
 
-                                    <div class="mb-3 col-md-4">
+                                    <div class="mb-3 col-md-6">
+                                        <label for="tour_type" class="form-label">Tour Types</label>
+                                    <select name="tour_type" id="tour_type" class="form-select" required>
+                                        <option value="">-- Select Mode --</option>
+                                        @foreach ($tourTypes as $mode)
+                                            <option value="{{ $mode->id }}">{{ $mode->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    </div>
+
+                                    <div class="mb-3 col-md-6">
+                                        <label for="purpose" class="form-label">Purpose</label>
+                                    <select name="purpose" id="purpose" class="form-select" required>
+                                        <option value="">-- Select Mode --</option>
+                                        @foreach ($purposes as $mode)
+                                            <option value="{{ $mode->id }}">{{ $mode->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    </div>
+
+
+                                    {{-- <div class="mb-3 col-md-4">
                                         <label for="purpose" class="form-label">Purpose</label>
                                         <select name="purpose" id="purpose" class="form-select" required>
                                             <option value="">-- Select Purpose --</option>
                                         </select>
                                     </div>
 
+                                    
+
                                     <div class="mb-3 col-md-4">
                                         <label for="tour_type" class="form-label">Tour Type</label>
                                         <select name="tour_type" id="tour_type" class="form-select" required>
                                             <option value="">-- Select Type --</option>
                                         </select>
-                                    </div>
+                                    </div> --}}
 
 
                                     <div class="mb-3 col-md-4">
@@ -158,6 +191,19 @@
                                         <input type="text" name="total_distance_km" id="total_distance_km"
                                             class="form-control" value="{{ old('total_distance_km') }}">
                                     </div>
+
+                                    <div class="mb-3 col-md-12">
+                                        <label for="customer_ids" class="form-label">Select Customers</label>
+                                        <select name="customer_ids[]" id="customer_ids" class="form-select" multiple
+                                            required>
+                                            @foreach ($customers as $customer)
+                                                <option value="{{ $customer->id }}">{{ $customer->name }}
+                                                    ({{ $customer->phone }})</option>
+                                            @endforeach
+                                        </select>
+                                        <small class="text-muted">Hold Ctrl / Command to select multiple</small>
+                                    </div>
+
 
                                     <div class="mb-3 col-md-12">
                                         <label class="form-label">Map Preview</label>
