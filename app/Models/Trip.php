@@ -24,6 +24,7 @@ class Trip extends Model
         'purpose',
         'tour_type',
         'place_to_visit',
+        'closenote',
         'starting_km',
         'end_km',
         'status',
@@ -55,5 +56,24 @@ class Trip extends Model
     public function tripLogs(): HasMany
     {
         return $this->hasMany(TripLog::class);
+    }
+
+    public function customers()
+    {
+        return $this->belongsToMany(Customer::class, 'customer_trip');
+    }
+
+
+    public function purpose(): BelongsTo
+    {
+        return $this->belongsTo(Purpose::class);
+    }
+    public function tourType(): BelongsTo
+    {
+        return $this->belongsTo(TourType::class);
+    }
+    public function travelMode(): BelongsTo
+    {
+        return $this->belongsTo(TravelMode::class);
     }
 }

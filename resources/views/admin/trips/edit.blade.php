@@ -45,25 +45,72 @@
                                 <label>End Time</label>
                                 <input type="time" name="end_time" class="form-control" value="{{ old('end_time', $trip->end_time) }}">
                             </div>
-                            <div class="col-md-3 mb-3">
+                            {{-- <div class="col-md-3 mb-3">
                                 <label>Travel Mode</label>
                                 <select name="travel_mode" id="travel_mode" class="form-select" required></select>
-                            </div>
+                            </div> --}}
+
+                            <div class="mb-3 col-md-6">
+                                        <label for="travel_mode" class="form-label">Travel Mode</label>
+                                    <select name="travel_mode" id="travel_mode" class="form-select" required>
+                                        <option value="">-- Select Mode --</option>
+                                        @foreach ($travelModes as $mode)
+                                            <option value="{{ $mode->id }}" @if(isset($trip) && $trip->travel_mode == $mode->id) selected @endif>{{ $mode->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    </div>
+
+                                    <div class="mb-3 col-md-6">
+                                        <label for="tour_type" class="form-label">Tour Types</label>
+                                    <select name="tour_type" id="tour_type" class="form-select" required>
+                                        <option value="">-- Select Mode --</option>
+                                        @foreach ($tourTypes as $mode)
+                                            <option value="{{ $mode->id }}" @if(isset($trip) && $trip->tour_type == $mode->id) selected @endif>{{ $mode->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    </div>
+
+                                    <div class="mb-3 col-md-6">
+                                        <label for="purpose" class="form-label">Purpose</label>
+                                    <select name="purpose" id="purpose" class="form-select" required>
+                                        <option value="">-- Select Mode --</option>
+                                        @foreach ($purposes as $mode)
+                                            <option value="{{ $mode->id }}" @if(isset($trip) && $trip->purpose == $mode->id) selected @endif>{{ $mode->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    </div>
+
+
+
                         </div>
 
                         <div class="row">
-                            <div class="col-md-4 mb-3">
+                            {{-- <div class="col-md-4 mb-3">
                                 <label>Purpose</label>
                                 <select name="purpose" id="purpose" class="form-select" required></select>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label>Tour Type</label>
                                 <select name="tour_type" id="tour_type" class="form-select" required></select>
-                            </div>
+                            </div> --}}
                             <div class="col-md-4 mb-3">
                                 <label>Place To Visit</label>
                                 <input type="text" name="place_to_visit" class="form-control" value="{{ old('place_to_visit', $trip->place_to_visit) }}">
                             </div>
+
+                            <div class="col-md-12 mb-3">
+    <label>Customers</label>
+    <select name="customer_ids[]" class="form-select" multiple>
+        @foreach($customers as $customer)
+            <option value="{{ $customer->id }}"
+                {{ in_array($customer->id, $trip->customers->pluck('id')->toArray()) ? 'selected' : '' }}>
+                {{ $customer->name }}
+            </option>
+        @endforeach
+    </select>
+    <small class="form-text text-muted">Hold Ctrl (Cmd on Mac) to select multiple customers.</small>
+</div>
+
                         </div>
 
                         <div class="row">

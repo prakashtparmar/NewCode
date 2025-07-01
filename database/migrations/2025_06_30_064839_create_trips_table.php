@@ -20,10 +20,14 @@ return new class extends Migration {
             $table->decimal('end_lat', 10, 7)->nullable();
             $table->decimal('end_lng', 10, 7)->nullable();
             $table->decimal('total_distance_km', 8, 2)->nullable();
-            $table->string('travel_mode');
-            $table->string('purpose')->nullable();
-            $table->string('tour_type')->nullable();
+            // $table->string('travel_mode');
+
+            // $table->string('purpose')->nullable();
+
+            // $table->string('tour_type')->nullable();
+
             $table->string('place_to_visit')->nullable();
+            $table->string('closenote')->nullable();
             $table->string('starting_km')->nullable();
             $table->string('end_km')->nullable();
             $table->string('start_km_photo')->nullable();
@@ -43,6 +47,15 @@ return new class extends Migration {
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->foreign('approved_by')->references('id')->on('users')->nullOnDelete();
+
+            // ✅ You need to define these columns first
+            $table->unsignedBigInteger('travel_mode')->nullable();
+            $table->unsignedBigInteger('purpose')->nullable();
+            $table->unsignedBigInteger('tour_type')->nullable();
+            // ✅ Now it's safe to add foreign keys for the new columns
+            $table->foreign('travel_mode')->references('id')->on('travel_modes')->nullOnDelete();
+            $table->foreign('purpose')->references('id')->on('purposes')->nullOnDelete();
+            $table->foreign('tour_type')->references('id')->on('tour_types')->nullOnDelete();
         });
     }
 
