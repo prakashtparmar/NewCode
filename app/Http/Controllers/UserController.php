@@ -26,7 +26,7 @@ class UserController extends Controller
     {
         Session::put('page', 'dashboard');
 
-        $query = User::with(['roles', 'permissions', 'state', 'district', 'tehsil', 'city', 'reportingManager'])->latest();
+        $query = User::with(['roles', 'permissions', 'state', 'district', 'tehsil', 'city', 'reportingManager', 'activeSessions'])->latest();
 
         // 🔐 Restrict users to current user's company unless master_admin
         if (auth()->user()->user_level !== 'master_admin') {

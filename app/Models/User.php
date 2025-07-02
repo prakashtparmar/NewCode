@@ -127,6 +127,20 @@ public function designation()
     return $this->belongsTo(Designation::class);
 }
 
+// In App\Models\User.php
+
+public function sessions()
+{
+    return $this->hasMany(UserSession::class);
+}
+
+public function activeSessions()
+{
+    return $this->hasMany(\App\Models\UserSession::class)->whereNull('logout_at');
+}
+
+
+
 
 
 }

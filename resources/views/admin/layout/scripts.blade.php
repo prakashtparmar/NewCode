@@ -37,7 +37,7 @@
 <!-- Initialize DataTables -->
 <script>
     $(document).ready(function() {
-        $("#roles-table, #users-table, #companies-table, #permissions-table, #customers-table, #trips-table").DataTable();
+        $("#roles-table, #users-table, #companies-table, #permissions-table, #customers-table, #designation-table, #trips-table").DataTable();
     });
 </script>
 
@@ -120,6 +120,43 @@
         data.forEach(o => opts += `<option value="${o.id}">${o[label]}</option>`);
         $(selector).html(opts);
     }
+
+
+    $(document).ready(function() {
+    const stateId = "{{ old('state_id', $user->state_id ?? '') }}";
+    const districtId = "{{ old('district_id', $user->district_id ?? '') }}";
+    const cityId = "{{ old('city_id', $user->city_id ?? '') }}";
+    const tehsilId = "{{ old('tehsil_id', $user->tehsil_id ?? '') }}";
+    const pincodeId = "{{ old('pincode_id', $user->pincode_id ?? '') }}";
+
+    if(stateId) {
+        $.get(urls.districts + stateId).done(function(data) {
+            fillOptions('#district', data);
+            $('#district').val(districtId);
+            
+            if(districtId) {
+                $.get(urls.cities + districtId).done(function(data) {
+                    fillOptions('#city', data);
+                    $('#city').val(cityId);
+
+                    if(cityId) {
+                        $.get(urls.tehsils + cityId).done(function(data) {
+                            fillOptions('#tehsil', data);
+                            $('#tehsil').val(tehsilId);
+                        });
+
+                        $.get(urls.pincodes + cityId).done(function(data) {
+                            fillOptions('#pincode', data, 'pincode');
+                            $('#pincode').val(pincodeId);
+                        });
+                    }
+                });
+            }
+        });
+    }
+});
+
+
 </script>
 
 <!-- Company > Executive Dropdown Linkage -->

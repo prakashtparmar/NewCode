@@ -106,6 +106,7 @@
                                                     -
                                                 @endif
                                             </td>
+                                            
                                             {{-- Status --}}
                                             <td>
                                                 <form method="POST" action="{{ route('trips.status.toggle', $trip->id) }}">

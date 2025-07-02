@@ -118,10 +118,24 @@
                                                             @endif
                                                         </td>
                                                         <td>
-                                                            <span class="badge {{ $isOnline ? 'bg-success' : 'bg-secondary' }}">
-                                                                {{ $user->last_seen ? ($isOnline ? 'Online' : 'Offline') : 'Offline' }}
-                                                            </span>
-                                                        </td>
+    @php
+        $activePlatforms = $user->activeSessions
+            ->whereNull('logout_at')
+            ->whereIn('platform', ['web', 'mobile'])
+            ->pluck('platform')
+            ->unique();
+    @endphp
+
+    @if ($activePlatforms->isNotEmpty())
+        @foreach ($activePlatforms as $platform)
+            <span class="badge bg-success">{{ ucfirst($platform) }}</span>
+        @endforeach
+    @else
+        <span class="badge bg-secondary">Offline</span>
+    @endif
+</td>
+
+
                                                         <td>
                                                             @if ($user->roles && count($user->roles))
                                                                 @foreach ($user->getRoleNames() as $role)
