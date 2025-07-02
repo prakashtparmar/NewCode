@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\BaseController;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Company;
@@ -10,7 +10,7 @@ use App\Models\UserSession;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
-class ApiAuthController extends Controller
+class ApiAuthController extends BaseController
 {
     /**
      * API Login — revoke old token, create new, update last_seen and log session
@@ -25,11 +25,7 @@ class ApiAuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Validation errors',
-                'errors'  => $validator->errors(),
-            ], 422);
+            return $this->sendError('Validation errors', $validator->errors(), 200);
         }
 
         $credentials = $request->only('login_id', 'password', 'company_id');
@@ -44,47 +40,47 @@ class ApiAuthController extends Controller
         }
 
         if (!$user) {
-            return response()->json(['status' => false, 'message' => 'Invalid Login ID or Password.'], 401);
+            return $this->sendError('Invalid Email or Password.', null, 200);
         }
 
         $isMasterAdmin = $user->hasRole('master_admin');
 
         // Master admin cannot pass company_id
         if ($isMasterAdmin && !empty($credentials['company_id'])) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Master Admin login should not include Company Code.',
-            ], 400);
+            return $this->sendError('Master Admin login should not include Company Code.', null, 200);
         }
 
         // Validate company if not master_admin
         if (!$isMasterAdmin) {
+            if (empty($credentials['company_id'])) {
+                return $this->sendError('Invalid Company Code.', null, 200);
+            }
             $company = Company::where('code', $credentials['company_id'])->first();
 
             if (!$company) {
-                return response()->json(['status' => false, 'message' => 'Invalid Company Code.'], 404);
+                return $this->sendError('Invalid Company Code.', null, 200);
             }
             if ($company->status !== 'Active') {
-                return response()->json(['status' => false, 'message' => 'Your company is inactive.'], 403);
+                return $this->sendError('Your company is inactive.', null, 200);
             }
             if ($user->company_id != $company->id) {
-                return response()->json(['status' => false, 'message' => 'User not linked to this company.'], 403);
+                return $this->sendError('User not linked to this company.', null, 200);
             }
         }
 
         // Validate password
         if (!Hash::check($credentials['password'], $user->password)) {
-            return response()->json(['status' => false, 'message' => 'Invalid Login ID or Password.'], 401);
+            return $this->sendError('Invalid Email or Password.', null, 200);
         }
 
         // Check active
         if ($user->is_active == 0) {
-            return response()->json(['status' => false, 'message' => 'Account inactive. Contact support.'], 403);
+            return $this->sendError('Account inactive. Contact support.', null, 200);
         }
 
         // Check role presence
         if ($user->roles()->count() === 0) {
-            return response()->json(['status' => false, 'message' => 'No role assigned. Contact admin.'], 403);
+            return $this->sendError('No role assigned. Contact admin.', null, 200);
         }
 
         // ✅ Revoke old tokens
@@ -104,17 +100,9 @@ class ApiAuthController extends Controller
             'user_agent' => $request->header('User-Agent'),
             'login_at'   => now(),
         ]);
-
-        return response()->json([
-            'status'  => true,
-            'message' => 'Login successful',
-            'data'    => [
-                'token'       => $token,
-                'user'        => $user,
-                'roles'       => $user->getRoleNames(),
-                'permissions' => $user->getAllPermissions()->pluck('name'),
-            ],
-        ], 200);
+        $success['token'] = $token;
+        $success['user'] =  $user;
+        return $this->sendResponse($success, 'User logged in successfully.');
     }
 
     /**
@@ -144,8 +132,7 @@ class ApiAuthController extends Controller
             // ✅ Revoke all tokens
             $user->tokens()->delete();
         }
-
-        return response()->json(['status' => true, 'message' => 'Logged out successfully.'], 200);
+        return $this->sendResponse(null, 'Logged out successfully.');
     }
 
     /**
@@ -154,13 +141,7 @@ class ApiAuthController extends Controller
     public function profile(Request $request)
     {
         $user = $request->user();
-        return response()->json([
-            'status' => true,
-            'data'   => [
-                'user'        => $user,
-                'roles'       => $user->getRoleNames(),
-                'permissions' => $user->getAllPermissions()->pluck('name'),
-            ],
-        ], 200);
+        $success['user'] =  $user;
+        return $this->sendResponse($success, 'User detail fetch successfully');
     }
 }

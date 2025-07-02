@@ -101,7 +101,7 @@ class AuthController extends BaseController
     }
     public function userDetail()
     {
-        $user = Auth::user();
+        $user = Auth::user()->load(["roles"]);;
 
         if (!$user) {
             return $this->sendError('User not found.', ['error' => 'User not found']);
@@ -112,7 +112,7 @@ class AuthController extends BaseController
         }
 
         $user->image = $user->image ? asset('storage/' . $user->image) : null;
-        $success['user'] =  $user;
+        $success['user'] =  $user->load(["designation","reportingManager","company","pincode","tehsil","city","district","state"]);;
         // Return response with the token and user info
         return $this->sendResponse($success, 'User detail fetched successfully.');
     }

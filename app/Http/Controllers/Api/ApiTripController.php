@@ -3,13 +3,68 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
+use App\Models\Purpose;
+use App\Models\TourType;
+use App\Models\TravelMode;
 use App\Models\Trip;
 use App\Models\TripLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class ApiTripController extends BaseController
 {
+
+    public function getTourDetails()
+    {
+        $user = Auth::user(); // or just Auth::user() if 'api' is default guard
+
+        $tourPurposes = Purpose::where('company_id', $user->company_id)->get();
+        $vehicleTypes = TravelMode::where('company_id', $user->company_id)->get();
+        $tourTypes = TourType::where('company_id', $user->company_id)->get();
+        $success = [];
+        $success['tourPurposes'] = $tourPurposes;
+        $success['vehicleTypes'] = $vehicleTypes;
+        $success['tourTypes'] = $tourTypes;
+        // Return the response
+        return $this->sendResponse($success, 'Tour details fetch successfully');
+    }
+    public function fetchCustomer()
+    {
+        // Fetch all tour logs from the database
+
+        $user = Auth::user(); // or just Auth::user() if 'api' is default guard
+
+        // Only fetch day logs for the authenticated user
+        $customers = Customer::where('is_active', true)
+            ->where('company_id', $user->company_id)
+            ->latest()
+            ->get();
+
+        // Return the view and pass the data
+
+        return $this->sendResponse($customers, "Customers fetched successfully");
+    }
+
+    public function index()
+    {
+        // Fetch all tour logs from the database
+
+        $user = Auth::user(); // or just Auth::user() if 'api' is default guard
+
+        // Only fetch day logs for the authenticated user
+        $trips = Trip::with(['travelMode', 'tourType', 'purpose'])
+            ->where('user_id', $user->id)
+            ->where('company_id', $user->company_id)
+            ->latest()
+            ->paginate(10);
+
+        // Return the view and pass the data
+
+        return $this->sendResponse($trips, "Trips fetched successfully");
+    }
+
     // Store a new trip log point
     public function logPoint(Request $request)
     {
@@ -26,6 +81,7 @@ class ApiTripController extends BaseController
             'longitude'   => $validated['longitude'],
             'recorded_at' => $validated['recorded_at'] ?? now(),
         ]);
+
 
         return response()->json([
             'status'  => 'success',
@@ -75,19 +131,14 @@ class ApiTripController extends BaseController
         $validated = $request->validate([
             'trip_date'      => 'nullable|date',
             'start_time'     => 'nullable',
-            'end_time'       => 'nullable',
             'start_lat'      => 'required|numeric',
             'start_lng'      => 'required|numeric',
-            'end_lat'        => 'nullable|numeric',
-            'end_lng'        => 'nullable|numeric',
             'travel_mode'    => 'required|exists:travel_modes,id',
             'purpose'        => 'required|exists:purposes,id',
             'tour_type'      => 'required|exists:tour_types,id',
             'place_to_visit' => 'nullable|string',
             'starting_km'    => 'nullable|string',
-            'end_km'         => 'nullable|string',
             'start_km_photo' => 'nullable|mimes:jpeg,jpg,png,bmp,gif,svg,webp,tiff,ico|max:5120',
-            'end_km_photo'   => 'nullable|mimes:jpeg,jpg,png,bmp,gif,svg,webp,tiff,ico|max:5120',
             'customer_ids'   => 'nullable|array',
             'customer_ids.*' => 'exists:customers,id'
         ]);
@@ -145,7 +196,7 @@ class ApiTripController extends BaseController
         return response()->json([
             'status'  => 'success',
             'message' => 'Trip created successfully.',
-            'trip'    => $trip->load(["purpose","tourType","travelMode","company","approvedByUser","user"])
+            'trip'    => $trip->load(["purpose", "tourType", "travelMode", "company", "approvedByUser", "user"])
         ], 201);
     }
 
@@ -189,16 +240,15 @@ class ApiTripController extends BaseController
             ->first();
 
         if (!$trip) {
-            return response()->json(['message' => 'No active trips found'], 404);
+            return $this->sendError('No active trips found', [], 200);
         }
-
-        return response()->json($trip);
+        return $this->sendResponse($trip, "Trips fetched successfully");
     }
-    public function close(Request $request, $id)
+    public function close(Request $request)
     {
         // 1️⃣  Authorise: only the owner (or an admin) may close the trip.
 
-        $trip = Trip::find($id);
+        $trip = Trip::find($request->id);
         if (!$trip) {
             return $this->sendError('Trip not found.', [], 200);
         }
@@ -207,6 +257,7 @@ class ApiTripController extends BaseController
             'end_time' => 'required|date_format:H:i:s',   // send as 24h time, e.g. 17:45:00
             'end_lat'  => 'required|numeric',
             'end_lng'  => 'required|numeric',
+            'closenote'         => 'required|string',
             'end_km'         => 'required|string',
             'end_km_photo'   => 'required|mimes:jpeg,jpg,png,bmp,gif,svg,webp,tiff,ico|max:5120',
             'status'   => 'in:completed',                 // optional override; default below
