@@ -35,14 +35,13 @@ class AdminController extends Controller
         $totalPermissions = \Spatie\Permission\Models\Permission::count();
         $totalCustomers   = null;
 
-        // ✅ Fetch online users based on active 'web' or 'mobile' sessions
         $onlineUsers = User::whereHas('sessions', function ($query) {
-                $query->whereNull('logout_at')
-                      ->whereIn('platform', ['web', 'mobile']);
-            })
-            ->with(['roles', 'permissions'])
-            ->get();
+            $query->whereNull('logout_at')->whereIn('platform', ['web', 'mobile']);
+        })
+        ->with(['roles', 'permissions'])
+        ->get();
 
+        $sessionsQuery = UserSession::with('user')->whereDate('login_at', now());
     } else {
         $companyId        = $user->company_id;
         $totalUsers       = User::where('company_id', $companyId)->count();
@@ -50,22 +49,29 @@ class AdminController extends Controller
         $totalPermissions = \Spatie\Permission\Models\Permission::where('company_id', $companyId)->count();
         $totalCustomers   = null;
 
-        // ✅ Fetch online users for this company based on active 'web' or 'mobile' sessions
         $onlineUsers = User::where('company_id', $companyId)
             ->whereHas('sessions', function ($query) {
-                $query->whereNull('logout_at')
-                      ->whereIn('platform', ['web', 'mobile']);
+                $query->whereNull('logout_at')->whereIn('platform', ['web', 'mobile']);
             })
             ->with(['roles', 'permissions'])
             ->get();
+
+        $sessionsQuery = UserSession::with('user')
+            ->whereDate('login_at', now())
+            ->whereHas('user', function ($q) use ($companyId) {
+                $q->where('company_id', $companyId);
+            });
     }
+
+    $sessionsGrouped = $sessionsQuery->get()->groupBy('user_id');
 
     return view('admin.dashboard', compact(
         'totalUsers',
         'totalRoles',
         'totalPermissions',
         'totalCustomers',
-        'onlineUsers'
+        'onlineUsers',
+        'sessionsGrouped'
     ));
 }
 
@@ -213,8 +219,10 @@ class AdminController extends Controller
 
     // ✅ Fetch sessions for this user
     $sessions = UserSession::where('user_id', $userId)
-        ->orderByDesc('login_at')
-        ->get();
+    ->whereDate('login_at', now()->toDateString())
+    ->orderByDesc('login_at')
+    ->get();
+
 
     if ($sessions->isEmpty()) {
         return '<p class="text-muted">No session records found.</p>';

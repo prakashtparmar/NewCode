@@ -22,20 +22,19 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="card mb-4">
-                            <div class="card-header">
+                        <div class="card card-primary card-outline">
+                            <div class="card-header d-flex justify-content-between align-items-center">
                                 <h3 class="card-title">User Control Panel</h3>
                                 @can('create_users')
-                                    <a href="{{ route('users.create') }}" class="btn btn-primary float-end"
-                                        style="max-width: 150px;">
-                                        Add New User
+                                    <a href="{{ route('users.create') }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-user-plus me-1"></i> Add New User
                                     </a>
                                 @endcan
                             </div>
 
                             <div class="card-body">
                                 @if (session('success'))
-                                    <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
+                                    <div class="alert alert-success alert-dismissible fade show" role="alert">
                                         <strong>Success:</strong> {{ session('success') }}
                                         <button type="button" class="btn-close" data-bs-dismiss="alert"
                                             aria-label="Close"></button>
@@ -44,9 +43,10 @@
 
                                 @can('view_users')
                                     @php $loggedInUserId = Auth::id(); @endphp
-                                    <div class="table-responsive">
-                                        <table id="users-table" class="table table-bordered table-striped align-middle">
-                                            <thead class="table-light">
+                                    <div class="table-responsive" style="max-height: 600px;">
+                                        <table id="users-table"
+                                            class="table table-bordered table-hover table-striped align-middle table-sm">
+                                            <thead class="table-light sticky-top">
                                                 <tr>
                                                     <th>No</th>
                                                     <th>User ID</th>
@@ -59,10 +59,10 @@
                                                     <th>Roles</th>
                                                     <th>Perms</th>
                                                     <th>Created</th>
-                                                    <th>User Code</th>
+                                                    <th title="User Code">Code</th>
                                                     <th>Mobile</th>
-                                                    <th>Desig.</th>
-                                                    <th>Report. To</th>
+                                                    <th title="Designation">Desig.</th>
+                                                    <th title="Reporting Manager">Report. To</th>
                                                     <th>HQ</th>
                                                     <th>State</th>
                                                     <th>District</th>
@@ -74,31 +74,21 @@
                                             <tbody>
                                                 @forelse ($users as $user)
                                                     @php
-                                                        $isOnline =
-                                                            $user->last_seen &&
-                                                            \Carbon\Carbon::parse($user->last_seen)->gt(
-                                                                now()->subMinutes(5),
-                                                            );
+                                                        $isOnline = $user->last_seen && \Carbon\Carbon::parse($user->last_seen)->gt(now()->subMinutes(5));
+                                                        $rowClass = $user->id === $loggedInUserId ? 'table-primary' : ($isOnline ? 'table-success' : (!$user->is_active ? 'table-secondary' : ''));
+                                                        $gender = strtolower($user->gender ?? '');
+                                                        $defaultImage = $gender === 'female' ? asset('admin/images/avatar-female.png') : asset('admin/images/avatar-male.png');
+                                                        $userImage = $user->image ? asset('storage/' . $user->image) : $defaultImage;
                                                     @endphp
-                                                    <tr class="{{ $user->id === $loggedInUserId ? 'table-primary' : '' }}">
+                                                    <tr class="{{ $rowClass }}">
                                                         <td>{{ $loop->iteration }}</td>
-                                                        <td>{{ $user->id }}</td> <!-- Display User ID -->
+                                                        <td>{{ $user->id }}</td>
                                                         <td>
-                                                            @php
-                                                                $gender = strtolower($user->gender ?? '');
-                                                                $defaultImage =
-                                                                    $gender === 'female'
-                                                                        ? asset('admin/images/avatar-female.png')
-                                                                        : asset('admin/images/avatar-male.png');
-                                                                $userImage = $user->image
-                                                                    ? asset('storage/' . $user->image)
-                                                                    : $defaultImage;
-                                                            @endphp
-                                                            <img src="{{ $userImage }}" alt="User Image"
-                                                                class="rounded-circle" width="40" height="40"
-                                                                style="object-fit: cover;">
+                                                            <img src="{{ $userImage }}" alt="User Image" class="rounded-circle"
+                                                                width="40" height="40" style="object-fit: cover;">
                                                         </td>
-                                                        <td>{{ $user->name }}
+                                                        <td>
+                                                            {{ $user->name }}
                                                             @if ($user->id === $loggedInUserId)
                                                                 <span class="badge bg-success ms-1">You</span>
                                                             @endif
@@ -107,40 +97,38 @@
                                                         <td>{{ $user->company->name ?? 'N/A' }}</td>
                                                         <td>
                                                             @if ($user->is_active)
-                                                                <span class="badge bg-success d-inline-flex align-items-center">
+                                                                <span class="badge bg-success">
                                                                     <i class="fas fa-check-circle me-1"></i> Active
                                                                 </span>
                                                             @else
-                                                                <span
-                                                                    class="badge bg-secondary d-inline-flex align-items-center">
+                                                                <span class="badge bg-secondary">
                                                                     <i class="fas fa-times-circle me-1"></i> Inactive
                                                                 </span>
                                                             @endif
                                                         </td>
                                                         <td>
-    @php
-        $activePlatforms = $user->activeSessions
-            ->whereNull('logout_at')
-            ->whereIn('platform', ['web', 'mobile'])
-            ->pluck('platform')
-            ->unique();
-    @endphp
+                                                            @php
+                                                                $activePlatforms = $user->activeSessions
+                                                                    ->whereNull('logout_at')
+                                                                    ->whereIn('platform', ['web', 'mobile'])
+                                                                    ->pluck('platform')
+                                                                    ->unique();
+                                                            @endphp
 
-    @if ($activePlatforms->isNotEmpty())
-        @foreach ($activePlatforms as $platform)
-            <span class="badge bg-success">{{ ucfirst($platform) }}</span>
-        @endforeach
-    @else
-        <span class="badge bg-secondary">Offline</span>
-    @endif
-</td>
-
-
+                                                            @if ($activePlatforms->isNotEmpty())
+                                                                @foreach ($activePlatforms as $platform)
+                                                                    <span class="badge {{ $platform == 'web' ? 'bg-primary' : 'bg-warning text-dark' }}">
+                                                                        {{ ucfirst($platform) }}
+                                                                    </span>
+                                                                @endforeach
+                                                            @else
+                                                                <span class="badge bg-secondary">Offline</span>
+                                                            @endif
+                                                        </td>
                                                         <td>
                                                             @if ($user->roles && count($user->roles))
                                                                 @foreach ($user->getRoleNames() as $role)
-                                                                    <span
-                                                                        class="badge bg-info text-dark">{{ $role }}</span>
+                                                                    <span class="badge bg-info text-dark">{{ $role }}</span>
                                                                 @endforeach
                                                             @else
                                                                 <span class="text-muted">None</span>
@@ -157,51 +145,36 @@
                                                         <td>{{ $user->user_code ?? '-' }}</td>
                                                         <td>{{ $user->mobile ?? '-' }}</td>
                                                         <td>{{ $user->designation->name ?? '-' }}</td>
-
                                                         <td>{{ $user->reportingManager->name ?? '-' }}</td>
-
                                                         <td>{{ $user->headquarter ?? '-' }}</td>
                                                         <td>{{ $user->state->name ?? '-' }}</td>
                                                         <td>{{ $user->district->name ?? '-' }}</td>
                                                         <td>{{ $user->tehsil->name ?? '-' }}</td>
                                                         <td>{{ $user->city->name ?? '-' }}</td>
-
                                                         <td>
                                                             @can('view_users')
-                                                                <a href="{{ route('users.show', $user) }}" class="text-info me-2"
-                                                                    title="View User">
+                                                                <a href="{{ route('users.show', $user) }}" class="text-info me-2" title="View User">
                                                                     <i class="fas fa-eye"></i>
                                                                 </a>
                                                             @endcan
-
                                                             @can('edit_users')
-                                                                <a href="{{ route('users.edit', $user) }}"
-                                                                    class="text-warning me-2" title="Edit User">
+                                                                <a href="{{ route('users.edit', $user) }}" class="text-warning me-2" title="Edit User">
                                                                     <i class="fas fa-edit"></i>
                                                                 </a>
                                                             @endcan
-
                                                             @can('toggle_users')
-                                                                <form action="{{ route('users.toggle', $user) }}" method="POST"
-                                                                    class="d-inline">
+                                                                <form action="{{ route('users.toggle', $user) }}" method="POST" class="d-inline">
                                                                     @csrf
-                                                                    <button type="submit"
-                                                                        class="btn btn-link p-0 me-2 {{ $user->is_active ? 'text-danger' : 'text-success' }}"
-                                                                        title="{{ $user->is_active ? 'Deactivate' : 'Activate' }} User">
-                                                                        <i
-                                                                            class="fas {{ $user->is_active ? 'fa-user-slash' : 'fa-user-check' }}"></i>
+                                                                    <button type="submit" class="btn btn-link p-0 me-2 {{ $user->is_active ? 'text-danger' : 'text-success' }}" title="{{ $user->is_active ? 'Deactivate' : 'Activate' }} User">
+                                                                        <i class="fas {{ $user->is_active ? 'fa-user-slash' : 'fa-user-check' }}"></i>
                                                                     </button>
                                                                 </form>
                                                             @endcan
-
                                                             @can('delete_users')
-                                                                <form action="{{ route('users.destroy', $user) }}" method="POST"
-                                                                    class="d-inline"
-                                                                    onsubmit="return confirm('Are you sure to delete this user?')">
+                                                                <form action="{{ route('users.destroy', $user) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure to delete this user?')">
                                                                     @csrf
                                                                     @method('DELETE')
-                                                                    <button type="submit" class="btn btn-link p-0 text-danger"
-                                                                        title="Delete User">
+                                                                    <button type="submit" class="btn btn-link p-0 text-danger" title="Delete User">
                                                                         <i class="fas fa-trash"></i>
                                                                     </button>
                                                                 </form>
@@ -210,11 +183,10 @@
                                                     </tr>
                                                 @empty
                                                     <tr>
-                                                        <td colspan="18" class="text-center text-muted">No users found.</td>
+                                                        <td colspan="21" class="text-center text-muted">No users found.</td>
                                                     </tr>
                                                 @endforelse
                                             </tbody>
-
                                         </table>
                                     </div>
                                 @endcan
@@ -235,7 +207,8 @@
                             <h5 class="modal-title" id="permissionsModalLabel{{ $user->id }}">
                                 Permissions for {{ $user->name }}
                             </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             @if ($user->roles->count())

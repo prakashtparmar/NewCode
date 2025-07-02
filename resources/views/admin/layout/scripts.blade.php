@@ -2,7 +2,8 @@
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 
 <!-- Bootstrap 5 + Popper -->
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" crossorigin="anonymous">
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
 
 <!-- Datatables -->
@@ -10,7 +11,8 @@
 <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
 
 <!-- OverlayScrollbars -->
-<script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/browser/overlayscrollbars.browser.es6.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/browser/overlayscrollbars.browser.es6.min.js"
+    crossorigin="anonymous"></script>
 
 <!-- AdminLTE JS -->
 <script src="{{ asset('admin/js/adminlte.js') }}"></script>
@@ -22,14 +24,16 @@
 <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js" crossorigin="anonymous"></script>
 
 <!-- jsvectormap -->
-<script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/js/jsvectormap.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/js/jsvectormap.min.js" crossorigin="anonymous">
+</script>
 <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/maps/world.js" crossorigin="anonymous"></script>
 
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 
 <!-- Google Maps API -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB_-uOyQimLqBkDW_Vr8d88GX6Qk0lyksI&libraries=places"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB_-uOyQimLqBkDW_Vr8d88GX6Qk0lyksI&libraries=places">
+</script>
 
 <!-- Custom JS -->
 <script src="{{ url('admin/js/custom.js') }}"></script>
@@ -37,7 +41,8 @@
 <!-- Initialize DataTables -->
 <script>
     $(document).ready(function() {
-        $("#roles-table, #users-table, #companies-table, #permissions-table, #customers-table, #designation-table, #trips-table").DataTable();
+        $("#roles-table, #users-table, #companies-table, #permissions-table, #customers-table, #designation-table, #trips-table")
+            .DataTable();
     });
 </script>
 
@@ -47,7 +52,11 @@
         const sidebarWrapper = document.querySelector('.sidebar-wrapper');
         if (sidebarWrapper && typeof OverlayScrollbarsGlobal?.OverlayScrollbars !== 'undefined') {
             OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, {
-                scrollbars: { theme: 'os-theme-light', autoHide: 'leave', clickScroll: true }
+                scrollbars: {
+                    theme: 'os-theme-light',
+                    autoHide: 'leave',
+                    clickScroll: true
+                }
             });
         }
     });
@@ -57,7 +66,10 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.connectedSortable').forEach(el => {
-            new Sortable(el, { group: 'shared', handle: '.card-header' });
+            new Sortable(el, {
+                group: 'shared',
+                handle: '.card-header'
+            });
         });
         document.querySelectorAll('.connectedSortable .card-header').forEach(el => el.style.cursor = 'move');
     });
@@ -66,26 +78,59 @@
 <!-- Google Maps Polyline and Markers -->
 <script>
     function initMap() {
-        if (!tripLogs || tripLogs.length < 2) { alert("Not enough trip logs to draw route."); return; }
-        const pathCoordinates = tripLogs.map(l => ({ lat: +l.latitude, lng: +l.longitude, recorded_at: l.recorded_at ?? '' }));
-        const map = new google.maps.Map(document.getElementById("map"), { zoom: 13, center: pathCoordinates[0] });
-        const tripPath = new google.maps.Polyline({ path: pathCoordinates, geodesic: true, strokeColor: "#007bff", strokeOpacity: 1, strokeWeight: 4 });
+        if (!tripLogs || tripLogs.length < 2) {
+            alert("Not enough trip logs to draw route.");
+            return;
+        }
+        const pathCoordinates = tripLogs.map(l => ({
+            lat: +l.latitude,
+            lng: +l.longitude,
+            recorded_at: l.recorded_at ?? ''
+        }));
+        const map = new google.maps.Map(document.getElementById("map"), {
+            zoom: 13,
+            center: pathCoordinates[0]
+        });
+        const tripPath = new google.maps.Polyline({
+            path: pathCoordinates,
+            geodesic: true,
+            strokeColor: "#007bff",
+            strokeOpacity: 1,
+            strokeWeight: 4
+        });
         tripPath.setMap(map);
         const bounds = new google.maps.LatLngBounds();
         pathCoordinates.forEach(c => bounds.extend(c));
         map.fitBounds(bounds);
         [pathCoordinates[0], pathCoordinates[pathCoordinates.length - 1]].forEach((c, i) => {
-            new google.maps.Marker({ position: c, map, label: i ? 'B' : 'A', icon: { url: i ? "http://maps.google.com/mapfiles/ms/icons/red-dot.png" : "http://maps.google.com/mapfiles/ms/icons/green-dot.png" } });
+            new google.maps.Marker({
+                position: c,
+                map,
+                label: i ? 'B' : 'A',
+                icon: {
+                    url: i ? "http://maps.google.com/mapfiles/ms/icons/red-dot.png" :
+                        "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
+                }
+            });
         });
         let distance = 0;
-        for (let i = 1; i < pathCoordinates.length; i++) distance += haversineDistance(pathCoordinates[i-1], pathCoordinates[i]);
+        for (let i = 1; i < pathCoordinates.length; i++) distance += haversineDistance(pathCoordinates[i - 1],
+            pathCoordinates[i]);
         document.getElementById("distance-display").innerText = distance.toFixed(2) + " km";
     }
-    function toRad(v) { return v * Math.PI / 180; }
+
+    function toRad(v) {
+        return v * Math.PI / 180;
+    }
+
     function haversineDistance(c1, c2) {
-        const R = 6371, dLat = toRad(c2.lat-c1.lat), dLon = toRad(c2.lng-c1.lng), lat1 = toRad(c1.lat), lat2 = toRad(c2.lat);
-        const a = Math.sin(dLat/2)**2 + Math.sin(dLon/2)**2 * Math.cos(lat1) * Math.cos(lat2);
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        const R = 6371,
+            dLat = toRad(c2.lat - c1.lat),
+            dLon = toRad(c2.lng - c1.lng),
+            lat1 = toRad(c1.lat),
+            lat2 = toRad(c2.lat);
+        const a = Math.sin(dLat / 2) ** 2 + Math.sin(dLon / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
     document.addEventListener("DOMContentLoaded", initMap);
 </script>
@@ -115,7 +160,8 @@
             }
         });
     });
-    function fillOptions(selector, data, label='name') {
+
+    function fillOptions(selector, data, label = 'name') {
         let opts = '<option value="">Select</option>';
         data.forEach(o => opts += `<option value="${o.id}">${o[label]}</option>`);
         $(selector).html(opts);
@@ -123,40 +169,38 @@
 
 
     $(document).ready(function() {
-    const stateId = "{{ old('state_id', $user->state_id ?? '') }}";
-    const districtId = "{{ old('district_id', $user->district_id ?? '') }}";
-    const cityId = "{{ old('city_id', $user->city_id ?? '') }}";
-    const tehsilId = "{{ old('tehsil_id', $user->tehsil_id ?? '') }}";
-    const pincodeId = "{{ old('pincode_id', $user->pincode_id ?? '') }}";
+        const stateId = "{{ old('state_id', $user->state_id ?? '') }}";
+        const districtId = "{{ old('district_id', $user->district_id ?? '') }}";
+        const cityId = "{{ old('city_id', $user->city_id ?? '') }}";
+        const tehsilId = "{{ old('tehsil_id', $user->tehsil_id ?? '') }}";
+        const pincodeId = "{{ old('pincode_id', $user->pincode_id ?? '') }}";
 
-    if(stateId) {
-        $.get(urls.districts + stateId).done(function(data) {
-            fillOptions('#district', data);
-            $('#district').val(districtId);
-            
-            if(districtId) {
-                $.get(urls.cities + districtId).done(function(data) {
-                    fillOptions('#city', data);
-                    $('#city').val(cityId);
+        if (stateId) {
+            $.get(urls.districts + stateId).done(function(data) {
+                fillOptions('#district', data);
+                $('#district').val(districtId);
 
-                    if(cityId) {
-                        $.get(urls.tehsils + cityId).done(function(data) {
-                            fillOptions('#tehsil', data);
-                            $('#tehsil').val(tehsilId);
-                        });
+                if (districtId) {
+                    $.get(urls.cities + districtId).done(function(data) {
+                        fillOptions('#city', data);
+                        $('#city').val(cityId);
 
-                        $.get(urls.pincodes + cityId).done(function(data) {
-                            fillOptions('#pincode', data, 'pincode');
-                            $('#pincode').val(pincodeId);
-                        });
-                    }
-                });
-            }
-        });
-    }
-});
+                        if (cityId) {
+                            $.get(urls.tehsils + cityId).done(function(data) {
+                                fillOptions('#tehsil', data);
+                                $('#tehsil').val(tehsilId);
+                            });
 
-
+                            $.get(urls.pincodes + cityId).done(function(data) {
+                                fillOptions('#pincode', data, 'pincode');
+                                $('#pincode').val(pincodeId);
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    });
 </script>
 
 <!-- Company > Executive Dropdown Linkage -->
@@ -170,7 +214,9 @@
                 .then(r => r.json()).then(d => {
                     eSelect.innerHTML = '<option value="">-- Select Executive --</option>';
                     d.executives.forEach(e => {
-                        let opt = document.createElement('option'); opt.value = e.id; opt.textContent = e.name;
+                        let opt = document.createElement('option');
+                        opt.value = e.id;
+                        opt.textContent = e.name;
                         eSelect.appendChild(opt);
                     });
                 });
@@ -181,21 +227,25 @@
 <!-- Travel Mode / Purpose / Tour Type Dropdown Loader -->
 <script>
     const baseUrl = "{{ url('admin') }}";
-    function loadDropdown(type, id, selected=null) {
-        $.get(baseUrl + "/dropdown-values/"+type).done(r => {
+
+    function loadDropdown(type, id, selected = null) {
+        $.get(baseUrl + "/dropdown-values/" + type).done(r => {
             if (r.status === 'success') {
                 let dd = $('#' + id).empty().append('<option value="">-- Select --</option>');
-                r.values.forEach(v => dd.append(`<option value="${v}" ${v==selected?'selected':''}>${v}</option>`));
+                r.values.forEach(v => dd.append(
+                    `<option value="${v}" ${v==selected?'selected':''}>${v}</option>`));
             }
         });
     }
-    $(function(){
+    $(function() {
         @if (!isset($trip))
-            loadDropdown('travel_mode','travel_mode'); loadDropdown('purpose','purpose'); loadDropdown('tour_type','tour_type');
+            loadDropdown('travel_mode', 'travel_mode');
+            loadDropdown('purpose', 'purpose');
+            loadDropdown('tour_type', 'tour_type');
         @else
-            loadDropdown('travel_mode','travel_mode',"{{ old('travel_mode', $trip->travel_mode) }}");
-            loadDropdown('purpose','purpose',"{{ old('purpose', $trip->purpose) }}");
-            loadDropdown('tour_type','tour_type',"{{ old('tour_type', $trip->tour_type) }}");
+            loadDropdown('travel_mode', 'travel_mode', "{{ old('travel_mode', $trip->travel_mode) }}");
+            loadDropdown('purpose', 'purpose', "{{ old('purpose', $trip->purpose) }}");
+            loadDropdown('tour_type', 'tour_type', "{{ old('tour_type', $trip->tour_type) }}");
         @endif
     });
 </script>
@@ -218,37 +268,37 @@
 
 
 <script>
-                        document.addEventListener("DOMContentLoaded", function() {
-                            const modalElement = document.getElementById("sessionHistoryModal");
-                            const modal = new bootstrap.Modal(modalElement);
-                            const modalContent = document.getElementById("sessionHistoryContent");
-                            const modalTitle = document.getElementById("sessionHistoryModalLabel");
+    document.addEventListener("DOMContentLoaded", function() {
+        const modalElement = document.getElementById("sessionHistoryModal");
+        const modal = new bootstrap.Modal(modalElement);
+        const modalContent = document.getElementById("sessionHistoryContent");
+        const modalTitle = document.getElementById("sessionHistoryModalLabel");
 
-                            // Event delegation: handle future dynamically added elements too
-                            document.body.addEventListener("click", function(e) {
-                                if (e.target.classList.contains("view-sessions-link")) {
-                                    e.preventDefault();
-                                    const userId = e.target.getAttribute("data-user-id");
-                                    const userName = e.target.getAttribute("data-user-name");
+        // Event delegation: handle future dynamically added elements too
+        document.body.addEventListener("click", function(e) {
+            if (e.target.classList.contains("view-sessions-link")) {
+                e.preventDefault();
+                const userId = e.target.getAttribute("data-user-id");
+                const userName = e.target.getAttribute("data-user-name");
 
-                                    modalTitle.innerText = `Session History - ${userName}`;
-                                    modalContent.innerHTML = "Loading...";
+                modalTitle.innerText = `Session History - ${userName}`;
+                modalContent.innerHTML = "Loading...";
 
-                                    fetch(`/admin/users/${userId}/sessions`)
-                                        .then(response => {
-                                            if (!response.ok) throw new Error("Network error");
-                                            return response.text();
-                                        })
-                                        .then(data => {
-                                            modalContent.innerHTML = data;
-                                        })
-                                        .catch(() => {
-                                            modalContent.innerHTML =
-                                                "<p class='text-danger'>Failed to load session history.</p>";
-                                        });
+                fetch(`/admin/users/${userId}/sessions`)
+                    .then(response => {
+                        if (!response.ok) throw new Error("Network error");
+                        return response.text();
+                    })
+                    .then(data => {
+                        modalContent.innerHTML = data;
+                    })
+                    .catch(() => {
+                        modalContent.innerHTML =
+                            "<p class='text-danger'>Failed to load session history.</p>";
+                    });
 
-                                    modal.show();
-                                }
-                            });
-                        });
-                    </script>
+                modal.show();
+            }
+        });
+    });
+</script>
