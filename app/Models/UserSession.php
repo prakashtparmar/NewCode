@@ -13,6 +13,7 @@ class UserSession extends Model
         'user_id',
         'ip_address',
         'user_agent',
+        'platform',
         'login_at',
         'logout_at',
         'session_duration'
