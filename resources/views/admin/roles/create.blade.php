@@ -29,11 +29,19 @@
                         </div>
                     </div>
 
-                    <!-- Permissions -->
+                    <!-- Permissions Section -->
                     <div class="row">
                         <div class="col-12">
                             <h5 class="mt-3">Assign Permissions</h5>
                             <hr>
+                        </div>
+
+                        <!-- Select All Checkbox -->
+                        <div class="col-12 mb-3">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="select-all">
+                                <label class="form-check-label fw-bold" for="select-all">Select All Permissions</label>
+                            </div>
                         </div>
 
                         <!-- User Permissions -->
@@ -42,7 +50,7 @@
                             @foreach ($permissions->filter(fn($p) => str_contains($p->name, 'user')) as $permission)
                                 <div class="form-check">
                                     <input type="checkbox" name="permissions[]" value="{{ $permission->name }}"
-                                        class="form-check-input" id="perm_{{ $permission->id }}">
+                                        class="form-check-input permission-checkbox" id="perm_{{ $permission->id }}">
                                     <label class="form-check-label" for="perm_{{ $permission->id }}">
                                         {{ ucwords(str_replace('_', ' ', $permission->name)) }}
                                     </label>
@@ -56,7 +64,7 @@
                             @foreach ($permissions->filter(fn($p) => str_contains($p->name, 'role')) as $permission)
                                 <div class="form-check">
                                     <input type="checkbox" name="permissions[]" value="{{ $permission->name }}"
-                                        class="form-check-input" id="perm_{{ $permission->id }}">
+                                        class="form-check-input permission-checkbox" id="perm_{{ $permission->id }}">
                                     <label class="form-check-label" for="perm_{{ $permission->id }}">
                                         {{ ucwords(str_replace('_', ' ', $permission->name)) }}
                                     </label>
@@ -70,7 +78,7 @@
                             @foreach ($permissions->filter(fn($p) => str_contains($p->name, 'customer')) as $permission)
                                 <div class="form-check">
                                     <input type="checkbox" name="permissions[]" value="{{ $permission->name }}"
-                                        class="form-check-input" id="perm_{{ $permission->id }}">
+                                        class="form-check-input permission-checkbox" id="perm_{{ $permission->id }}">
                                     <label class="form-check-label" for="perm_{{ $permission->id }}">
                                         {{ ucwords(str_replace('_', ' ', $permission->name)) }}
                                     </label>
@@ -81,10 +89,10 @@
                         <!-- Company Permissions -->
                         <div class="col-md-3">
                             <h6>Company Related</h6>
-                            @foreach ($permissions->filter(fn($p) => str_contains($p->name, 'company')) as $permission)
+                            @foreach ($permissions->filter(fn($p) => str_contains($p->name, 'companies')) as $permission)
                                 <div class="form-check">
                                     <input type="checkbox" name="permissions[]" value="{{ $permission->name }}"
-                                        class="form-check-input" id="perm_{{ $permission->id }}">
+                                        class="form-check-input permission-checkbox" id="perm_{{ $permission->id }}">
                                     <label class="form-check-label" for="perm_{{ $permission->id }}">
                                         {{ ucwords(str_replace('_', ' ', $permission->name)) }}
                                     </label>
@@ -92,36 +100,54 @@
                             @endforeach
                         </div>
 
-                        <!-- Other Permissions -->
-                        <div class="col-md-12 mt-4">
-                            <h6>Other Permissions</h6>
-                            <div class="row">
-                                @foreach ($permissions->filter(fn($p) =>
-                                    !str_contains($p->name, 'user') &&
-                                    !str_contains($p->name, 'role') &&
-                                    !str_contains($p->name, 'customer') &&
-                                    !str_contains($p->name, 'company')) as $permission)
-                                    <div class="col-md-3">
-                                        <div class="form-check">
-                                            <input type="checkbox" name="permissions[]" value="{{ $permission->name }}"
-                                                class="form-check-input" id="perm_{{ $permission->id }}">
-                                            <label class="form-check-label" for="perm_{{ $permission->id }}">
-                                                {{ ucwords(str_replace('_', ' ', $permission->name)) }}
-                                            </label>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
+                        <!-- Trip Permissions -->
+                        <div class="col-md-3 mt-4">
+                            <h6>Trip Related</h6>
+                            @foreach ($permissions->filter(fn($p) => str_contains($p->name, 'trip')) as $permission)
+                                <div class="form-check">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->name }}"
+                                        class="form-check-input permission-checkbox" id="perm_{{ $permission->id }}">
+                                    <label class="form-check-label" for="perm_{{ $permission->id }}">
+                                        {{ ucwords(str_replace('_', ' ', $permission->name)) }}
+                                    </label>
+                                </div>
+                            @endforeach
                         </div>
+
+                        <!-- Permissions Related Permissions -->
+                        <div class="col-md-3 mt-4">
+                            <h6>Permissions Related</h6>
+                            @foreach ($permissions->filter(fn($p) => str_contains($p->name, 'permission')) as $permission)
+                                <div class="form-check">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->name }}"
+                                        class="form-check-input permission-checkbox" id="perm_{{ $permission->id }}">
+                                    <label class="form-check-label" for="perm_{{ $permission->id }}">
+                                        {{ ucwords(str_replace('_', ' ', $permission->name)) }}
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+
                     </div>
 
-                    <!-- Submit -->
+                    <!-- Submit Buttons -->
                     <div class="mt-4">
                         <button type="submit" class="btn btn-primary">Create Role</button>
                         <a href="{{ route('roles.index') }}" class="btn btn-secondary">Cancel</a>
                     </div>
+
                 </form>
             </div>
         </div>
     </main>
+
+    {{-- Select All Permissions Script --}}
+    <script>
+        document.getElementById('select-all').addEventListener('change', function () {
+            let checkboxes = document.querySelectorAll('.permission-checkbox');
+            checkboxes.forEach(function (checkbox) {
+                checkbox.checked = event.target.checked;
+            });
+        });
+    </script>
 @endsection

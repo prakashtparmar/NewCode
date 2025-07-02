@@ -53,16 +53,6 @@
                                     class="bi bi-link-45deg"></i></a>
                         </div>
                     </div>
-                    {{-- <div class="col-lg-3 col-6">
-                        <div class="small-box text-bg-danger">
-                            <div class="inner">
-                                <h3>{{ $totalCustomers }}</h3>
-                                <p>Total Customers</p>
-                            </div>
-                            <a href="{{ url('admin/customers') }}" class="small-box-footer">More info <i
-                                    class="bi bi-link-45deg"></i></a>
-                        </div>
-                    </div> --}}
 
                     @if (!is_null($totalCustomers))
                         <div class="col-lg-3 col-6">
@@ -181,11 +171,21 @@
                             <tbody>
                                 @php
                                     use App\Models\UserSession;
+                                    use Illuminate\Support\Facades\Auth;
 
-                                    $sessionsGrouped = UserSession::with('user')
-                                        ->whereDate('login_at', now())
-                                        ->get()
-                                        ->groupBy('user_id');
+                                    $loggedInUser = Auth::user();
+                                    $isMasterAdmin = $loggedInUser->hasRole('master_admin');
+
+                                    $sessionsQuery = UserSession::with('user')
+                                        ->whereDate('login_at', now());
+
+                                    if (!$isMasterAdmin) {
+                                        $sessionsQuery->whereHas('user', function ($q) use ($loggedInUser) {
+                                            $q->where('company_id', $loggedInUser->company_id);
+                                        });
+                                    }
+
+                                    $sessionsGrouped = $sessionsQuery->get()->groupBy('user_id');
                                 @endphp
 
                                 @forelse ($sessionsGrouped as $userId => $userSessions)

@@ -171,11 +171,21 @@ class AdminController extends Controller
      */
     public function getUserSessionHistory(Request $request, $userId)
 {
-    $user = User::find($userId);
-    if (!$user) {
+    $loggedInUser = Auth::user();
+    $targetUser   = User::find($userId);
+
+    if (!$targetUser) {
         return '<p class="text-danger">User not found.</p>';
     }
 
+    $isMasterAdmin = $loggedInUser->hasRole('master_admin');
+
+    // ✅ Restrict company admins from viewing other companies' user sessions
+    if (!$isMasterAdmin && $loggedInUser->company_id !== $targetUser->company_id) {
+        return '<p class="text-danger">Unauthorized access. You can only view session logs of your own company\'s users.</p>';
+    }
+
+    // ✅ Fetch sessions for this user
     $sessions = UserSession::where('user_id', $userId)
         ->orderByDesc('login_at')
         ->get();
@@ -184,6 +194,7 @@ class AdminController extends Controller
         return '<p class="text-muted">No session records found.</p>';
     }
 
+    // ✅ Calculate today's total session duration for this user
     $todayTotalSeconds = UserSession::where('user_id', $userId)
         ->whereNotNull('session_duration')
         ->whereDate('login_at', now()->toDateString())
@@ -199,8 +210,8 @@ class AdminController extends Controller
               </tr></thead><tbody>';
 
     foreach ($sessions as $session) {
-        $login = $session->formatted_login_at;
-        $logout = $session->formatted_logout_at;
+        $login    = $session->formatted_login_at;
+        $logout   = $session->formatted_logout_at;
         $duration = $session->formatted_duration;
 
         $html .= "<tr>
@@ -214,5 +225,6 @@ class AdminController extends Controller
 
     return $html;
 }
+
 
 }
