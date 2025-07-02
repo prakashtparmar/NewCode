@@ -53,16 +53,6 @@
                                     class="bi bi-link-45deg"></i></a>
                         </div>
                     </div>
-                    {{-- <div class="col-lg-3 col-6">
-                        <div class="small-box text-bg-danger">
-                            <div class="inner">
-                                <h3>{{ $totalCustomers }}</h3>
-                                <p>Total Customers</p>
-                            </div>
-                            <a href="{{ url('admin/customers') }}" class="small-box-footer">More info <i
-                                    class="bi bi-link-45deg"></i></a>
-                        </div>
-                    </div> --}}
 
                     @if (!is_null($totalCustomers))
                         <div class="col-lg-3 col-6">
@@ -161,6 +151,105 @@
                     </div>
                 </div>
                 <!-- End Logged-in User Info Table -->
+
+                <!-- User Sessions Log Table -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h3 class="card-title">User Login & Logout History</h3>
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>First Login</th>
+                                    <th>Last Logout</th>
+                                    <th>Total Session Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php
+                                    use App\Models\UserSession;
+                                    use Illuminate\Support\Facades\Auth;
+
+                                    $loggedInUser = Auth::user();
+                                    $isMasterAdmin = $loggedInUser->hasRole('master_admin');
+
+                                    $sessionsQuery = UserSession::with('user')
+                                        ->whereDate('login_at', now());
+
+                                    if (!$isMasterAdmin) {
+                                        $sessionsQuery->whereHas('user', function ($q) use ($loggedInUser) {
+                                            $q->where('company_id', $loggedInUser->company_id);
+                                        });
+                                    }
+
+                                    $sessionsGrouped = $sessionsQuery->get()->groupBy('user_id');
+                                @endphp
+
+                                @forelse ($sessionsGrouped as $userId => $userSessions)
+                                    @php
+                                        $user = $userSessions->first()->user;
+                                        $firstLogin = $userSessions->sortBy('login_at')->first()->login_at;
+
+                                        $lastLogoutSession = $userSessions
+                                            ->whereNotNull('logout_at')
+                                            ->sortByDesc('logout_at')
+                                            ->first();
+                                        $lastLogout = $lastLogoutSession ? $lastLogoutSession->logout_at : null;
+
+                                        $totalDuration = $userSessions->sum('session_duration');
+                                    @endphp
+                                    <tr>
+                                        <td>
+                                            @if ($user)
+                                                <a href="javascript:void(0);"
+                                                    class="view-sessions-link text-primary text-decoration-underline"
+                                                    data-user-id="{{ $user->id }}"
+                                                    data-user-name="{{ $user->name }}">
+                                                    {{ $user->name }}
+                                                </a>
+                                            @else
+                                                N/A
+                                            @endif
+                                        </td>
+                                        <td>{{ $user?->email ?? 'N/A' }}</td>
+                                        <td>{{ $firstLogin ? $firstLogin->format('d-m-Y H:i:s') : 'N/A' }}</td>
+                                        <td>{{ $lastLogout ? $lastLogout->format('d-m-Y H:i:s') : 'Active' }}</td>
+                                        <td>{{ $totalDuration ? gmdate('H:i:s', $totalDuration) : 'Active' }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center">No session records found.</td>
+                                    </tr>
+                                @endforelse
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- End User Sessions Log Table -->
+
+                <!-- Session History Modal -->
+                <div class="modal fade" id="sessionHistoryModal" tabindex="-1" aria-labelledby="sessionHistoryModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="sessionHistoryModalLabel">Session History</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div id="sessionHistoryContent">Loading...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @push('scripts')
+                @endpush
 
             </div>
         </div>
