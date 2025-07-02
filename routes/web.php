@@ -37,6 +37,8 @@ Route::prefix('admin')->group(function () {
 
         // Dashboard
         Route::get('dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+        // ✅ Add this here
+    Route::get('users/{userId}/sessions', [AdminController::class, 'getUserSessionHistory'])->name('admin.users.sessions');
         Route::delete('/customers/bulk-delete', [CustomerController::class, 'bulkDelete'])->name('customers.bulk-delete');
 
         // Multi-Tenant Group

@@ -177,3 +177,41 @@
             (document.getElementById('approval_status').value === 'denied') ? 'block' : 'none';
     }
 </script>
+
+
+
+<script>
+                        document.addEventListener("DOMContentLoaded", function() {
+                            const modalElement = document.getElementById("sessionHistoryModal");
+                            const modal = new bootstrap.Modal(modalElement);
+                            const modalContent = document.getElementById("sessionHistoryContent");
+                            const modalTitle = document.getElementById("sessionHistoryModalLabel");
+
+                            // Event delegation: handle future dynamically added elements too
+                            document.body.addEventListener("click", function(e) {
+                                if (e.target.classList.contains("view-sessions-link")) {
+                                    e.preventDefault();
+                                    const userId = e.target.getAttribute("data-user-id");
+                                    const userName = e.target.getAttribute("data-user-name");
+
+                                    modalTitle.innerText = `Session History - ${userName}`;
+                                    modalContent.innerHTML = "Loading...";
+
+                                    fetch(`/admin/users/${userId}/sessions`)
+                                        .then(response => {
+                                            if (!response.ok) throw new Error("Network error");
+                                            return response.text();
+                                        })
+                                        .then(data => {
+                                            modalContent.innerHTML = data;
+                                        })
+                                        .catch(() => {
+                                            modalContent.innerHTML =
+                                                "<p class='text-danger'>Failed to load session history.</p>";
+                                        });
+
+                                    modal.show();
+                                }
+                            });
+                        });
+                    </script>
