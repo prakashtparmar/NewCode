@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Purpose;
+use App\Models\purpose;
 use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
-class PurposeController extends Controller
+class purposeController extends Controller
 {
     public function index()
     {
-        Session::put('page', 'travel_modes');
+        Session::put('page', '');
 
         $authUser = auth()->user();
-        $Purposes = $authUser->user_level === 'master_admin'
-            ? Purpose::with('company')->latest()->get()
-            : Purpose::with('company')->where('company_id', $authUser->company_id)->latest()->get();
+        $purposes = $authUser->user_level === 'master_admin'
+            ? purpose::with('company')->latest()->get()
+            : purpose::with('company')->where('company_id', $authUser->company_id)->latest()->get();
 
-        return view('admin.travel_modes.index', compact('Purposes'));
+        return view('admin.trips.purpose.index', compact('purposes'));
     }
 
     public function create()
@@ -26,13 +26,14 @@ class PurposeController extends Controller
         $authUser = auth()->user();
         $companies = $authUser->user_level === 'master_admin' ? Company::all() : collect();
 
-        return view('admin.travel_modes.create', compact('companies', 'authUser'));
+        return view('admin.trips.purpose.create', compact('companies'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'company_id' => auth()->user()->user_level === 'master_admin' ? 'required|exists:companies,id' : '',
         ]);
 
         $data = $request->only('name');
@@ -42,32 +43,43 @@ class PurposeController extends Controller
             ? $request->company_id
             : $authUser->company_id;
 
-        Purpose::create($data);
+        purpose::create($data);
 
-        return redirect()->route('travel-modes.index')->with('success', 'Travel Mode created successfully.');
+        return redirect()->route('purpose.index')->with('success', 'Purpose created successfully.');
     }
 
-    public function edit(Purpose $Purpose)
+    public function show(purpose $purpose)
     {
         $authUser = auth()->user();
-        if ($authUser->user_level !== 'master_admin' && $Purpose->company_id !== $authUser->company_id) {
+        if ($authUser->user_level !== 'master_admin' && $purpose->company_id !== $authUser->company_id) {
+            abort(403);
+        }
+
+        return view('admin.trips.purpose.show', compact('purpose'));
+    }
+
+    public function edit(purpose $purpose)
+    {
+        $authUser = auth()->user();
+        if ($authUser->user_level !== 'master_admin' && $purpose->company_id !== $authUser->company_id) {
             abort(403);
         }
 
         $companies = $authUser->user_level === 'master_admin' ? Company::all() : collect();
 
-        return view('admin.travel_modes.edit', compact('Purpose', 'companies', 'authUser'));
+        return view('admin.trips.purpose.edit', compact('purpose', 'companies'));
     }
 
-    public function update(Request $request, Purpose $Purpose)
+    public function update(Request $request, purpose $purpose)
     {
         $authUser = auth()->user();
-        if ($authUser->user_level !== 'master_admin' && $Purpose->company_id !== $authUser->company_id) {
+        if ($authUser->user_level !== 'master_admin' && $purpose->company_id !== $authUser->company_id) {
             abort(403);
         }
 
         $request->validate([
             'name' => 'required|string|max:255',
+            'company_id' => auth()->user()->user_level === 'master_admin' ? 'required|exists:companies,id' : '',
         ]);
 
         $data = $request->only('name');
@@ -75,20 +87,20 @@ class PurposeController extends Controller
             ? $request->company_id
             : $authUser->company_id;
 
-        $Purpose->update($data);
+        $purpose->update($data);
 
-        return redirect()->route('travel-modes.index')->with('success', 'Travel Mode updated successfully.');
+        return redirect()->route('purpose.index')->with('success', 'Purpose updated successfully.');
     }
 
-    public function destroy(Purpose $Purpose)
+    public function destroy(purpose $purpose)
     {
         $authUser = auth()->user();
-        if ($authUser->user_level !== 'master_admin' && $Purpose->company_id !== $authUser->company_id) {
+        if ($authUser->user_level !== 'master_admin' && $purpose->company_id !== $authUser->company_id) {
             abort(403);
         }
 
-        $Purpose->delete();
+        $purpose->delete();
 
-        return redirect()->route('travel-modes.index')->with('success', 'Travel Mode deleted.');
+        return redirect()->route('purpose.index')->with('success', 'Purpose deleted successfully.');
     }
 }

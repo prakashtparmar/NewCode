@@ -40,6 +40,7 @@
     <!--begin::Script-->
     @include('admin.layout.scripts')
     <!--end::Script-->
+    
 </body>
 <!--end::Body-->
 

@@ -6,9 +6,9 @@
     <div class="app-content-header">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-sm-6"><h3>Travel Mode Details</h3></div>
+                <div class="col-sm-6"><h3>Purpose Details</h3></div>
                 <div class="col-sm-6 text-end">
-                    <a href="{{ route('travelmode.index') }}" class="btn btn-secondary">Back</a>
+                    <a href="{{ route('purpose.index') }}" class="btn btn-secondary">Back</a>
                 </div>
             </div>
         </div>
@@ -21,24 +21,24 @@
 
                     <div class="mb-3">
                         <strong>Name:</strong>
-                        <p>{{ $travelMode->name }}</p>
+                        <p>{{ $purpose->name }}</p>
                     </div>
 
                     @if(auth()->user()->user_level === 'master_admin')
                     <div class="mb-3">
                         <strong>Company:</strong>
-                        <p>{{ $travelMode->company->name ?? '-' }}</p>
+                        <p>{{ $purpose->company->name ?? '-' }}</p>
                     </div>
                     @endif
 
                     <div class="mb-3">
                         <strong>Created At:</strong>
-                        <p>{{ $travelMode->created_at }}</p>
+                        <p>{{ $purpose->created_at }}</p>
                     </div>
 
                     <div class="mb-3">
                         <strong>Updated At:</strong>
-                        <p>{{ $travelMode->updated_at }}</p>
+                        <p>{{ $purpose->updated_at }}</p>
                     </div>
 
                 </div>

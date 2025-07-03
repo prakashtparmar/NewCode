@@ -26,13 +26,14 @@ class TravelModeController extends Controller
         $authUser = auth()->user();
         $companies = $authUser->user_level === 'master_admin' ? Company::all() : collect();
 
-        return view('admin.trips.travelmode.create', compact('companies', 'authUser'));
+        return view('admin.trips.travelmode.create', compact('companies'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'company_id' => auth()->user()->user_level === 'master_admin' ? 'required|exists:companies,id' : '',
         ]);
 
         $data = $request->only('name');
@@ -47,27 +48,38 @@ class TravelModeController extends Controller
         return redirect()->route('travelmode.index')->with('success', 'Travel Mode created successfully.');
     }
 
-    public function edit(TravelMode $travelMode)
+    public function show(TravelMode $travelmode)
     {
         $authUser = auth()->user();
-        if ($authUser->user_level !== 'master_admin' && $travelMode->company_id !== $authUser->company_id) {
+        if ($authUser->user_level !== 'master_admin' && $travelmode->company_id !== $authUser->company_id) {
+            abort(403);
+        }
+
+        return view('admin.trips.travelmode.show', compact('travelmode'));
+    }
+
+    public function edit(TravelMode $travelmode)
+    {
+        $authUser = auth()->user();
+        if ($authUser->user_level !== 'master_admin' && $travelmode->company_id !== $authUser->company_id) {
             abort(403);
         }
 
         $companies = $authUser->user_level === 'master_admin' ? Company::all() : collect();
 
-        return view('admin.trips.travelmode.edit', compact('travelMode', 'companies', 'authUser'));
+        return view('admin.trips.travelmode.edit', compact('travelmode', 'companies'));
     }
 
-    public function update(Request $request, TravelMode $travelMode)
+    public function update(Request $request, TravelMode $travelmode)
     {
         $authUser = auth()->user();
-        if ($authUser->user_level !== 'master_admin' && $travelMode->company_id !== $authUser->company_id) {
+        if ($authUser->user_level !== 'master_admin' && $travelmode->company_id !== $authUser->company_id) {
             abort(403);
         }
 
         $request->validate([
             'name' => 'required|string|max:255',
+            'company_id' => auth()->user()->user_level === 'master_admin' ? 'required|exists:companies,id' : '',
         ]);
 
         $data = $request->only('name');
@@ -75,19 +87,19 @@ class TravelModeController extends Controller
             ? $request->company_id
             : $authUser->company_id;
 
-        $travelMode->update($data);
+        $travelmode->update($data);
 
         return redirect()->route('travelmode.index')->with('success', 'Travel Mode updated successfully.');
     }
 
-    public function destroy(TravelMode $travelMode)
+    public function destroy(TravelMode $travelmode)
     {
         $authUser = auth()->user();
-        if ($authUser->user_level !== 'master_admin' && $travelMode->company_id !== $authUser->company_id) {
+        if ($authUser->user_level !== 'master_admin' && $travelmode->company_id !== $authUser->company_id) {
             abort(403);
         }
 
-        $travelMode->delete();
+        $travelmode->delete();
 
         return redirect()->route('travelmode.index')->with('success', 'Travel Mode deleted.');
     }

@@ -6,9 +6,9 @@
     <div class="app-content-header">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-sm-6"><h3>Edit Travel Mode</h3></div>
+                <div class="col-sm-6"><h3>Edit Purpose</h3></div>
                 <div class="col-sm-6 text-end">
-                    <a href="{{ route('travelmode.index') }}" class="btn btn-secondary">Back</a>
+                    <a href="{{ route('purpose.index') }}" class="btn btn-secondary">Back</a>
                 </div>
             </div>
         </div>
@@ -23,14 +23,14 @@
             @endif
 
             <div class="card">
-                <form method="POST" action="{{ route('travelmode.update', $travelmode->id) }}">
+                <form method="POST" action="{{ route('purpose.update', $purpose->id) }}">
                     @csrf
                     @method('PUT')
                     <div class="card-body row g-3">
 
                         <div class="col-md-6">
-                            <label class="form-label">Travel Mode Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control" value="{{ $travelmode->name }}" required>
+                            <label class="form-label">Purpose Name <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control" value="{{ $purpose->name }}" required>
                         </div>
 
                         @if(auth()->user()->user_level === 'master_admin')
@@ -39,7 +39,7 @@
                             <select name="company_id" class="form-select" required>
                                 <option value="">Select Company</option>
                                 @foreach($companies as $company)
-                                    <option value="{{ $company->id }}" {{ $travelmode->company_id == $company->id ? 'selected' : '' }}>
+                                    <option value="{{ $company->id }}" {{ $purpose->company_id == $company->id ? 'selected' : '' }}>
                                         {{ $company->name }}
                                     </option>
                                 @endforeach
@@ -50,7 +50,7 @@
                     </div>
 
                     <div class="card-footer text-end">
-                        <button type="submit" class="btn btn-primary">Update Travel Mode</button>
+                        <button type="submit" class="btn btn-primary">Update Purpose</button>
                     </div>
                 </form>
             </div>

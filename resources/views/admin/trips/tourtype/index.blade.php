@@ -6,10 +6,10 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-6">
-                    <h3 class="mb-0">Travel Modes</h3>
+                    <h3 class="mb-0">Tour Types</h3>
                 </div>
                 <div class="col-sm-6 text-end">
-                    <a href="{{ route('travelmode.create') }}" class="btn btn-primary">Add Travel Mode</a>
+                    <a href="{{ route('tourtype.create') }}" class="btn btn-primary">Add Tour Type</a>
                 </div>
             </div>
         </div>
@@ -36,17 +36,17 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse ($travelModes as $key => $mode)
+                            @forelse ($tourtypes as $key => $type)
                                 <tr>
                                     <td>{{ $key + 1 }}</td>
-                                    <td>{{ $mode->name }}</td>
+                                    <td>{{ $type->name }}</td>
                                     @if (auth()->user()->user_level === 'master_admin')
-                                        <td>{{ $mode->company->name ?? '-' }}</td>
+                                        <td>{{ $type->company->name ?? '-' }}</td>
                                     @endif
                                     <td>
-                                        <a href="{{ route('travelmode.edit', $mode->id) }}" class="btn btn-sm btn-primary">Edit</a>
+                                        <a href="{{ route('tourtype.edit', $type->id) }}" class="btn btn-sm btn-primary">Edit</a>
 
-                                        <form action="{{ route('travelmode.destroy', $mode->id) }}" method="POST" class="d-inline">
+                                        <form action="{{ route('tourtype.destroy', $type->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
@@ -55,7 +55,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="{{ auth()->user()->user_level === 'master_admin' ? 4 : 3 }}">No travel modes found.</td>
+                                    <td colspan="{{ auth()->user()->user_level === 'master_admin' ? 4 : 3 }}">No tour types found.</td>
                                 </tr>
                             @endforelse
                         </tbody>
