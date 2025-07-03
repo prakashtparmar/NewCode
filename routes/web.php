@@ -58,11 +58,8 @@ Route::prefix('admin')->group(function () {
                 Route::resource('travelmode', TravelModeController::class)->names('travelmode');
                 Route::resource('tourtype', TourTypeController::class)->names('tourtype');
                 Route::resource('purpose', PurposeController::class)->names('purpose');
+                
             });
-
-
-
-
 
             // Companies
             Route::resource('companies', CompanyController::class);

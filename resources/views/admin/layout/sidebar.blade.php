@@ -82,29 +82,29 @@
                         <li class="nav-item">
                             <a href="{{ url('admin/trips') }}"
                                 class="nav-link {{ request()->is('admin/trips*') ? 'active' : '' }}">
-                                <i class="bi bi-truck me-2"></i> Trips
+                                <i class="bi bi-truck me-2"></i> List All Trips
                             </a>
                         </li>
 
                         <li class="nav-item">
-                            <a href="{{ url('admin/trip-types') }}"
-                                class="nav-link {{ request()->is('admin/trip-types*') ? 'active' : '' }}">
-                                <i class="bi bi-tag me-2"></i> Trip Types
+                            <a href="{{ url('admin/trips/tourtype') }}"
+                                class="nav-link {{ request()->is('admin/trips/tourtype*') ? 'active' : '' }}">
+                                <i class="bi bi-tag me-2"></i> Type Of Trip
                             </a>
                         </li>
 
                         <li class="nav-item">
                             <a href="{{ url('admin/trips/travelmode') }}"
                                 class="nav-link {{ request()->is('admin/trips/travelmode*') ? 'active' : '' }}">
-                                <i class="bi bi-signpost me-2"></i> Travel Modes
+                                <i class="bi bi-signpost me-2"></i> Mode Of trip
                             </a>
                         </li>
 
 
                         <li class="nav-item">
-                            <a href="{{ url('admin/purposes') }}"
-                                class="nav-link {{ request()->is('admin/purposes*') ? 'active' : '' }}">
-                                <i class="bi bi-bullseye me-2"></i> Purposes
+                            <a href="{{ url('admin/trips/purpose') }}"
+                                class="nav-link {{ request()->is('admin/trips/purpose*') ? 'active' : '' }}">
+                                <i class="bi bi-bullseye me-2"></i> Purposes Of Trip
                             </a>
                         </li>
 

@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TourType;
+use App\Models\tourtype;
 use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
-class TourTypeController extends Controller
+class tourtypeController extends Controller
 {
     public function index()
     {
-        Session::put('page', 'travel_modes');
+        Session::put('page', '');
 
         $authUser = auth()->user();
-        $TourTypes = $authUser->user_level === 'master_admin'
-            ? TourType::with('company')->latest()->get()
-            : TourType::with('company')->where('company_id', $authUser->company_id)->latest()->get();
+        $tourtypes = $authUser->user_level === 'master_admin'
+            ? tourtype::with('company')->latest()->get()
+            : tourtype::with('company')->where('company_id', $authUser->company_id)->latest()->get();
 
-        return view('admin.travel_modes.index', compact('TourTypes'));
+        return view('admin.trips.tourtype.index', compact('tourtypes'));
     }
 
     public function create()
@@ -26,13 +26,14 @@ class TourTypeController extends Controller
         $authUser = auth()->user();
         $companies = $authUser->user_level === 'master_admin' ? Company::all() : collect();
 
-        return view('admin.travel_modes.create', compact('companies', 'authUser'));
+        return view('admin.trips.tourtype.create', compact('companies'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'company_id' => auth()->user()->user_level === 'master_admin' ? 'required|exists:companies,id' : '',
         ]);
 
         $data = $request->only('name');
@@ -42,32 +43,43 @@ class TourTypeController extends Controller
             ? $request->company_id
             : $authUser->company_id;
 
-        TourType::create($data);
+        tourtype::create($data);
 
-        return redirect()->route('travel-modes.index')->with('success', 'Travel Mode created successfully.');
+        return redirect()->route('tourtype.index')->with('success', 'Travel Mode created successfully.');
     }
 
-    public function edit(TourType $TourType)
+    public function show(tourtype $tourtype)
     {
         $authUser = auth()->user();
-        if ($authUser->user_level !== 'master_admin' && $TourType->company_id !== $authUser->company_id) {
+        if ($authUser->user_level !== 'master_admin' && $tourtype->company_id !== $authUser->company_id) {
+            abort(403);
+        }
+
+        return view('admin.trips.tourtype.show', compact('tourtype'));
+    }
+
+    public function edit(tourtype $tourtype)
+    {
+        $authUser = auth()->user();
+        if ($authUser->user_level !== 'master_admin' && $tourtype->company_id !== $authUser->company_id) {
             abort(403);
         }
 
         $companies = $authUser->user_level === 'master_admin' ? Company::all() : collect();
 
-        return view('admin.travel_modes.edit', compact('TourType', 'companies', 'authUser'));
+        return view('admin.trips.tourtype.edit', compact('tourtype', 'companies'));
     }
 
-    public function update(Request $request, TourType $TourType)
+    public function update(Request $request, tourtype $tourtype)
     {
         $authUser = auth()->user();
-        if ($authUser->user_level !== 'master_admin' && $TourType->company_id !== $authUser->company_id) {
+        if ($authUser->user_level !== 'master_admin' && $tourtype->company_id !== $authUser->company_id) {
             abort(403);
         }
 
         $request->validate([
             'name' => 'required|string|max:255',
+            'company_id' => auth()->user()->user_level === 'master_admin' ? 'required|exists:companies,id' : '',
         ]);
 
         $data = $request->only('name');
@@ -75,20 +87,20 @@ class TourTypeController extends Controller
             ? $request->company_id
             : $authUser->company_id;
 
-        $TourType->update($data);
+        $tourtype->update($data);
 
-        return redirect()->route('travel-modes.index')->with('success', 'Travel Mode updated successfully.');
+        return redirect()->route('tourtype.index')->with('success', 'Travel Mode updated successfully.');
     }
 
-    public function destroy(TourType $TourType)
+    public function destroy(tourtype $tourtype)
     {
         $authUser = auth()->user();
-        if ($authUser->user_level !== 'master_admin' && $TourType->company_id !== $authUser->company_id) {
+        if ($authUser->user_level !== 'master_admin' && $tourtype->company_id !== $authUser->company_id) {
             abort(403);
         }
 
-        $TourType->delete();
+        $tourtype->delete();
 
-        return redirect()->route('travel-modes.index')->with('success', 'Travel Mode deleted.');
+        return redirect()->route('tourtype.index')->with('success', 'Travel Mode deleted.');
     }
 }

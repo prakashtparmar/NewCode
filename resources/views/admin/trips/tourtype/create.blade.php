@@ -6,9 +6,9 @@
     <div class="app-content-header">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-sm-6"><h3>Edit Travel Mode</h3></div>
+                <div class="col-sm-6"><h3>Add Tour Type</h3></div>
                 <div class="col-sm-6 text-end">
-                    <a href="{{ route('travelmode.index') }}" class="btn btn-secondary">Back</a>
+                    <a href="{{ route('tourtype.index') }}" class="btn btn-secondary">Back</a>
                 </div>
             </div>
         </div>
@@ -23,14 +23,13 @@
             @endif
 
             <div class="card">
-                <form method="POST" action="{{ route('travelmode.update', $travelmode->id) }}">
+                <form method="POST" action="{{ route('tourtype.store') }}">
                     @csrf
-                    @method('PUT')
                     <div class="card-body row g-3">
 
                         <div class="col-md-6">
-                            <label class="form-label">Travel Mode Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control" value="{{ $travelmode->name }}" required>
+                            <label class="form-label">Tour Type Name <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control" required>
                         </div>
 
                         @if(auth()->user()->user_level === 'master_admin')
@@ -39,9 +38,7 @@
                             <select name="company_id" class="form-select" required>
                                 <option value="">Select Company</option>
                                 @foreach($companies as $company)
-                                    <option value="{{ $company->id }}" {{ $travelmode->company_id == $company->id ? 'selected' : '' }}>
-                                        {{ $company->name }}
-                                    </option>
+                                    <option value="{{ $company->id }}">{{ $company->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -50,7 +47,7 @@
                     </div>
 
                     <div class="card-footer text-end">
-                        <button type="submit" class="btn btn-primary">Update Travel Mode</button>
+                        <button type="submit" class="btn btn-primary">Create Tour Type</button>
                     </div>
                 </form>
             </div>
