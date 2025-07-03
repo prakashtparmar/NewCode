@@ -281,4 +281,12 @@ class ApiTripController extends BaseController
         // 5️⃣  Return a consistent API response.
         return $this->sendResponse($trip, "Trip has been closed");
     }
+
+    public function showTrip($id)
+    {
+        $user = Auth::user();
+        $trip = Trip::findOrFail($id);
+
+        return $this->sendResponse($trip->load(["purpose", "tourType", "travelMode", "company", "approvedByUser", "user"]), "Trip fetched successfully");
+    }
 }

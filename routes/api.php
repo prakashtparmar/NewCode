@@ -24,5 +24,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/trips/{tripId}/logs', [ApiTripController::class, 'logs']);
     Route::post('/trips/{tripId}/complete', [ApiTripController::class, 'completeTrip']);
     Route::get('/trip/active', [ApiTripController::class, 'lastActive']);
+    Route::get('/trip/{tripId}/detail', [ApiTripController::class, 'showTrip']);
     Route::post('/trip/close', [ApiTripController::class, 'close']);
 });

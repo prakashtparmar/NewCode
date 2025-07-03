@@ -94,12 +94,30 @@ class ApiAuthController extends BaseController
         $user->save();
 
         // ✅ Log API user login session
+        // ✅ Check and close existing open session
+        $existingMobileSession = UserSession::where('user_id', $user->id)
+            ->whereNull('logout_at')
+            ->where('platform', 'mobile')
+            ->latest()
+            ->first();
+
+        if ($existingMobileSession) {
+            $existingMobileSession->update([
+                'logout_at'        => now(),
+                'session_duration' => $existingMobileSession->login_at->diffInSeconds(now()),
+            ]);
+        }
+
+
+        // ✅ Log API user login session
         UserSession::create([
             'user_id'    => $user->id,
             'ip_address' => $request->ip(),
             'user_agent' => $request->header('User-Agent'),
+            'platform'   => 'mobile',
             'login_at'   => now(),
         ]);
+
         $success['token'] = $token;
         $success['user'] =  $user;
         return $this->sendResponse($success, 'User logged in successfully.');
@@ -119,6 +137,7 @@ class ApiAuthController extends BaseController
             // ✅ Update last active session record
             $session = UserSession::where('user_id', $user->id)
                 ->whereNull('logout_at')
+                ->where('platform', 'mobile')
                 ->latest()
                 ->first();
 
