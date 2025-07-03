@@ -50,7 +50,7 @@ class Trip extends Model
 
     public function company(): BelongsTo
     {
-        return $this->belongsTo(Company::class);
+        return $this->belongsTo(Company::class, 'company_id');
     }
 
     public function tripLogs(): HasMany
@@ -66,14 +66,14 @@ class Trip extends Model
 
     public function purpose(): BelongsTo
     {
-        return $this->belongsTo(Purpose::class);
+        return $this->belongsTo(Purpose::class, 'purpose');
     }
     public function tourType(): BelongsTo
     {
-        return $this->belongsTo(TourType::class);
+        return $this->belongsTo(TourType::class, 'tour_type');
     }
     public function travelMode(): BelongsTo
     {
-        return $this->belongsTo(TravelMode::class);
+        return $this->belongsTo(TravelMode::class, 'travel_mode');
     }
 }

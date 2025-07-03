@@ -17,12 +17,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // ✅ New Trip API routes (appended here)
     Route::get('/trip/customers', [ApiTripController::class, 'fetchCustomer']);
-     Route::get('/tourDetails', [ApiTripController::class, 'getTourDetails']);
+    Route::get('/tourDetails', [ApiTripController::class, 'getTourDetails']);
     Route::get('/trips', [ApiTripController::class, 'index']);
     Route::post('/trips/store', [ApiTripController::class, 'storeTrip']);
     Route::post('/trips/log-point', [ApiTripController::class, 'logPoint']);
     Route::get('/trips/{tripId}/logs', [ApiTripController::class, 'logs']);
     Route::post('/trips/{tripId}/complete', [ApiTripController::class, 'completeTrip']);
     Route::get('/trip/active', [ApiTripController::class, 'lastActive']);
-    Route::put('/trip/close', [ApiTripController::class, 'close']);
+    Route::post('/trip/close', [ApiTripController::class, 'close']);
 });

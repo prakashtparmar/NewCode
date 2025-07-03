@@ -192,12 +192,7 @@ class ApiTripController extends BaseController
         if (!empty($validated['customer_ids'])) {
             $trip->customers()->attach($validated['customer_ids']);
         }
-
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Trip created successfully.',
-            'trip'    => $trip->load(["purpose", "tourType", "travelMode", "company", "approvedByUser", "user"])
-        ], 201);
+        return $this->sendResponse($trip->load(["purpose", "tourType", "travelMode", "company", "approvedByUser", "user"]), "Day logs created successfully");
     }
 
     // Calculate total distance from trip logs
@@ -240,18 +235,13 @@ class ApiTripController extends BaseController
             ->first();
 
         if (!$trip) {
-            return $this->sendError('No active trips found', [], 200);
+            return $this->sendResponse($trip, "No active trips found");
         }
         return $this->sendResponse($trip, "Trips fetched successfully");
     }
     public function close(Request $request)
     {
         // 1️⃣  Authorise: only the owner (or an admin) may close the trip.
-
-        $trip = Trip::find($request->id);
-        if (!$trip) {
-            return $this->sendError('Trip not found.', [], 200);
-        }
         // 2️⃣  Validate incoming data.
         $validated = $request->validate([
             'end_time' => 'required|date_format:H:i:s',   // send as 24h time, e.g. 17:45:00
@@ -262,6 +252,7 @@ class ApiTripController extends BaseController
             'end_km_photo'   => 'required|mimes:jpeg,jpg,png,bmp,gif,svg,webp,tiff,ico|max:5120',
             'status'   => 'in:completed',                 // optional override; default below
         ]);
+        $trip = Trip::findOrFail($request->id);
 
         $user = Auth::user();
         if ($trip->user_id !== $user->id) {
