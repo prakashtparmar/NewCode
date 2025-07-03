@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Services\Admin\AdminService;
 use App\Models\UserSession;
+use App\Models\Customer;
+
 use Session;
 
 class AdminController extends Controller
@@ -33,7 +35,7 @@ class AdminController extends Controller
         $totalUsers       = User::count();
         $totalRoles       = \Spatie\Permission\Models\Role::count();
         $totalPermissions = \Spatie\Permission\Models\Permission::count();
-        $totalCustomers   = null;
+        $totalCustomers   = Customer::count();
 
         $onlineUsers = User::whereHas('sessions', function ($query) {
             $query->whereNull('logout_at')->whereIn('platform', ['web', 'mobile']);
@@ -47,7 +49,7 @@ class AdminController extends Controller
         $totalUsers       = User::where('company_id', $companyId)->count();
         $totalRoles       = \Spatie\Permission\Models\Role::where('company_id', $companyId)->count();
         $totalPermissions = \Spatie\Permission\Models\Permission::where('company_id', $companyId)->count();
-        $totalCustomers   = null;
+        $totalCustomers   = Customer::where('company_id', $companyId)->count();
 
         $onlineUsers = User::where('company_id', $companyId)
             ->whereHas('sessions', function ($query) {

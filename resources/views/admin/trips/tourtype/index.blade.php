@@ -24,7 +24,7 @@
 
             <div class="card">
                 <div class="card-body table-responsive">
-                    <table id="tourtype-table" class="table table-bordered table-striped align-middle">
+                    <table id="trips-table" class="table table-bordered table-striped align-middle">
                         <thead>
                             <tr>
                                 <th>#</th>
