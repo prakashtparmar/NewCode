@@ -7,7 +7,7 @@ use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
-class purposeController extends Controller
+class PurposeController extends Controller
 {
     public function index()
     {

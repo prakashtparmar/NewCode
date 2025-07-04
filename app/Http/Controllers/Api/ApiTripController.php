@@ -12,6 +12,7 @@ use App\Models\TripLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ApiTripController extends BaseController
 {
@@ -144,15 +145,31 @@ class ApiTripController extends BaseController
         ]);
 
         $user = Auth::user();
-
+        Log::error('Received file:', [
+            'exists' => $request->hasFile('start_km_photo'),
+            'valid' => $request->file('start_km_photo')->isValid(),
+            'size' => $request->file('start_km_photo')->getSize(),
+        ]);
         // Handle photo uploads
-        $startKmPhoto = $request->hasFile('start_km_photo')
-            ? $request->file('start_km_photo')->store('trip_photos', 'public')
-            : null;
+        $startKmPhoto = null;
+        if ($request->hasFile('start_km_photo')) {
+            try {
+                $startKmPhoto = $request->file('start_km_photo')->store('trip_photos', 'public');
+            } catch (\Exception $e) {
+                Log::error('File upload failed: ' . $e->getMessage());
+                // Handle the error appropriately
+            }
+        }
+        $endKmPhoto = null;
+        if ($request->hasFile('start_km_photo')) {
+            try {
+                $endKmPhoto = $request->file('end_km_photo')->store('trip_photos', 'public');
+            } catch (\Exception $e) {
+                Log::error('File upload failed: ' . $e->getMessage());
+                // Handle the error appropriately
+            }
+        }
 
-        $endKmPhoto = $request->hasFile('end_km_photo')
-            ? $request->file('end_km_photo')->store('trip_photos', 'public')
-            : null;
 
         // If end_lat/lng provided, calculate distance
         $distance = null;

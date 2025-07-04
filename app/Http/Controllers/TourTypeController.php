@@ -7,7 +7,7 @@ use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
-class tourtypeController extends Controller
+class TourTypeController extends Controller
 {
     public function index()
     {
