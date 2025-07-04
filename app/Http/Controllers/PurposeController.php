@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\purpose;
+use App\Models\Purpose;
 use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;

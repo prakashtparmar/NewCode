@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\tourtype;
+use App\Models\TourType;
 use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
