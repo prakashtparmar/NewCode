@@ -73,6 +73,8 @@ class ApiTripController extends BaseController
             'trip_id'     => 'required|exists:trips,id',
             'latitude'    => 'required|numeric',
             'longitude'   => 'required|numeric',
+            'battery_percentage' => 'nullable|string|numeric',
+            'gps_status' => 'nullable|string|numeric',
             'recorded_at' => 'nullable|date',
         ]);
 
@@ -80,27 +82,21 @@ class ApiTripController extends BaseController
             'trip_id'     => $validated['trip_id'],
             'latitude'    => $validated['latitude'],
             'longitude'   => $validated['longitude'],
+            'battery_percentage'   => $validated['battery_percentage'] ?? null,
+            'gps_status'   => $validated['gps_status'] ?? null,
             'recorded_at' => $validated['recorded_at'] ?? now(),
         ]);
 
-
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Log point recorded.',
-            'data'    => $log
-        ], 201);
+        return $this->sendResponse($log, "Trip log recorded successfully");
     }
 
     // Get all logs for a trip
     public function logs($tripId)
     {
         $trip = Trip::with('tripLogs')->findOrFail($tripId);
-
-        return response()->json([
-            'status' => 'success',
-            'trip'   => $trip->only(['id', 'trip_date', 'start_time', 'end_time', 'status']),
-            'logs'   => $trip->tripLogs->sortBy('recorded_at')->values()
-        ]);
+        $success["trip"] = $trip->only(['id', 'trip_date', 'start_time', 'end_time', 'status']);
+        $success["logs"] = $trip->tripLogs->sortBy('recorded_at')->values();
+        return $this->sendResponse($success, "Trip log fetch successfully");
     }
 
     // Mark a trip as completed
@@ -118,12 +114,7 @@ class ApiTripController extends BaseController
         $trip->total_distance_km = $this->calculateDistanceFromLogs($tripId);
         $trip->status = 'completed';
         $trip->save();
-
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Trip marked as completed.',
-            'trip'    => $trip
-        ]);
+        return $this->sendResponse($trip, "Trip marked as completed.");
     }
 
     // Create a new trip via API
@@ -145,15 +136,16 @@ class ApiTripController extends BaseController
         ]);
 
         $user = Auth::user();
-        Log::error('Received file:', [
-            'exists' => $request->hasFile('start_km_photo'),
-            'valid' => $request->file('start_km_photo')->isValid(),
-            'size' => $request->file('start_km_photo')->getSize(),
-        ]);
+
         // Handle photo uploads
         $startKmPhoto = null;
         if ($request->hasFile('start_km_photo')) {
             try {
+                Log::error('Received file:', [
+                    'exists' => $request->hasFile('start_km_photo'),
+                    'valid' => $request->file('start_km_photo')->isValid(),
+                    'size' => $request->file('start_km_photo')->getSize(),
+                ]);
                 $startKmPhoto = $request->file('start_km_photo')->store('trip_photos', 'public');
             } catch (\Exception $e) {
                 Log::error('File upload failed: ' . $e->getMessage());
@@ -161,7 +153,7 @@ class ApiTripController extends BaseController
             }
         }
         $endKmPhoto = null;
-        if ($request->hasFile('start_km_photo')) {
+        if ($request->hasFile('end_km_photo')) {
             try {
                 $endKmPhoto = $request->file('end_km_photo')->store('trip_photos', 'public');
             } catch (\Exception $e) {
@@ -284,6 +276,7 @@ class ApiTripController extends BaseController
             ? $request->file('end_km_photo')->store('trip_photos', 'public')
             : null;
 
+        $total_distance_km = $this->calculateDistanceFromLogs($request->id);
         // 4️⃣  Update the trip.
         $trip->update([
             'end_time'          => $validated['end_time'],
@@ -291,6 +284,7 @@ class ApiTripController extends BaseController
             'end_lng'           => $validated['end_lng'],
             'end_km'            => $request->end_km,
             'end_km_photo'      => $endKmPhoto,
+            'total_distance_km'      => $total_distance_km,
             'status'            => $validated['status']   ?? 'completed',
             'updated_at'        => Carbon::now(),         // or leave for Eloquent timestamps
         ]);
@@ -303,7 +297,6 @@ class ApiTripController extends BaseController
     {
         $user = Auth::user();
         $trip = Trip::findOrFail($id);
-
         return $this->sendResponse($trip->load(["purpose", "tourType", "travelMode", "company", "approvedByUser", "user"]), "Trip fetched successfully");
     }
 }
