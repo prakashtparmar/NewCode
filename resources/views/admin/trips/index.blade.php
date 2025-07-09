@@ -53,13 +53,15 @@
                                         <th>Created By</th>
                                         <th>Date</th>
                                         <th>Mode</th>
-                                        <th>Distance (km)</th>
+
                                         <th>Place To Visit</th>
                                         <th>Customers</th>
                                         <th>Start KM</th>
                                         <th>Start Photo</th>
                                         <th>End KM</th>
                                         <th>End Photo</th>
+                                        <th>Reading (km)</th>
+                                        <th>Distance GPS(km)</th>
                                         <th>Status</th>
                                         <th>Approval</th>
                                         <th>Logs</th>
@@ -73,12 +75,13 @@
                                             <td>{{ $trip->user->name ?? 'N/A' }}</td>
                                             <td>{{ $trip->trip_date }}</td>
                                             <td>{{ $trip->travel_mode }}</td>
-                                            <td>{{ $trip->total_distance_km }}</td>
+
                                             <td>{{ $trip->place_to_visit ?? '-' }}</td>
                                             <td>
                                                 @if ($trip->customers->isNotEmpty())
                                                     @foreach ($trip->customers as $customer)
-                                                        <span class="badge rounded-pill bg-info text-dark mb-1">{{ $customer->name }}</span><br>
+                                                        <span
+                                                            class="badge rounded-pill bg-info text-dark mb-1">{{ $customer->name }}</span><br>
                                                     @endforeach
                                                 @else
                                                     -
@@ -88,7 +91,8 @@
                                             <td>
                                                 @if ($trip->start_km_photo)
                                                     <a href="{{ asset('storage/' . $trip->start_km_photo) }}" target="_blank">
-                                                        <img src="{{ asset('storage/' . $trip->start_km_photo) }}" alt="Start Photo" class="img-thumbnail" width="50">
+                                                        <img src="{{ asset('storage/' . $trip->start_km_photo) }}"
+                                                            alt="Start Photo" class="img-thumbnail" width="50">
                                                     </a>
                                                 @else
                                                     -
@@ -98,16 +102,27 @@
                                             <td>
                                                 @if ($trip->end_km_photo)
                                                     <a href="{{ asset('storage/' . $trip->end_km_photo) }}" target="_blank">
-                                                        <img src="{{ asset('storage/' . $trip->end_km_photo) }}" alt="End Photo" class="img-thumbnail" width="50">
+                                                        <img src="{{ asset('storage/' . $trip->end_km_photo) }}"
+                                                            alt="End Photo" class="img-thumbnail" width="50">
                                                     </a>
                                                 @else
                                                     -
                                                 @endif
                                             </td>
+
+                                            <td>
+                                                @if (!is_null($trip->starting_km) && !is_null($trip->end_km))
+                                                    {{ $trip->end_km - $trip->starting_km }}
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td>{{ $trip->total_distance_km }}</td>
                                             <td>
                                                 <form method="POST" action="{{ route('trips.status.toggle', $trip->id) }}">
                                                     @csrf
-                                                    <input type="hidden" name="status" value="{{ $trip->status === 'completed' ? 'pending' : 'completed' }}">
+                                                    <input type="hidden" name="status"
+                                                        value="{{ $trip->status === 'completed' ? 'pending' : 'completed' }}">
                                                     <button type="submit"
                                                         class="badge rounded-pill {{ $trip->status === 'completed' ? 'bg-success' : 'bg-warning text-dark' }} border-0"
                                                         onclick="return confirm('Are you sure?')">
@@ -118,12 +133,14 @@
                                             <td>
                                                 @if (auth()->user()->can('trip_approvals') && $trip->approval_status === 'pending')
                                                     <div class="dropdown">
-                                                        <button class="badge bg-warning text-dark dropdown-toggle border-0" type="button" data-bs-toggle="dropdown">
+                                                        <button class="badge bg-warning text-dark dropdown-toggle border-0"
+                                                            type="button" data-bs-toggle="dropdown">
                                                             Pending
                                                         </button>
                                                         <ul class="dropdown-menu">
                                                             <li>
-                                                                <form method="POST" action="{{ route('trips.approve', $trip->id) }}">
+                                                                <form method="POST"
+                                                                    action="{{ route('trips.approve', $trip->id) }}">
                                                                     @csrf
                                                                     <input type="hidden" name="status" value="approved">
                                                                     <button type="submit" class="dropdown-item text-success">
@@ -132,44 +149,54 @@
                                                                 </form>
                                                             </li>
                                                             <li>
-                                                                <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#denyModal{{ $trip->id }}">
+                                                                <a class="dropdown-item text-danger" href="#"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#denyModal{{ $trip->id }}">
                                                                     <i class="fas fa-times-circle me-1"></i> Deny
                                                                 </a>
                                                             </li>
                                                         </ul>
                                                     </div>
                                                 @else
-                                                    <span class="badge rounded-pill 
+                                                    <span
+                                                        class="badge rounded-pill 
                                                         @if ($trip->approval_status == 'approved') bg-success
                                                         @elseif($trip->approval_status == 'denied') bg-danger
                                                         @else bg-secondary @endif">
                                                         {{ ucfirst($trip->approval_status) }}
                                                     </span>
                                                     @if ($trip->approval_status === 'denied' && $trip->approval_reason)
-                                                        <br><small class="text-muted">Reason: {{ $trip->approval_reason }}</small>
+                                                        <br><small class="text-muted">Reason:
+                                                            {{ $trip->approval_reason }}</small>
                                                     @endif
                                                     @if ($trip->approval_status === 'denied' && $trip->approvedByUser)
-                                                        <br><small class="text-muted">By: {{ $trip->approvedByUser->name }}</small>
+                                                        <br><small class="text-muted">By:
+                                                            {{ $trip->approvedByUser->name }}</small>
                                                     @endif
                                                 @endif
                                             </td>
                                             <td>
                                                 @can('view_trip_logs')
                                                     <span class="badge bg-info">{{ $trip->tripLogs->count() }} logs</span><br>
-                                                    <a href="#" class="text-primary small" data-bs-toggle="modal" data-bs-target="#logsModal{{ $trip->id }}">View</a>
+                                                    <a href="#" class="text-primary small" data-bs-toggle="modal"
+                                                        data-bs-target="#logsModal{{ $trip->id }}">View</a>
                                                 @endcan
                                             </td>
                                             <td>
                                                 <div class="d-flex flex-wrap gap-1">
-                                                    <a href="{{ route('trips.show', $trip) }}" class="text-info" title="View"><i class="fas fa-eye"></i></a>
+                                                    <a href="{{ route('trips.show', $trip) }}" class="text-info"
+                                                        title="View"><i class="fas fa-eye"></i></a>
                                                     @can('edit_trips')
-                                                        <a href="{{ route('trips.edit', $trip) }}" class="text-warning" title="Edit"><i class="fas fa-edit"></i></a>
+                                                        <a href="{{ route('trips.edit', $trip) }}" class="text-warning"
+                                                            title="Edit"><i class="fas fa-edit"></i></a>
                                                     @endcan
                                                     @can('delete_trips')
-                                                        <form action="{{ route('trips.destroy', $trip) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?')">
+                                                        <form action="{{ route('trips.destroy', $trip) }}" method="POST"
+                                                            class="d-inline" onsubmit="return confirm('Are you sure?')">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="btn btn-link p-0 text-danger" title="Delete"><i class="fas fa-trash"></i></button>
+                                                            <button type="submit" class="btn btn-link p-0 text-danger"
+                                                                title="Delete"><i class="fas fa-trash"></i></button>
                                                         </form>
                                                     @endcan
                                                 </div>
@@ -268,7 +295,8 @@
                                                                 <span class="badge bg-danger">Off</span>
                                                             @endif
                                                         </td>
-                                                        <td>{{ \Carbon\Carbon::parse($log->recorded_at)->format('d-m-Y H:i') }}</td>
+                                                        <td>{{ \Carbon\Carbon::parse($log->recorded_at)->format('d-m-Y H:i') }}
+                                                        </td>
                                                         <td>{{ $log->created_at->format('d-m-Y H:i') }}</td>
                                                         <td>{{ $log->updated_at->format('d-m-Y H:i') }}</td>
                                                     </tr>
