@@ -78,6 +78,13 @@ class ApiTripController extends BaseController
             'recorded_at' => 'nullable|date',
         ]);
 
+        // Check if the trip is completed
+        $trip = Trip::find($validated['trip_id']);
+
+        if ($trip->status === 'completed') {
+            return $this->sendError("Cannot log points for a completed trip", [], 403);
+        }
+
         $log = TripLog::create([
             'trip_id'     => $validated['trip_id'],
             'latitude'    => $validated['latitude'],
