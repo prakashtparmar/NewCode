@@ -16,6 +16,7 @@ use App\Http\Controllers\DesignationController;
 use App\Http\Controllers\TravelModeController;
 use App\Http\Controllers\PurposeController;
 use App\Http\Controllers\TourTypeController;
+use App\Http\Controllers\AttendanceController;
 
 // Redirect root URL to admin login
 Route::get('/', function () {
@@ -52,6 +53,8 @@ Route::prefix('admin')->group(function () {
 
 
             Route::resource('/hr/designations', DesignationController::class);
+            
+            Route::get('/hr/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
 
 
             Route::prefix('trips')->group(function () {

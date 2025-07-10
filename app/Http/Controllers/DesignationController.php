@@ -43,23 +43,37 @@ class DesignationController extends Controller
      * Store a newly created designation.
      */
     public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string'
-        ]);
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string'
+    ]);
 
-        $data = $request->only(['name', 'description']);
+    $authUser = auth()->user();
+    $companyId = $authUser->user_level === 'master_admin'
+        ? $request->company_id
+        : $authUser->company_id;
 
-        $authUser = auth()->user();
-        $data['company_id'] = $authUser->user_level === 'master_admin'
-            ? $request->company_id
-            : $authUser->company_id;
+    // ✅ Duplicate designation check added here
+    $existing = Designation::where('company_id', $companyId)
+        ->where('name', $request->name)
+        ->first();
 
-        Designation::create($data);
-
-        return redirect()->route('designations.index')->with('success', 'Designation created successfully.');
+    if ($existing) {
+        // Redirect back with error if duplicate found
+        return redirect()->back()
+            ->withInput()
+            ->withErrors(['A designation with this name already exists for the selected company.']);
     }
+
+    $data = $request->only(['name', 'description']);
+    $data['company_id'] = $companyId;
+
+    Designation::create($data);
+
+    return redirect()->route('designations.index')->with('success', 'Designation created successfully.');
+}
+
 
     /**
      * Show a specific designation.
