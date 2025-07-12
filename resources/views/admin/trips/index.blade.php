@@ -257,7 +257,40 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Trip Logs for Trip #{{ $trip->id }}</h5>
+                    <div class="d-flex justify-content-between align-items-center w-100">
+                        <div>
+                            <h5 class="modal-title mb-0">Trip Logs for Trip #{{ $trip->id }}</h5>
+                            @php
+                            $totalDistance = 0;
+                            $previousLat = null;
+                            $previousLng = null;
+
+                            foreach ($trip->tripLogs as $log) {
+                            if ($previousLat && $previousLng) {
+                            // Haversine formula to calculate distance
+                            $earthRadius = 6371; // Earth's radius in km
+                            $latFrom = deg2rad($previousLat);
+                            $lonFrom = deg2rad($previousLng);
+                            $latTo = deg2rad($log->latitude);
+                            $lonTo = deg2rad($log->longitude);
+
+                            $latDelta = $latTo - $latFrom;
+                            $lonDelta = $lonTo - $lonFrom;
+
+                            $angle = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) +
+                            cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)));
+                            $totalDistance += $angle * $earthRadius;
+                            }
+                            $previousLat = $log->latitude;
+                            $previousLng = $log->longitude;
+                            }
+                            @endphp
+                            <div class="text-muted small mt-1">
+                                <strong>Total Distance:</strong> {{ number_format($totalDistance, 3) }} km
+                            </div>
+                        </div>
+                    </div>
+
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
