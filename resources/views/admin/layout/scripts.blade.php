@@ -82,65 +82,40 @@
             alert("Not enough trip logs to draw route.");
             return;
         }
-
         const pathCoordinates = tripLogs.map(l => ({
             lat: +l.latitude,
             lng: +l.longitude,
             recorded_at: l.recorded_at ?? ''
         }));
-
         const map = new google.maps.Map(document.getElementById("map"), {
             zoom: 13,
             center: pathCoordinates[0]
         });
-
-        // Add markers for all points
-        pathCoordinates.forEach((point, index) => {
-            if (index === 0) {
-                // Start marker (green)
-                new google.maps.Marker({
-                    position: point,
-                    map: map,
-                    label: 'Starting',
-                    icon: {
-                        url: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
-                        scaledSize: new google.maps.Size(32, 32)
-                    }
-                });
-            } else if (index === pathCoordinates.length - 1) {
-                // End marker (red)
-                new google.maps.Marker({
-                    position: point,
-                    map: map,
-                    label: 'Closing',
-                    icon: {
-                        url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
-                        scaledSize: new google.maps.Size(32, 32)
-                    }
-                });
-            } else {
-                // Intermediate markers (blue)
-                new google.maps.Marker({
-                    position: point,
-                    map: map,
-                    icon: {
-                        url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-                        scaledSize: new google.maps.Size(20, 20)
-                    }
-                });
-            }
+        const tripPath = new google.maps.Polyline({
+            path: pathCoordinates,
+            geodesic: true,
+            strokeColor: "#007bff",
+            strokeOpacity: 1,
+            strokeWeight: 4
         });
-
-        // Fit bounds to show all markers
+        tripPath.setMap(map);
         const bounds = new google.maps.LatLngBounds();
         pathCoordinates.forEach(c => bounds.extend(c));
         map.fitBounds(bounds);
-
-        // Calculate distance
+        [pathCoordinates[0], pathCoordinates[pathCoordinates.length - 1]].forEach((c, i) => {
+            new google.maps.Marker({
+                position: c,
+                map,
+                label: i ? 'B' : 'A',
+                icon: {
+                    url: i ? "http://maps.google.com/mapfiles/ms/icons/red-dot.png" :
+                        "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
+                }
+            });
+        });
         let distance = 0;
-        for (let i = 1; i < pathCoordinates.length; i++) {
-            distance += haversineDistance(pathCoordinates[i - 1], pathCoordinates[i]);
-        }
+        for (let i = 1; i < pathCoordinates.length; i++) distance += haversineDistance(pathCoordinates[i - 1],
+            pathCoordinates[i]);
         document.getElementById("distance-display").innerText = distance.toFixed(2) + " km";
     }
 

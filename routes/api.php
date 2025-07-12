@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\ApiAuthController;
 use App\Http\Controllers\Api\ApiTripController;
+use App\Http\Controllers\Api\FailedJobController;
 use App\Http\Controllers\Api\LocationApiController;
 use Illuminate\Support\Facades\Route;
 
@@ -9,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('/login', [ApiAuthController::class, 'login']);
 Route::post('/register', [ApiAuthController::class, 'register']);
 Route::get('locations', [LocationApiController::class, 'index']);
+Route::post('/failedJobs', [FailedJobController::class, 'store']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [ApiAuthController::class, 'logout']);
