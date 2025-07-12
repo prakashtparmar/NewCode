@@ -60,7 +60,7 @@
 
                                 @can('view_permissions')
                                     <div class="table-responsive">
-                                        <table id="permissions" class="table table-bordered table-striped align-middle">
+                                        <table id="permissions-table" class="table table-bordered table-striped align-middle">
                                             <thead class="table-light">
                                                 <tr>
                                                     <th>#</th>

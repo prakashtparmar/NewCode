@@ -9,7 +9,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-6">
-                    <h3 class="mb-0">Role Management</h3>
+                    <h3 class="mb-0">Edit Role</h3>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-end">
@@ -24,84 +24,160 @@
     {{-- Main Content --}}
     <div class="app-content">
         <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="card card-primary card-outline mb-4">
+            <form method="POST" action="{{ route('roles.update', $role->id) }}">
+                @csrf
+                @method('PUT')
 
-                        {{-- Card Header --}}
-                        <div class="card-header">
-                            <div class="card-title">Edit Role</div>
+                <div class="row">
+                    {{-- Role Name --}}
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Role Name</label>
+                            <input type="text" class="form-control" id="name" name="name"
+                                   value="{{ $role->name }}" required>
                         </div>
-
-                        {{-- Flash Messages --}}
-                        @if(session('success'))
-                            <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
-                                <strong>Success:</strong> {{ session('success') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        @endif
-
-                        @if(session('error'))
-                            <div class="alert alert-danger alert-dismissible fade show m-3" role="alert">
-                                <strong>Error:</strong> {{ session('error') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        @endif
-
-                        {{-- Validation Errors --}}
-                        @if ($errors->any())
-                            <div class="alert alert-danger alert-dismissible fade show m-3">
-                                <strong>Error!</strong>
-                                <ul class="mb-0 mt-1">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        @endif
-
-                        {{-- Edit Role Form --}}
-                        <form method="POST" action="{{ route('roles.update', $role->id) }}">
-                            @csrf
-                            @method('PUT')
-                            <div class="card-body row">
-
-                                {{-- Role Name --}}
-                                <div class="mb-3 col-md-12">
-                                    <label for="name" class="form-label">Role Name</label>
-                                    <input type="text" class="form-control" id="name" name="name"
-                                           value="{{ $role->name }}" required>
-                                </div>
-
-                                {{-- Permissions --}}
-                                <div class="mb-3 col-md-12">
-                                    <label class="form-label">Assign Permissions</label>
-                                    <div class="row">
-                                        @foreach ($permissions as $permission)
-                                            <div class="form-check col-md-4">
-                                                <input type="checkbox" class="form-check-input" name="permissions[{{ $permission->name }}]" value="{{ $permission->name }}" 
-                                                {{ $role->hasPermissionTo($permission->name) ? 'checked' : '' }}>
-                                                <label class="form-check-label">{{ $permission->name }}</label>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            {{-- Submit --}}
-                            <div class="card-footer text-end">
-                                <button type="submit" class="btn btn-primary">Update Role</button>
-                            </div>
-                        </form>
-
-                    </div> {{-- End Card --}}
+                    </div>
                 </div>
-            </div>
+
+                {{-- Permissions Section --}}
+                <div class="row">
+                    <div class="col-12">
+                        <h5 class="mt-3">Assign Permissions</h5>
+                        <hr>
+                    </div>
+
+                    {{-- Select All Checkbox --}}
+                    <div class="col-12 mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="select-all">
+                            <label class="form-check-label fw-bold" for="select-all">Select All Permissions</label>
+                        </div>
+                    </div>
+
+                    {{-- User Related --}}
+                    <div class="col-md-3">
+                        <h6>User Related</h6>
+                        @foreach ($permissions->filter(fn($p) => str_contains($p->name, 'user')) as $permission)
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input permission-checkbox"
+                                       name="permissions[{{ $permission->name }}]"
+                                       value="{{ $permission->name }}"
+                                       {{ $role->hasPermissionTo($permission->name) ? 'checked' : '' }}
+                                       id="perm_{{ $permission->id }}">
+                                <label class="form-check-label" for="perm_{{ $permission->id }}">
+                                    {{ ucwords(str_replace('_', ' ', $permission->name)) }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    {{-- Role Related --}}
+                    <div class="col-md-3">
+                        <h6>Role Related</h6>
+                        @foreach ($permissions->filter(fn($p) => str_contains($p->name, 'role')) as $permission)
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input permission-checkbox"
+                                       name="permissions[{{ $permission->name }}]"
+                                       value="{{ $permission->name }}"
+                                       {{ $role->hasPermissionTo($permission->name) ? 'checked' : '' }}
+                                       id="perm_{{ $permission->id }}">
+                                <label class="form-check-label" for="perm_{{ $permission->id }}">
+                                    {{ ucwords(str_replace('_', ' ', $permission->name)) }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    {{-- Customer Related --}}
+                    <div class="col-md-3">
+                        <h6>Customer Related</h6>
+                        @foreach ($permissions->filter(fn($p) => str_contains($p->name, 'customer')) as $permission)
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input permission-checkbox"
+                                       name="permissions[{{ $permission->name }}]"
+                                       value="{{ $permission->name }}"
+                                       {{ $role->hasPermissionTo($permission->name) ? 'checked' : '' }}
+                                       id="perm_{{ $permission->id }}">
+                                <label class="form-check-label" for="perm_{{ $permission->id }}">
+                                    {{ ucwords(str_replace('_', ' ', $permission->name)) }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    {{-- Company Related --}}
+                    <div class="col-md-3">
+                        <h6>Company Related</h6>
+                        @foreach ($permissions->filter(fn($p) => str_contains($p->name, 'companies')) as $permission)
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input permission-checkbox"
+                                       name="permissions[{{ $permission->name }}]"
+                                       value="{{ $permission->name }}"
+                                       {{ $role->hasPermissionTo($permission->name) ? 'checked' : '' }}
+                                       id="perm_{{ $permission->id }}">
+                                <label class="form-check-label" for="perm_{{ $permission->id }}">
+                                    {{ ucwords(str_replace('_', ' ', $permission->name)) }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    {{-- Trip Related --}}
+                    <div class="col-md-3 mt-4">
+                        <h6>Trip Related</h6>
+                        @foreach ($permissions->filter(fn($p) => str_contains($p->name, 'trip')) as $permission)
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input permission-checkbox"
+                                       name="permissions[{{ $permission->name }}]"
+                                       value="{{ $permission->name }}"
+                                       {{ $role->hasPermissionTo($permission->name) ? 'checked' : '' }}
+                                       id="perm_{{ $permission->id }}">
+                                <label class="form-check-label" for="perm_{{ $permission->id }}">
+                                    {{ ucwords(str_replace('_', ' ', $permission->name)) }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    {{-- Permissions Related --}}
+                    <div class="col-md-3 mt-4">
+                        <h6>Permissions Related</h6>
+                        @foreach ($permissions->filter(fn($p) => str_contains($p->name, 'permission')) as $permission)
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input permission-checkbox"
+                                       name="permissions[{{ $permission->name }}]"
+                                       value="{{ $permission->name }}"
+                                       {{ $role->hasPermissionTo($permission->name) ? 'checked' : '' }}
+                                       id="perm_{{ $permission->id }}">
+                                <label class="form-check-label" for="perm_{{ $permission->id }}">
+                                    {{ ucwords(str_replace('_', ' ', $permission->name)) }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+
+                </div>
+
+                {{-- Submit Buttons --}}
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Update Role</button>
+                    <a href="{{ route('roles.index') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+
+            </form>
         </div>
     </div>
 
 </main>
+
+{{-- Select All Permissions Script --}}
+<script>
+    document.getElementById('select-all').addEventListener('change', function () {
+        let checkboxes = document.querySelectorAll('.permission-checkbox');
+        checkboxes.forEach(function (checkbox) {
+            checkbox.checked = event.target.checked;
+        });
+    });
+</script>
 
 @endsection

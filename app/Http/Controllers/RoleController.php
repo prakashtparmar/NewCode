@@ -6,78 +6,127 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\Auth;
 
 class RoleController extends Controller
 {
     public function index()
     {
-        $roles = Role::all();
+        $user = Auth::user();
+
+        $roles = $user->user_level === 'master_admin'
+            ? Role::all()
+            : Role::where('company_id', $user->company_id)->get();
+
         return view('admin.roles.index', compact('roles'));
     }
 
     public function create()
     {
-        $permissions = Permission::all();
-        return view('admin.roles.create', compact('permissions'));
+        return view('admin.roles.create', [
+            'permissions' => Permission::all()
+        ]);
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'permissions' => 'array',
-        ]);
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'permissions' => 'array',
+    ]);
 
-        // Create a new role with the validated data
-        $role = Role::create(['name' => $request->name]);
+    $user = Auth::user();
+    $companyCode = $user->company->code ?? null;
 
-        // Sync the permissions with the role
-        $role->syncPermissions($request->input('permissions', []));
+    $roleName = $user->user_level === 'master_admin'
+        ? $request->name
+        : ($companyCode ? $companyCode . '_' . $request->name : $request->name);
 
-        return redirect()->route('roles.index')->with('success', 'Role created successfully.');
-    }
+    $role = Role::create([
+        'name' => $roleName,
+        'guard_name' => 'web',
+        'company_id' => $user->user_level === 'master_admin' ? null : $user->company_id,
+    ]);
+
+    $role->syncPermissions($request->input('permissions', []));
+
+    return redirect()->route('roles.index')->with('success', 'Role created successfully.');
+}
 
     public function edit(string $id)
-    {
-        // Fetch the role by ID
-        $role = Role::findOrFail($id);
+{
+    $role = Role::findOrFail($id);
+    $user = Auth::user();
 
-        // Fetch all permissions from the database
-        $permissions = Permission::all();
-
-        // Return the view with the role and permissions data
-        return view('admin.roles.edit', compact('role', 'permissions'));  
+    if ($user->user_level !== 'master_admin' && $role->company_id !== $user->company_id) {
+        abort(403, 'Unauthorized access to role.');
     }
+
+    // Remove company code prefix for non-master_admin
+    $originalRoleName = $role->name;
+    if ($user->user_level !== 'master_admin' && $user->company && $user->company->code) {
+        $prefix = $user->company->code . '_';
+        if (str_starts_with($role->name, $prefix)) {
+            $originalRoleName = substr($role->name, strlen($prefix));
+        }
+    }
+
+    // Overwrite name only for form display (not affecting the model itself)
+    $role->name = $originalRoleName;
+
+    return view('admin.roles.edit', [
+        'role' => $role,
+        'permissions' => Permission::all()
+    ]);
+}
 
     public function update(Request $request, string $id)
-    {
-        // Validate the request data
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'permissions' => 'array',
-        ]);
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'permissions' => 'array',
+    ]);
 
-        // Fetch the role by ID
-        $role = Role::findOrFail($id);
+    $role = Role::findOrFail($id);
+    $user = Auth::user();
 
-        // Update the role name
-        $role->update(['name' => $request->name]);
-
-        // Sync the permissions with the role — this will remove all if none selected
-        $role->syncPermissions($request->input('permissions', []));
-
-        // Redirect to the roles index page with a success message
-        return redirect()->route('roles.index')->with('success', 'Role updated successfully.');
+    if ($user->user_level !== 'master_admin' && $role->company_id !== $user->company_id) {
+        abort(403, 'Unauthorized update attempt.');
     }
+
+    $companyCode = $user->company->code ?? null;
+
+    $roleName = $user->user_level === 'master_admin'
+        ? $request->name
+        : ($companyCode ? $companyCode . '_' . $request->name : $request->name);
+
+    $role->update(['name' => $roleName]);
+    $role->syncPermissions($request->input('permissions', []));
+
+    return redirect()->route('roles.index')->with('success', 'Role updated successfully.');
+}
+
 
     public function destroy(Role $role)
     {
+        $user = Auth::user();
+
+        if ($user->user_level !== 'master_admin' && $role->company_id !== $user->company_id) {
+            abort(403, 'Unauthorized delete attempt.');
+        }
+
         $role->delete();
         return redirect()->route('roles.index')->with('success', 'Role deleted successfully.');
     }
 
     public function show(Role $role)
     {
+        $user = Auth::user();
+
+        if ($user->user_level !== 'master_admin' && $role->company_id !== $user->company_id) {
+            abort(403, 'Unauthorized view attempt.');
+        }
+
         $role->load('permissions');
         return view('admin.roles.show', compact('role'));
     }

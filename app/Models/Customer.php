@@ -6,16 +6,44 @@ use Illuminate\Database\Eloquent\Model;
 
 class Customer extends Model
 {
+    protected $fillable = [
+        'name',
+        'email',
+        'phone',
+        'address',
+        'user_id',      // ✅ updated from executive_id
+        'company_id',
+        'is_active',
+    ];
 
-    protected $fillable = ['name', 'email', 'phone', 'address', 'executive_id'];
-
-    public function executive()
+    public function user() // ✅ renamed from executive() to match user_id
     {
-        return $this->belongsTo(Admin::class, 'executive_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function orders()
     {
         return $this->hasMany(Order::class);
     }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    public function scopeForCompany($query, $companyId)
+    {
+        return $query->where('company_id', $companyId);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function trips()
+{
+    return $this->belongsToMany(Trip::class, 'customer_trip');
+}
+
 }

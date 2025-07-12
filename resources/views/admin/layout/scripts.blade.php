@@ -1,274 +1,329 @@
-<!--begin::Third Party Plugin(OverlayScrollbars)-->
-    <script
-      src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/browser/overlayscrollbars.browser.es6.min.js"
-      integrity="sha256-dghWARbRe2eLlIJ56wNB+b760ywulqK3DzZYEpsg2fQ="
-      crossorigin="anonymous"
-    ></script>
-    <!--end::Third Party Plugin(OverlayScrollbars)--><!--begin::Required Plugin(popperjs for Bootstrap 5)-->
-    <script
-      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-      crossorigin="anonymous"
-    ></script>
-    <!--end::Required Plugin(popperjs for Bootstrap 5)--><!--begin::Required Plugin(Bootstrap 5)-->
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
-      integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
-      crossorigin="anonymous"
-    ></script>
-    <!--end::Required Plugin(Bootstrap 5)--><!--begin::Required Plugin(AdminLTE)-->
-    <script src="{{ asset('admin/js/adminlte.js') }}"></script>
-    <!--end::Required Plugin(AdminLTE)--><!--begin::OverlayScrollbars Configure-->
-    <script>
-      const SELECTOR_SIDEBAR_WRAPPER = '.sidebar-wrapper';
-      const Default = {
-        scrollbarTheme: 'os-theme-light',
-        scrollbarAutoHide: 'leave',
-        scrollbarClickScroll: true,
-      };
-      document.addEventListener('DOMContentLoaded', function () {
-        const sidebarWrapper = document.querySelector(SELECTOR_SIDEBAR_WRAPPER);
-        if (sidebarWrapper && typeof OverlayScrollbarsGlobal?.OverlayScrollbars !== 'undefined') {
-          OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, {
-            scrollbars: {
-              theme: Default.scrollbarTheme,
-              autoHide: Default.scrollbarAutoHide,
-              clickScroll: Default.scrollbarClickScroll,
-            },
-          });
-        }
-      });
-    </script>
-    <!--end::OverlayScrollbars Configure-->
-    <!-- OPTIONAL SCRIPTS -->
-    <!-- sortablejs -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"
-      integrity="sha256-ipiJrswvAR4VAx/th+6zWsdeYmVae0iJuiR+6OqHJHQ="
-      crossorigin="anonymous"
-    ></script>
-    <!-- sortablejs -->
-    <script>
-      const connectedSortables = document.querySelectorAll('.connectedSortable');
-      connectedSortables.forEach((connectedSortable) => {
-        let sortable = new Sortable(connectedSortable, {
-          group: 'shared',
-          handle: '.card-header',
-        });
-      });
+<!-- jQuery (one version only, 3.7.0 latest) -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 
-      const cardHeaders = document.querySelectorAll('.connectedSortable .card-header');
-      cardHeaders.forEach((cardHeader) => {
-        cardHeader.style.cursor = 'move';
-      });
-    </script>
-    <!-- apexcharts -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js"
-      integrity="sha256-+vh8GkaU7C9/wbSLIcwq82tQ2wTf44aOHA8HlBMwRI8="
-      crossorigin="anonymous"
-    ></script>
-    <!-- ChartJS -->
-    <script>
-      // NOTICE!! DO NOT USE ANY OF THIS JAVASCRIPT
-      // IT'S ALL JUST JUNK FOR DEMO
-      // ++++++++++++++++++++++++++++++++++++++++++
+<!-- Bootstrap 5 + Popper -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" crossorigin="anonymous">
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
 
-      const sales_chart_options = {
-        series: [
-          {
-            name: 'Digital Goods',
-            data: [28, 48, 40, 19, 86, 27, 90],
-          },
-          {
-            name: 'Electronics',
-            data: [65, 59, 80, 81, 56, 55, 40],
-          },
-        ],
-        chart: {
-          height: 300,
-          type: 'area',
-          toolbar: {
-            show: false,
-          },
-        },
-        legend: {
-          show: false,
-        },
-        colors: ['#0d6efd', '#20c997'],
-        dataLabels: {
-          enabled: false,
-        },
-        stroke: {
-          curve: 'smooth',
-        },
-        xaxis: {
-          type: 'datetime',
-          categories: [
-            '2023-01-01',
-            '2023-02-01',
-            '2023-03-01',
-            '2023-04-01',
-            '2023-05-01',
-            '2023-06-01',
-            '2023-07-01',
-          ],
-        },
-        tooltip: {
-          x: {
-            format: 'MMMM yyyy',
-          },
-        },
-      };
-
-      const sales_chart = new ApexCharts(
-        document.querySelector('#revenue-chart'),
-        sales_chart_options,
-      );
-      sales_chart.render();
-    </script>
-    <!-- jsvectormap -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/js/jsvectormap.min.js"
-      integrity="sha256-/t1nN2956BT869E6H4V1dnt0X5pAQHPytli+1nTZm2Y="
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/maps/world.js"
-      integrity="sha256-XPpPaZlU8S/HWf7FZLAncLg2SAkP8ScUTII89x9D3lY="
-      crossorigin="anonymous"
-    ></script>
-    <!-- jsvectormap -->
-    <script>
-      const visitorsData = {
-        US: 398, // USA
-        SA: 400, // Saudi Arabia
-        CA: 1000, // Canada
-        DE: 500, // Germany
-        FR: 760, // France
-        CN: 300, // China
-        AU: 700, // Australia
-        BR: 600, // Brazil
-        IN: 800, // India
-        GB: 320, // Great Britain
-        RU: 3000, // Russia
-      };
-
-      // World map by jsVectorMap
-      const map = new jsVectorMap({
-        selector: '#world-map',
-        map: 'world',
-      });
-
-      // Sparkline charts
-      const option_sparkline1 = {
-        series: [
-          {
-            data: [1000, 1200, 920, 927, 931, 1027, 819, 930, 1021],
-          },
-        ],
-        chart: {
-          type: 'area',
-          height: 50,
-          sparkline: {
-            enabled: true,
-          },
-        },
-        stroke: {
-          curve: 'straight',
-        },
-        fill: {
-          opacity: 0.3,
-        },
-        yaxis: {
-          min: 0,
-        },
-        colors: ['#DCE6EC'],
-      };
-
-      const sparkline1 = new ApexCharts(document.querySelector('#sparkline-1'), option_sparkline1);
-      sparkline1.render();
-
-      const option_sparkline2 = {
-        series: [
-          {
-            data: [515, 519, 520, 522, 652, 810, 370, 627, 319, 630, 921],
-          },
-        ],
-        chart: {
-          type: 'area',
-          height: 50,
-          sparkline: {
-            enabled: true,
-          },
-        },
-        stroke: {
-          curve: 'straight',
-        },
-        fill: {
-          opacity: 0.3,
-        },
-        yaxis: {
-          min: 0,
-        },
-        colors: ['#DCE6EC'],
-      };
-
-      const sparkline2 = new ApexCharts(document.querySelector('#sparkline-2'), option_sparkline2);
-      sparkline2.render();
-
-      const option_sparkline3 = {
-        series: [
-          {
-            data: [15, 19, 20, 22, 33, 27, 31, 27, 19, 30, 21],
-          },
-        ],
-        chart: {
-          type: 'area',
-          height: 50,
-          sparkline: {
-            enabled: true,
-          },
-        },
-        stroke: {
-          curve: 'straight',
-        },
-        fill: {
-          opacity: 0.3,
-        },
-        yaxis: {
-          min: 0,
-        },
-        colors: ['#DCE6EC'],
-      };
-
-      const sparkline3 = new ApexCharts(document.querySelector('#sparkline-3'), option_sparkline3);
-      sparkline3.render();
-    </script>
-
-    <!-- jQuery with SRI -->
-
-<!-- jQuery with SRI -->
-<script src="{{ url('admin/js/jquery-3.7.1.min.js') }}"></script>
-
-<!-- Custom Script -->
-<script src="{{ url('admin/js/custom.js') }}"></script>
-
-<!-- Datatable -->
-
+<!-- Datatables -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css" />
 <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
 
-<script>
-  $(document).ready(function () {
-    $("#roles").DataTable();
-    $("#users").DataTable();
-    $("#products").DataTable();
-    $("#permissions").DataTable();
-  });
-</script>
+<!-- OverlayScrollbars -->
+<script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/browser/overlayscrollbars.browser.es6.min.js"
+    crossorigin="anonymous"></script>
 
+<!-- AdminLTE JS -->
+<script src="{{ asset('admin/js/adminlte.js') }}"></script>
+
+<!-- SortableJS -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js" crossorigin="anonymous"></script>
+
+<!-- ApexCharts -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js" crossorigin="anonymous"></script>
+
+<!-- jsvectormap -->
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/js/jsvectormap.min.js" crossorigin="anonymous">
+</script>
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/maps/world.js" crossorigin="anonymous"></script>
+
+<!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 
+<!-- Google Maps API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB_-uOyQimLqBkDW_Vr8d88GX6Qk0lyksI&libraries=places">
+</script>
+
+<!-- Custom JS -->
+<script src="{{ url('admin/js/custom.js') }}"></script>
+
+<!-- Initialize DataTables -->
+<script>
+    $(document).ready(function() {
+        $("#roles-table, #users-table, #companies-table, #permissions-table, #customers-table, #designation-table, #trips-table")
+            .DataTable();
+    });
+</script>
+
+<!-- OverlayScrollbars Config -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const sidebarWrapper = document.querySelector('.sidebar-wrapper');
+        if (sidebarWrapper && typeof OverlayScrollbarsGlobal?.OverlayScrollbars !== 'undefined') {
+            OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, {
+                scrollbars: {
+                    theme: 'os-theme-light',
+                    autoHide: 'leave',
+                    clickScroll: true
+                }
+            });
+        }
+    });
+</script>
+
+<!-- Sortable Cards -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.connectedSortable').forEach(el => {
+            new Sortable(el, {
+                group: 'shared',
+                handle: '.card-header'
+            });
+        });
+        document.querySelectorAll('.connectedSortable .card-header').forEach(el => el.style.cursor = 'move');
+    });
+</script>
+
+<!-- Google Maps Polyline and Markers -->
+<script>
+    function initMap() {
+        if (!tripLogs || tripLogs.length < 2) {
+            alert("Not enough trip logs to draw route.");
+            return;
+        }
+
+        const pathCoordinates = tripLogs.map(l => ({
+            lat: +l.latitude,
+            lng: +l.longitude,
+            recorded_at: l.recorded_at ?? ''
+        }));
+
+        const map = new google.maps.Map(document.getElementById("map"), {
+            zoom: 13,
+            center: pathCoordinates[0]
+        });
+
+        // Add markers for all points
+        pathCoordinates.forEach((point, index) => {
+            if (index === 0) {
+                // Start marker (green)
+                new google.maps.Marker({
+                    position: point,
+                    map: map,
+                    label: 'Starting',
+                    icon: {
+                        url: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
+                        scaledSize: new google.maps.Size(32, 32)
+                    }
+                });
+            } else if (index === pathCoordinates.length - 1) {
+                // End marker (red)
+                new google.maps.Marker({
+                    position: point,
+                    map: map,
+                    label: 'Closing',
+                    icon: {
+                        url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                        scaledSize: new google.maps.Size(32, 32)
+                    }
+                });
+            } else {
+                // Intermediate markers (blue)
+                new google.maps.Marker({
+                    position: point,
+                    map: map,
+                    icon: {
+                        url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                        scaledSize: new google.maps.Size(20, 20)
+                    }
+                });
+            }
+        });
+
+        // Fit bounds to show all markers
+        const bounds = new google.maps.LatLngBounds();
+        pathCoordinates.forEach(c => bounds.extend(c));
+        map.fitBounds(bounds);
+
+        // Calculate distance
+        let distance = 0;
+        for (let i = 1; i < pathCoordinates.length; i++) {
+            distance += haversineDistance(pathCoordinates[i - 1], pathCoordinates[i]);
+        }
+        document.getElementById("distance-display").innerText = distance.toFixed(2) + " km";
+    }
+
+    function toRad(v) {
+        return v * Math.PI / 180;
+    }
+
+    function haversineDistance(c1, c2) {
+        const R = 6371,
+            dLat = toRad(c2.lat - c1.lat),
+            dLon = toRad(c2.lng - c1.lng),
+            lat1 = toRad(c1.lat),
+            lat2 = toRad(c2.lat);
+        const a = Math.sin(dLat / 2) ** 2 + Math.sin(dLon / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+    document.addEventListener("DOMContentLoaded", initMap);
+</script>
+
+<!-- Dependent Dropdowns (District/City/Tehsil/Pincode) -->
+<script>
+    const urls = {
+        districts: "{!! url('admin/get-districts') !!}/",
+        cities: "{!! url('admin/get-cities') !!}/",
+        tehsils: "{!! url('admin/get-tehsils') !!}/",
+        pincodes: "{!! url('admin/get-pincodes') !!}/"
+    };
+    $(function() {
+        $('#state').on('change', function() {
+            let id = $(this).val();
+            if (id) $.get(urls.districts + id).done(d => fillOptions('#district', d));
+        });
+        $('#district').on('change', function() {
+            let id = $(this).val();
+            if (id) $.get(urls.cities + id).done(d => fillOptions('#city', d));
+        });
+        $('#city').on('change', function() {
+            let id = $(this).val();
+            if (id) {
+                $.get(urls.tehsils + id).done(d => fillOptions('#tehsil', d));
+                $.get(urls.pincodes + id).done(d => fillOptions('#pincode', d, 'pincode'));
+            }
+        });
+    });
+
+    function fillOptions(selector, data, label = 'name') {
+        let opts = '<option value="">Select</option>';
+        data.forEach(o => opts += `<option value="${o.id}">${o[label]}</option>`);
+        $(selector).html(opts);
+    }
 
 
+    $(document).ready(function() {
+        const stateId = "{{ old('state_id', $user->state_id ?? '') }}";
+        const districtId = "{{ old('district_id', $user->district_id ?? '') }}";
+        const cityId = "{{ old('city_id', $user->city_id ?? '') }}";
+        const tehsilId = "{{ old('tehsil_id', $user->tehsil_id ?? '') }}";
+        const pincodeId = "{{ old('pincode_id', $user->pincode_id ?? '') }}";
+
+        if (stateId) {
+            $.get(urls.districts + stateId).done(function(data) {
+                fillOptions('#district', data);
+                $('#district').val(districtId);
+
+                if (districtId) {
+                    $.get(urls.cities + districtId).done(function(data) {
+                        fillOptions('#city', data);
+                        $('#city').val(cityId);
+
+                        if (cityId) {
+                            $.get(urls.tehsils + cityId).done(function(data) {
+                                fillOptions('#tehsil', data);
+                                $('#tehsil').val(tehsilId);
+                            });
+
+                            $.get(urls.pincodes + cityId).done(function(data) {
+                                fillOptions('#pincode', data, 'pincode');
+                                $('#pincode').val(pincodeId);
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    });
+</script>
+
+<!-- Company > Executive Dropdown Linkage -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const cSelect = document.getElementById('company_id');
+        const eSelect = document.getElementById('user_id');
+        if (!cSelect || !eSelect) return;
+        cSelect.addEventListener('change', () => {
+            fetch(`/admin/companies/${cSelect.value}/executives`)
+                .then(r => r.json()).then(d => {
+                    eSelect.innerHTML = '<option value="">-- Select Executive --</option>';
+                    d.executives.forEach(e => {
+                        let opt = document.createElement('option');
+                        opt.value = e.id;
+                        opt.textContent = e.name;
+                        eSelect.appendChild(opt);
+                    });
+                });
+        });
+    });
+</script>
+
+<!-- Travel Mode / Purpose / Tour Type Dropdown Loader -->
+<script>
+    const baseUrl = "{{ url('admin') }}";
+
+    function loadDropdown(type, id, selected = null) {
+        $.get(baseUrl + "/dropdown-values/" + type).done(r => {
+            if (r.status === 'success') {
+                let dd = $('#' + id).empty().append('<option value="">-- Select --</option>');
+                r.values.forEach(v => dd.append(
+                    `<option value="${v}" ${v==selected?'selected':''}>${v}</option>`));
+            }
+        });
+    }
+    $(function() {
+        @if(!isset($trip))
+        loadDropdown('travel_mode', 'travel_mode');
+        loadDropdown('purpose', 'purpose');
+        loadDropdown('tour_type', 'tour_type');
+        @else
+        loadDropdown('travel_mode', 'travel_mode', "{{ old('travel_mode', $trip->travel_mode) }}");
+        loadDropdown('purpose', 'purpose', "{{ old('purpose', $trip->purpose) }}");
+        loadDropdown('tour_type', 'tour_type', "{{ old('tour_type', $trip->tour_type) }}");
+        @endif
+    });
+</script>
+
+<!-- Select All Checkbox Control -->
+<script>
+    document.getElementById('select-all')?.addEventListener('change', function() {
+        document.querySelectorAll('.customer-checkbox').forEach(cb => cb.checked = this.checked);
+    });
+</script>
+
+<!-- Deny Reason Toggle -->
+<script>
+    function toggleReasonField() {
+        document.getElementById('denial-reason-block').style.display =
+            (document.getElementById('approval_status').value === 'denied') ? 'block' : 'none';
+    }
+</script>
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const modalElement = document.getElementById("sessionHistoryModal");
+        const modal = new bootstrap.Modal(modalElement);
+        const modalContent = document.getElementById("sessionHistoryContent");
+        const modalTitle = document.getElementById("sessionHistoryModalLabel");
+
+        // Event delegation: handle future dynamically added elements too
+        document.body.addEventListener("click", function(e) {
+            if (e.target.classList.contains("view-sessions-link")) {
+                e.preventDefault();
+                const userId = e.target.getAttribute("data-user-id");
+                const userName = e.target.getAttribute("data-user-name");
+
+                modalTitle.innerText = `Session History - ${userName}`;
+                modalContent.innerHTML = "Loading...";
+
+                fetch(`/admin/users/${userId}/sessions`)
+                    .then(response => {
+                        if (!response.ok) throw new Error("Network error");
+                        return response.text();
+                    })
+                    .then(data => {
+                        modalContent.innerHTML = data;
+                    })
+                    .catch(() => {
+                        modalContent.innerHTML =
+                            "<p class='text-danger'>Failed to load session history.</p>";
+                    });
+
+                modal.show();
+            }
+        });
+    });
+</script>

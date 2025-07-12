@@ -41,7 +41,7 @@
                      </div>
                      @endif
                      @can('view_roles')
-                     <table id="roles" class="table table-bordered table-striped align-middle">
+                     <table id="roles-table" class="table table-bordered table-striped align-middle">
                         <thead class="table-light">
                            <tr>
                               <th>#</th>
