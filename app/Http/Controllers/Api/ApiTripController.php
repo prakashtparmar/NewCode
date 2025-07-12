@@ -8,6 +8,7 @@ use App\Models\Purpose;
 use App\Models\TourType;
 use App\Models\TravelMode;
 use App\Models\Trip;
+use App\Models\User;
 use App\Models\TripLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -48,20 +49,54 @@ class ApiTripController extends BaseController
         return $this->sendResponse($customers, "Customers fetched successfully");
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        // Fetch all tour logs from the database
+        $user = Auth::user();
+        $query = Trip::with([
+            'user',
+            'company',
+            'approvedByUser',
+            'tripLogs',
+            'customers',
+            'travelMode',
+            'tourType',
+            'purpose'
+        ]);
 
-        $user = Auth::user(); // or just Auth::user() if 'api' is default guard
+        // Role-based filtering
+        if ($user->hasRole('master_admin')) {
+            // Master admin sees all trips
+        } elseif ($user->hasRole('sub_admin')) {
+            $query->where('company_id', $user->company_id);
+        } else {
+            $query->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id);
 
-        // Only fetch day logs for the authenticated user
-        $trips = Trip::with(['travelMode', 'tourType', 'purpose','approvedByUser','user'])
-            ->where('user_id', $user->id)
-            ->where('company_id', $user->company_id)
-            ->latest()
-            ->paginate(10);
+                // Include pending trips from subordinates
+                $subordinateIds = User::where('reporting_to', $user->id)->pluck('id');
+                if ($subordinateIds->isNotEmpty()) {
+                    $q->orWhere(function ($inner) use ($subordinateIds) {
+                        $inner->whereIn('user_id', $subordinateIds)
+                            ->where('approval_status', 'pending');
+                    });
+                }
+            });
+        }
 
-        // Return the view and pass the data
+        // Add optional filters
+        if ($request->has('status')) {
+            $query->where('approval_status', $request->status);
+        }
+
+        if ($request->has('date_from') && $request->has('date_to')) {
+            $query->whereBetween('created_at', [
+                $request->date_from,
+                $request->date_to
+            ]);
+        }
+
+        // Paginated results
+        $trips = $query->latest()->paginate($request->per_page ?? 10);
 
         return $this->sendResponse($trips, "Trips fetched successfully");
     }
