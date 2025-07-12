@@ -55,7 +55,7 @@ class ApiTripController extends BaseController
         $user = Auth::user(); // or just Auth::user() if 'api' is default guard
 
         // Only fetch day logs for the authenticated user
-        $trips = Trip::with(['travelMode', 'tourType', 'purpose'])
+        $trips = Trip::with(['travelMode', 'tourType', 'purpose','approvedByUser','user'])
             ->where('user_id', $user->id)
             ->where('company_id', $user->company_id)
             ->latest()
