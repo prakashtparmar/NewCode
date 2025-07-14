@@ -102,17 +102,18 @@
         const bounds = new google.maps.LatLngBounds();
         pathCoordinates.forEach(c => bounds.extend(c));
         map.fitBounds(bounds);
-        [pathCoordinates[0], pathCoordinates[pathCoordinates.length - 1]].forEach((c, i) => {
-            new google.maps.Marker({
-                position: c,
-                map,
-                label: i ? 'B' : 'A',
-                icon: {
-                    url: i ? "http://maps.google.com/mapfiles/ms/icons/red-dot.png" :
-                        "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
-                }
-            });
-        });
+        pathCoordinates.forEach((coord, index) => {
+    new google.maps.Marker({
+        position: coord,
+        map,
+        label: `${index + 1}`, // Optional: label as number or timestamp
+        title: coord.recorded_at ?? '',
+        icon: {
+            url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png" // You can change icon color here
+        }
+    });
+});
+
         let distance = 0;
         for (let i = 1; i < pathCoordinates.length; i++) distance += haversineDistance(pathCoordinates[i - 1],
             pathCoordinates[i]);

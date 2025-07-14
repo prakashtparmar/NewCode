@@ -31,11 +31,11 @@ class DatabaseSeeder extends Seeder
             TehsilSeeder::class,
             PincodeSeeder::class,
             MultiCompanySeeder::class,
-            CustomerSeeder::class,
-            // TripSeeder::class,
             LookupTablesSeeder::class,
-            // TripWithLogsSeeder::class,
-
+            CustomerSeeder::class,
+            TripSeeder::class,
+            
+            TripWithLogsSeeder::class,
             DesignationSeeder::class,
         ]);
 

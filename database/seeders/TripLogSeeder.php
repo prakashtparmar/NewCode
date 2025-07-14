@@ -11,50 +11,41 @@ class TripLogSeeder extends Seeder
 {
     public function run()
     {
-        // Array of trips with their coordinates
-        $routes = [
-            [
-                'trip_id'  => 1,
-                'from_lat' => 23.0225, 'from_lng' => 72.5714, // Ahmedabad
-                'to_lat'   => 22.7272, 'to_lng'   => 71.6379, // Surendranagar
-            ],
-            [
-                'trip_id'  => 2,
-                'from_lat' => 23.0225, 'from_lng' => 72.5714, // Ahmedabad
-                'to_lat'   => 22.3039, 'to_lng'   => 70.8022, // Rajkot
-            ],
-            [
-                'trip_id'  => 3,
-                'from_lat' => 22.3039, 'from_lng' => 70.8022, // Rajkot
-                'to_lat'   => 21.7645, 'to_lng'   => 72.1519, // Bhavnagar
-            ],
-            [
-                'trip_id'  => 4,
-                'from_lat' => 21.7645, 'from_lng' => 72.1519, // Bhavnagar
-                'to_lat'   => 21.1702, 'to_lng'   => 72.8311, // Surat
-            ],
-            [
-                'trip_id'  => 5,
-                'from_lat' => 23.0225, 'from_lng' => 72.5714, // Ahmedabad
-                'to_lat'   => 21.1702, 'to_lng'   => 72.8311, // Surat
-            ],
-        ];
+        // Delete old logs first
+        TripLog::truncate();
 
+        // Number of logs per trip
         $numLogs = 100;
-        $baseTimestamp = Carbon::now();
 
-        foreach ($routes as $index => $route) {
+        // Get latest 5 trips (or all if you prefer)
+        $trips = Trip::orderBy('id')->take(5)->get();
+
+        foreach ($trips as $index => $trip) {
+            // Skip if coordinates are missing
+            if (!$trip->start_lat || !$trip->start_lng || !$trip->end_lat || !$trip->end_lng) {
+                continue;
+            }
+
+            $startLat = $trip->start_lat;
+            $startLng = $trip->start_lng;
+            $endLat = $trip->end_lat;
+            $endLng = $trip->end_lng;
+
+            $baseTime = Carbon::parse($trip->trip_date)->setTime(9, 0)->addHours($index); // just spacing logs per trip
+
             for ($i = 0; $i < $numLogs; $i++) {
-                $fraction = $i / ($numLogs - 1);
+                $fraction = $i / ($numLogs - 1); // linear progression
 
-                $lat = $route['from_lat'] + ($route['to_lat'] - $route['from_lat']) * $fraction;
-                $lng = $route['from_lng'] + ($route['to_lng'] - $route['from_lng']) * $fraction;
+                $lat = $startLat + ($endLat - $startLat) * $fraction;
+                $lng = $startLng + ($endLng - $startLng) * $fraction;
 
                 TripLog::create([
-                    'trip_id'     => $route['trip_id'],
-                    'latitude'    => $lat,
-                    'longitude'   => $lng,
-                    'recorded_at' => $baseTimestamp->copy()->addSeconds($index * 3600 + $i * 10),
+                    'trip_id'     => $trip->id,
+                    'latitude'    => round($lat, 7),
+                    'longitude'   => round($lng, 7),
+                    'recorded_at' => $baseTime->copy()->addSeconds($i * 30),
+                    'battery_percentage' => rand(40, 100),
+                    'gps_status' => true,
                 ]);
             }
         }

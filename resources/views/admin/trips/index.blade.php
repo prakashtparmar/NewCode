@@ -51,9 +51,10 @@
                             <tr>
                                 <th>#ID</th>
                                 <th>Created By</th>
-                                <th>Date</th>
-                                <th>Mode</th>
-
+                                <!-- <th>Date</th> -->
+                                <th>Mode Of Travel</th>
+<th>Trip Start Time</th> {{-- New --}}
+        <th>Trip End Time</th>   {{-- New --}}
                                 <th>Place To Visit</th>
                                 <th>Customers</th>
                                 <th>Start KM</th>
@@ -73,8 +74,27 @@
                             <tr>
                                 <td>{{ $trip->id }}</td>
                                 <td>{{ $trip->user->name ?? 'N/A' }}</td>
-                                <td>{{ $trip->trip_date }}</td>
-                                <td>{{ $trip->travel_mode }}</td>
+                                <!-- <td>{{ $trip->trip_date }}</td> -->
+                                <!-- <td>{{ $trip->travel_mode }}</td> -->
+                                <td>{{ $trip->travelMode->name ?? '-' }}</td>
+
+
+                                {{-- Start Time --}}
+<td>
+    @php
+        $startTime = $trip->tripLogs->min('recorded_at');
+    @endphp
+    {{ $startTime ? \Carbon\Carbon::parse($startTime)->format('d-m-Y H:i:s a') : '-' }}
+</td>
+
+{{-- End Time --}}
+<td>
+    @php
+        $endTime = $trip->tripLogs->max('recorded_at');
+    @endphp
+    {{ $endTime ? \Carbon\Carbon::parse($endTime)->format('d-m-Y H:i:s a') : '-' }}
+</td>
+
 
                                 <td>{{ $trip->place_to_visit ?? '-' }}</td>
                                 <td>
