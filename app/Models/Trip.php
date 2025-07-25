@@ -55,7 +55,7 @@ class Trip extends Model
 
     public function tripLogs(): HasMany
     {
-        return $this->hasMany(TripLog::class);
+        return $this->hasMany(TripLog::class)->orderBy('recorded_at');
     }
 
     public function customers()

@@ -103,16 +103,21 @@
         pathCoordinates.forEach(c => bounds.extend(c));
         map.fitBounds(bounds);
         pathCoordinates.forEach((coord, index) => {
-    new google.maps.Marker({
-        position: coord,
-        map,
-        label: `${index + 1}`, // Optional: label as number or timestamp
-        title: coord.recorded_at ?? '',
-        icon: {
-            url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png" // You can change icon color here
-        }
-    });
-});
+            new google.maps.Marker({
+                position: coord,
+                map,
+                // label: `${index + 1}`, // Optional: label as number or timestamp
+                label: {
+                    text: `${index + 1}`,
+                    color: '#FFFFFF',
+                    fontSize: '12px'
+                },
+                title: coord.recorded_at ?? '',
+                icon: {
+                    url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png" // You can change icon color here
+                }
+            });
+        });
 
         let distance = 0;
         for (let i = 1; i < pathCoordinates.length; i++) distance += haversineDistance(pathCoordinates[i - 1],

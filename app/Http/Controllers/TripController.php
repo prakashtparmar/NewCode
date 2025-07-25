@@ -42,14 +42,14 @@ class TripController extends Controller
     }
 
     public function create()
-{
-    $customers = Customer::where('is_active', true)->get();
-    $travelModes = DB::table('travel_modes')->orderBy('name')->get();
-    $purposes = DB::table('purposes')->orderBy('name')->get();
-    $tourTypes = DB::table('tour_types')->orderBy('name')->get();
+    {
+        $customers = Customer::where('is_active', true)->get();
+        $travelModes = DB::table('travel_modes')->orderBy('name')->get();
+        $purposes = DB::table('purposes')->orderBy('name')->get();
+        $tourTypes = DB::table('tour_types')->orderBy('name')->get();
 
-    return view('admin.trips.create', compact('customers', 'travelModes', 'purposes', 'tourTypes'));
-}
+        return view('admin.trips.create', compact('customers', 'travelModes', 'purposes', 'tourTypes'));
+    }
 
 
     public function store(Request $request)
@@ -127,7 +127,7 @@ class TripController extends Controller
         $tripLogs = TripLog::where('trip_id', $trip->id)
             ->orderBy('recorded_at')
             ->get(['latitude', 'longitude', 'recorded_at']);
-
+        
         return view('admin.trips.show', compact('trip', 'tripLogs'));
     }
 
@@ -135,8 +135,8 @@ class TripController extends Controller
     {
         $customers = Customer::where('is_active', true)->get();
         $travelModes = DB::table('travel_modes')->orderBy('name')->get();
-    $purposes = DB::table('purposes')->orderBy('name')->get();
-    $tourTypes = DB::table('tour_types')->orderBy('name')->get();
+        $purposes = DB::table('purposes')->orderBy('name')->get();
+        $tourTypes = DB::table('tour_types')->orderBy('name')->get();
         return view('admin.trips.edit', compact('trip', 'customers', 'travelModes', 'purposes', 'tourTypes'));
     }
 
