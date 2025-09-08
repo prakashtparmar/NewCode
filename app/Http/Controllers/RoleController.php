@@ -12,11 +12,14 @@ class RoleController extends Controller
 {
     public function index()
     {
+        
         $user = Auth::user();
 
         $roles = $user->user_level === 'master_admin'
             ? Role::all()
             : Role::where('company_id', $user->company_id)->get();
+
+        
 
         return view('admin.roles.index', compact('roles'));
     }
