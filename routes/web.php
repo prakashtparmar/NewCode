@@ -17,6 +17,14 @@ use App\Http\Controllers\TravelModeController;
 use App\Http\Controllers\PurposeController;
 use App\Http\Controllers\TourTypeController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\BudgetController;
+use App\Http\Controllers\MonthlyController;
+use App\Http\Controllers\AchievementController;
+use App\Http\Controllers\PartyController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\TrackingController;
+use App\Http\Controllers\ExpenseController;
+
 
 // Redirect root URL to admin login
 Route::get('/', function () {
@@ -84,6 +92,30 @@ Route::prefix('admin')->group(function () {
 
             // ✅ AJAX Executive Fetch by Company (used in create/edit customer)
             Route::get('companies/{id}/executives', [CustomerController::class, 'getExecutives'])->name('company.executives');
+
+            // Budget module
+            Route::resource('budget', BudgetController::class);
+
+            // Monthly module
+            Route::resource('monthly', MonthlyController::class);
+
+            // Achievement Module
+            Route::resource('achievement', AchievementController::class);
+
+            // party Module
+            Route::resource('party', PartyController::class);
+
+             // Order Module
+            Route::resource('order', OrderController::class);
+
+            // Stock Module
+            Route::resource('stock', StockController::class);
+
+            // Tracking Module
+            Route::resource('tracking', TrackingController::class);
+
+            // expense Module
+            Route::resource('expense', ExpenseController::class);
         });
 
         // Cascading Dropdowns (for location)

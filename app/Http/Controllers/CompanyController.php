@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Company;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Hash;
+use Stancl\Tenancy\Tenant;
 
 class CompanyController extends Controller
 {
@@ -28,7 +31,7 @@ class CompanyController extends Controller
      */
     public function create()
     {
-        $this->authorizeMaster(); // Only allow master_admin to create
+        // $this->authorizeMaster(); // Only allow master_admin to create
 
         return view('admin.companies.create');
     }
@@ -36,21 +39,109 @@ class CompanyController extends Controller
     /**
      * Store a newly created company in storage.
      */
+    // public function store(Request $request)
+    // {
+    //     $this->authorizeMaster(); // Only master_admin can store companies
+
+    //     $validated = $request->validate([
+    //         'name' => 'required|string|max:255',
+    //         'code' => 'nullable|string|unique:companies,code',
+    //         'email' => 'nullable|email',
+    //         'address' => 'nullable|string',
+    //     ]);
+
+    //     Company::create($validated);
+
+    //     return redirect()->route('companies.index')->with('success', 'Company created successfully.');
+    // }
+
+    // public function store(Request $request)
+    // {
+    //     //$this->authorizeMaster(); // Only master_admin can store companies
+
+    //     $validated = $request->validate([
+    //         'name' => 'required|string|max:255',
+    //         'code' => 'nullable|string|unique:companies,code',
+    //         'email' => 'nullable|email',
+    //         'address' => 'nullable|string',
+    //         'owner_name' => 'nullable|string|max:255',
+    //         'gst_number' => 'nullable|string|max:50',
+    //         'contact_no' => 'nullable|string|max:20',
+    //         'contact_no2' => 'nullable|string|max:20',
+    //         'telephone_no' => 'nullable|string|max:20',
+    //         'website' => 'nullable|url',
+    //         'state' => 'nullable|string|max:100',
+    //         'product_name' => 'nullable|string|max:255',
+    //         'subscription_type' => 'nullable|string|max:100',
+    //         'tally_configuration' => 'nullable|boolean',
+    //         'logo' => 'nullable|image|mimes:png|max:2048', // only PNG
+    //     ]);
+
+    //     if ($request->hasFile('logo')) {
+    //         $validated['logo'] = $request->file('logo')->store('logos', 'public');
+    //     }
+
+    //     Company::create($validated);
+
+    //     return redirect()->route('companies.index')->with('success', 'Company created successfully.');
+    // }
+
     public function store(Request $request)
     {
-        $this->authorizeMaster(); // Only master_admin can store companies
-
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'nullable|string|unique:companies,code',
             'email' => 'nullable|email',
             'address' => 'nullable|string',
+            'owner_name' => 'nullable|string|max:255',
+            'gst_number' => 'nullable|string|max:50',
+            'contact_no' => 'nullable|string|max:20',
+            'contact_no2' => 'nullable|string|max:20',
+            'telephone_no' => 'nullable|string|max:20',
+            'website' => 'nullable|url',
+            'state' => 'nullable|string|max:100',
+            'product_name' => 'nullable|string|max:255',
+            'subscription_type' => 'nullable|string|max:100',
+            'tally_configuration' => 'nullable|boolean',
+            'logo' => 'nullable|image|mimes:png|max:2048',
+            'subdomain' => 'nullable|string|alpha_dash|unique:companies,subdomain',
         ]);
 
-        Company::create($validated);
+        if ($request->hasFile('logo')) {
+            $validated['logo'] = $request->file('logo')->store('logos', 'public');
+        }
 
-        return redirect()->route('companies.index')->with('success', 'Company created successfully.');
+        $subdomain = $validated['subdomain'] ?? Str::slug($validated['name']);
+        $validated['subdomain'] = $subdomain;
+
+        $company = Company::create($validated);
+
+        $centralDomain = env('CENTRAL_DOMAIN', 'test');
+        $fullDomain = $subdomain . '.' . $centralDomain;
+
+        $tenant = Tenant::new()
+            ->withDomains([$fullDomain])
+            ->withData(['company_id' => $company->id])
+            ->save();
+
+        $company->update(['tenant_id' => $tenant->id]);
+
+        Artisan::call('tenants:migrate', ['--tenants' => [$tenant->id]]);
+
+        tenancy()->initialize($tenant);
+        \DB::table('users')->insert([
+            'name' => $company->owner_name ?? 'Admin',
+            'email' => $company->email ?? 'admin@' . $fullDomain,
+            'password' => Hash::make('password'),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        tenancy()->end();
+
+        return redirect()->route('companies.index')->with('success', 'Company created: ' . $fullDomain);
     }
+
+
 
     /**
      * Display the specified company.
