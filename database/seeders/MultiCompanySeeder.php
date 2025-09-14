@@ -117,9 +117,10 @@ class MultiCompanySeeder extends Seeder
 
         // Step 5: Create companies and users
         $companies = [
-            ['name' => 'TATA', 'code' => 'TATA'],
-            ['name' => 'AIRTEL', 'code' => 'AIRTEL'],
-            ['name' => 'RELIENCE', 'code' => 'RELIENCE'],
+            ['name' => 'TATA', 'code' => 'TATA','subdomain' => 'TATA'],
+            ['name' => 'AIRTEL', 'code' => 'AIRTEL','subdomain' => 'AIRTEL'],
+            ['name' => 'RELIENCE', 'code' => 'RELIENCE','subdomain' => 'RELIENCE'],
+        
         ];
 
         foreach ($companies as $companyData) {

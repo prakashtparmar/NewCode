@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\TenantConnectionTrait;
 
 class Customer extends Model
 {
+    use TenantConnectionTrait;
+    
     protected $fillable = [
         'name',
         'email',

@@ -65,7 +65,6 @@ return [
     |
     */
 
-    // 'timezone' => 'UTC',
     'timezone' => env('APP_TIMEZONE', 'UTC'),
 
     /*
@@ -99,12 +98,29 @@ return [
     'cipher' => 'AES-256-CBC',
 
     'key' => env('APP_KEY'),
+    'central_domain' => env('CENTRAL_DOMAIN', '127.0.0.1'),
+
 
     'previous_keys' => [
         ...array_filter(
             explode(',', env('APP_PREVIOUS_KEYS', ''))
         ),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Autoloaded Service Providers
+    |--------------------------------------------------------------------------
+    |
+    | The service providers listed here will be automatically loaded on the
+    | request to your application. Feel free to add your own services to
+    | this array to grant expanded functionality to your applications.
+    |
+    */
+
+    
+
+    
 
     /*
     |--------------------------------------------------------------------------

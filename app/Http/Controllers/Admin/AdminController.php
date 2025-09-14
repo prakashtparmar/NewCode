@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use App\Services\Admin\AdminService;
 use App\Models\UserSession;
 use App\Models\Customer;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Config;
 
 use Session;
 
@@ -26,6 +28,15 @@ class AdminController extends Controller
 
     public function index()
 {
+    // $defaultDb = Config::get('database.default');
+    // $defaultDbName = DB::connection()->getDatabaseName();
+
+    // $tenantDb = null;
+    // if (tenancy()->initialized) {
+    //     $tenantDb = DB::connection('tenant')->getDatabaseName();
+    // }
+    
+    // dd('test web admin');
     $user = Auth::user();
     $onlineTimeout = now()->subMinutes(10);
 
@@ -67,19 +78,24 @@ class AdminController extends Controller
 
     $sessionsGrouped = $sessionsQuery->get()->groupBy('user_id');
 
+    
+
     return view('admin.dashboard', compact(
         'totalUsers',
         'totalRoles',
         'totalPermissions',
         'totalCustomers',
         'onlineUsers',
-        'sessionsGrouped'
+        'sessionsGrouped',
     ));
 }
 
 
     public function create()
     {
+    
+
+       
         return view('admin.login');
     }
 
@@ -94,6 +110,8 @@ class AdminController extends Controller
 
     if (!$isMasterUser) {
         $company = \App\Models\Company::where('code', $credentials['company_id'])->first();
+    
+
         if (!$company) {
             return redirect()->back()->with('error_message', 'Invalid Company Code.');
         }
@@ -111,6 +129,7 @@ class AdminController extends Controller
     $user = $userQuery->first();
 
     if (!$user) {
+        
         return redirect()->back()->with('error_message', 'Invalid Email or Password.');
     }
 
@@ -156,6 +175,8 @@ class AdminController extends Controller
             'platform'   => 'web',
             'login_at'   => now(),
         ]);
+
+        
 
         return redirect()->route('admin.dashboard');
     } else {

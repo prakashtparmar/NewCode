@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\TenantConnectionTrait;
 
 class Designation extends Model
 {
-    use HasFactory;
+    use HasFactory, TenantConnectionTrait;
 
     protected $fillable = [
         'company_id',

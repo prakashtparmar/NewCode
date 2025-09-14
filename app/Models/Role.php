@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Traits\HasRoles;
+use App\Traits\TenantConnectionTrait;
 
 class Role extends Model
 {
-    use HasRoles;
+    use HasRoles, TenantConnectionTrait;
 
     public function permissions()
     {

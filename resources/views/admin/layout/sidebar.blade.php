@@ -302,6 +302,39 @@
                     </ul>
                 </li>
 
+                <!-- Master Management -->
+                <li class="nav-item {{ request()->is('admin/states*') || request()->is('admin/districts*') || request()->is('admin/tehsils*') ? 'menu-open' : '' }}">
+                    <a href="#"
+                        class="nav-link {{ request()->is('admin/states*') || request()->is('admin/districts*') || request()->is('admin/tehsils*') ? 'active' : '' }}">
+                        <i class="bi bi-geo-alt-fill me-2"></i>
+                        <p> Master <i class="bi bi-chevron-right ms-auto"></i></p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ url('admin/states') }}"
+                                class="nav-link {{ request()->is('admin/states*') ? 'active' : '' }}">
+                                <i class="bi bi-flag me-2"></i>
+                                <p>States</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url('admin/districts') }}"
+                                class="nav-link {{ request()->is('admin/districts*') ? 'active' : '' }}">
+                                <i class="bi bi-building me-2"></i>
+                                <p>Districts</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url('admin/tehsils') }}"
+                                class="nav-link {{ request()->is('admin/tehsils*') ? 'active' : '' }}">
+                                <i class="bi bi-diagram-3 me-2"></i>
+                                <p>Talukas</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+
 
                 <!-- Party Management -->
                 <li class="nav-item">

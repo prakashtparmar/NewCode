@@ -57,6 +57,7 @@
                             <a href="{{ url('admin/permissions') }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                         </div>
                     </div>
+                    <h2>{{ $databaseName ?? "" }}</h2>
 
                     @if (!is_null($totalCustomers))
                         <div class="col-lg-3 col-6">

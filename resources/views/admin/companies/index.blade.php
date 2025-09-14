@@ -25,11 +25,11 @@
                         <div class="card mb-4">
                             <div class="card-header">
                                 <h3 class="card-title">Company Control Panel</h3>
-                                @can('create_companies')
+                                {{-- @can('create_companies') --}}
                                     <a href="{{ route('companies.create') }}" class="btn btn-primary float-end">
                                         Add New Company
                                     </a>
-                                @endcan
+                                {{-- @endcan --}}
                             </div>
 
                             <div class="card-body">
@@ -40,8 +40,11 @@
                                             aria-label="Close"></button>
                                     </div>
                                 @endif
-
-                                @can('view_companies')
+                                
+                                                                
+                                {{-- @dd('test'); --}}
+                                {{-- @can('view_companies') --}}
+                                
                                 <div class="table-responsive">
                                     <table id="companies-table" class="table table-bordered table-striped align-middle">
                                         <thead class="table-light">
@@ -113,7 +116,7 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                @endcan
+                                {{-- @endcan --}}
 
                             </div>
                         </div>

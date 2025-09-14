@@ -6,7 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Company extends Model
 {
-    // protected $fillable = ['name', 'code', 'email', 'address'];
+    /**
+     * The connection name for the model.
+     * This model uses the central database connection.
+     */
+    protected $connection = 'mysql';
+    
     protected $fillable = [
         'tenant_id','name','code','owner_name','gst_number','contact_no',
         'contact_no2','telephone_no','email','logo','website','state',

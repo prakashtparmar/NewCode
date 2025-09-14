@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\TenantConnectionTrait;
 
 /**
  * Class TourType
@@ -15,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class TourType extends Model
 {
+    use TenantConnectionTrait;
     protected $fillable = ['name', 'company_id'];
 
     /**

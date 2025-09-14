@@ -6,6 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class District extends Model
 {
+    protected $fillable = [
+        'country_id',
+        'state_id',
+        'name',
+        'status',
+    ];
+
+
     public function state()
     {
         return $this->belongsTo(State::class);
@@ -23,4 +31,11 @@ class District extends Model
     {
         return $this->hasMany(Tehsil::class);
     }
+
+    public function country()
+    {
+        return $this->belongsTo(Country::class);
+    }
+
+   
 }

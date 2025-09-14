@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-
+use App\Traits\TenantConnectionTrait;
 
 class Trip extends Model
 {
+    use TenantConnectionTrait;
     protected $fillable = [
         'user_id',
         'company_id',
