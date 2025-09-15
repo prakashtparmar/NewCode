@@ -120,7 +120,7 @@
             }
 
             new google.maps.Marker({
-                position: coord,
+                position: coord,s
                 map,
                 label: {
                     text: `${index + 1}`,
