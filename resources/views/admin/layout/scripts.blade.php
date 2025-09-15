@@ -89,8 +89,8 @@
         }));
 
         const map = new google.maps.Map(document.getElementById("map"), {
-            zoom: 13,
-            center: pathCoordinates[0]
+            zoom: 11,  // fixed zoom
+            center: pathCoordinates[0] // always center at first log
         });
 
         // Draw polyline only if 2 or more coordinates
@@ -104,9 +104,7 @@
             });
             tripPath.setMap(map);
 
-            const bounds = new google.maps.LatLngBounds();
-            pathCoordinates.forEach(c => bounds.extend(c));
-            map.fitBounds(bounds);
+            // ❌ removed auto fitBounds
         } else {
             // Center map nicely if only 1 coordinate
             map.setCenter(pathCoordinates[0]);

@@ -15,8 +15,6 @@
                         </a>
                     </div>
                 </div>
-
-
             </div>
         </div>
 
@@ -24,8 +22,15 @@
         <div class="app-content">
             <div class="container-fluid">
                 <div class="card shadow-sm border-0">
+                    <!-- Back Button -->
+                    <div class="mt-3 text-end">
+                        <a href="{{ route('trips.index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Trips
+                        </a>
+                    </div>
                     <div class="card-body">
 
+                    
 
 
                         <!-- Trip Details Table -->
