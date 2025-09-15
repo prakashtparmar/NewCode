@@ -64,7 +64,8 @@ class MultiCompanySeeder extends Seeder
             'edit_trips',
             'delete_trips',
             'trip_approvals',
-            'view_trip_logs'
+            'view_trip_logs',
+            'force_logout_users'
 
         ];
 
@@ -110,7 +111,8 @@ class MultiCompanySeeder extends Seeder
             'edit_trips',
             'delete_trips',
             'trip_approvals',
-            'view_trip_logs'
+            'view_trip_logs',
+            'force_logout_users'
         ]);
 
         $executiveRole->syncPermissions(['view_users']);

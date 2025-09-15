@@ -235,6 +235,7 @@ public function store(LoginRequest $request)
             'user_agent' => $request->header('User-Agent'),
             'platform'   => 'web',
             'login_at'   => now(),
+            'session_id' => session()->getId(), // ✅ save session id
         ]);
 
         return redirect()->route('admin.dashboard');
@@ -347,6 +348,29 @@ public function store(LoginRequest $request)
 
     return $html;
 }
+
+/**
+ * ✅ Force logout user from web or mobile (by Admin)
+ */
+public function forceLogout(User $user, $platform)
+{
+    // Only allow supported platforms
+    if (!in_array($platform, ['web', 'mobile'])) {
+        return redirect()->back()->with('error_message', 'Invalid platform selected.');
+    }
+
+    // ✅ Close all active sessions for this user & platform
+    UserSession::where('user_id', $user->id)
+        ->where('platform', $platform)
+        ->whereNull('logout_at')
+        ->update([
+            'logout_at'        => now(),
+            'session_duration' => \DB::raw('TIMESTAMPDIFF(SECOND, login_at, NOW())')
+        ]);
+
+    return redirect()->back()->with('success', "User {$user->name} has been forcefully logged out from {$platform}.");
+}
+
 
 
 

@@ -33,9 +33,9 @@ class DatabaseSeeder extends Seeder
             MultiCompanySeeder::class,
             LookupTablesSeeder::class,
             CustomerSeeder::class,
-            // TripSeeder::class,
+            //TripSeeder::class,
             
-            // TripWithLogsSeeder::class,
+            TripWithLogsSeeder::class,
             DesignationSeeder::class,
         ]);
 

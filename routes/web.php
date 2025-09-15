@@ -40,7 +40,14 @@ Route::prefix('admin')->group(function () {
         Route::get('dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
         // ✅ Add this here
     Route::get('users/{userId}/sessions', [AdminController::class, 'getUserSessionHistory'])->name('admin.users.sessions');
-        Route::delete('/customers/bulk-delete', [CustomerController::class, 'bulkDelete'])->name('customers.bulk-delete');
+    
+    
+    //✅ Add new force logout route here
+    Route::post('users/{user}/force-logout/{platform}', [AdminController::class, 'forceLogout'])->name('users.forceLogout');
+    
+    
+    
+    Route::delete('/customers/bulk-delete', [CustomerController::class, 'bulkDelete'])->name('customers.bulk-delete');
 
         // Multi-Tenant Group
         Route::middleware(['company.access'])->group(function () {

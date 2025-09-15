@@ -40,7 +40,7 @@
 
 <!-- Initialize DataTables -->
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         $("#roles-table, #users-table, #companies-table, #permissions-table, #customers-table, #designation-table, #trips-table")
             .DataTable();
     });
@@ -75,7 +75,6 @@
     });
 </script>
 
-<!-- Google Maps Polyline and Markers -->
 <script>
     function initMap() {
         if (!tripLogs || tripLogs.length < 2) {
@@ -102,22 +101,37 @@
         const bounds = new google.maps.LatLngBounds();
         pathCoordinates.forEach(c => bounds.extend(c));
         map.fitBounds(bounds);
+
         pathCoordinates.forEach((coord, index) => {
+            let icon = {
+                url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png", // default
+                scaledSize: new google.maps.Size(32, 32) // default size
+            };
+            let labelSize = '12px';
+
+            if (index === 0) {
+                icon.url = "http://maps.google.com/mapfiles/ms/icons/green-dot.png"; // first marker
+                icon.scaledSize = new google.maps.Size(48, 48); // bigger size
+                labelSize = '16px';
+            } else if (index === pathCoordinates.length - 1) {
+                icon.url = "http://maps.google.com/mapfiles/ms/icons/red-dot.png"; // last marker
+                icon.scaledSize = new google.maps.Size(48, 48); // bigger size
+                labelSize = '16px';
+            }
+
             new google.maps.Marker({
                 position: coord,
                 map,
-                // label: `${index + 1}`, // Optional: label as number or timestamp
                 label: {
                     text: `${index + 1}`,
                     color: '#FFFFFF',
-                    fontSize: '12px'
+                    fontSize: labelSize
                 },
                 title: coord.recorded_at ?? '',
-                icon: {
-                    url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png" // You can change icon color here
-                }
+                icon: icon
             });
         });
+
 
         let distance = 0;
         for (let i = 1; i < pathCoordinates.length; i++) distance += haversineDistance(pathCoordinates[i - 1],
@@ -141,6 +155,7 @@
     document.addEventListener("DOMContentLoaded", initMap);
 </script>
 
+
 <!-- Dependent Dropdowns (District/City/Tehsil/Pincode) -->
 <script>
     const urls = {
@@ -149,16 +164,16 @@
         tehsils: "{!! url('admin/get-tehsils') !!}/",
         pincodes: "{!! url('admin/get-pincodes') !!}/"
     };
-    $(function() {
-        $('#state').on('change', function() {
+    $(function () {
+        $('#state').on('change', function () {
             let id = $(this).val();
             if (id) $.get(urls.districts + id).done(d => fillOptions('#district', d));
         });
-        $('#district').on('change', function() {
+        $('#district').on('change', function () {
             let id = $(this).val();
             if (id) $.get(urls.cities + id).done(d => fillOptions('#city', d));
         });
-        $('#city').on('change', function() {
+        $('#city').on('change', function () {
             let id = $(this).val();
             if (id) {
                 $.get(urls.tehsils + id).done(d => fillOptions('#tehsil', d));
@@ -174,7 +189,7 @@
     }
 
 
-    $(document).ready(function() {
+    $(document).ready(function () {
         const stateId = "{{ old('state_id', $user->state_id ?? '') }}";
         const districtId = "{{ old('district_id', $user->district_id ?? '') }}";
         const cityId = "{{ old('city_id', $user->city_id ?? '') }}";
@@ -182,22 +197,22 @@
         const pincodeId = "{{ old('pincode_id', $user->pincode_id ?? '') }}";
 
         if (stateId) {
-            $.get(urls.districts + stateId).done(function(data) {
+            $.get(urls.districts + stateId).done(function (data) {
                 fillOptions('#district', data);
                 $('#district').val(districtId);
 
                 if (districtId) {
-                    $.get(urls.cities + districtId).done(function(data) {
+                    $.get(urls.cities + districtId).done(function (data) {
                         fillOptions('#city', data);
                         $('#city').val(cityId);
 
                         if (cityId) {
-                            $.get(urls.tehsils + cityId).done(function(data) {
+                            $.get(urls.tehsils + cityId).done(function (data) {
                                 fillOptions('#tehsil', data);
                                 $('#tehsil').val(tehsilId);
                             });
 
-                            $.get(urls.pincodes + cityId).done(function(data) {
+                            $.get(urls.pincodes + cityId).done(function (data) {
                                 fillOptions('#pincode', data, 'pincode');
                                 $('#pincode').val(pincodeId);
                             });
@@ -239,26 +254,26 @@
             if (r.status === 'success') {
                 let dd = $('#' + id).empty().append('<option value="">-- Select --</option>');
                 r.values.forEach(v => dd.append(
-                    `<option value="${v}" ${v==selected?'selected':''}>${v}</option>`));
+                    `<option value="${v}" ${v == selected ? 'selected' : ''}>${v}</option>`));
             }
         });
     }
-    $(function() {
+    $(function () {
         @if(!isset($trip))
-        loadDropdown('travel_mode', 'travel_mode');
-        loadDropdown('purpose', 'purpose');
-        loadDropdown('tour_type', 'tour_type');
+            loadDropdown('travel_mode', 'travel_mode');
+            loadDropdown('purpose', 'purpose');
+            loadDropdown('tour_type', 'tour_type');
         @else
-        loadDropdown('travel_mode', 'travel_mode', "{{ old('travel_mode', $trip->travel_mode) }}");
-        loadDropdown('purpose', 'purpose', "{{ old('purpose', $trip->purpose) }}");
-        loadDropdown('tour_type', 'tour_type', "{{ old('tour_type', $trip->tour_type) }}");
+            loadDropdown('travel_mode', 'travel_mode', "{{ old('travel_mode', $trip->travel_mode) }}");
+            loadDropdown('purpose', 'purpose', "{{ old('purpose', $trip->purpose) }}");
+            loadDropdown('tour_type', 'tour_type', "{{ old('tour_type', $trip->tour_type) }}");
         @endif
     });
 </script>
 
 <!-- Select All Checkbox Control -->
 <script>
-    document.getElementById('select-all')?.addEventListener('change', function() {
+    document.getElementById('select-all')?.addEventListener('change', function () {
         document.querySelectorAll('.customer-checkbox').forEach(cb => cb.checked = this.checked);
     });
 </script>
@@ -274,14 +289,14 @@
 
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         const modalElement = document.getElementById("sessionHistoryModal");
         const modal = new bootstrap.Modal(modalElement);
         const modalContent = document.getElementById("sessionHistoryContent");
         const modalTitle = document.getElementById("sessionHistoryModalLabel");
 
         // Event delegation: handle future dynamically added elements too
-        document.body.addEventListener("click", function(e) {
+        document.body.addEventListener("click", function (e) {
             if (e.target.classList.contains("view-sessions-link")) {
                 e.preventDefault();
                 const userId = e.target.getAttribute("data-user-id");

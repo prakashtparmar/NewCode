@@ -28,4 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/trip/active', [ApiTripController::class, 'lastActive']);
     Route::get('/trip/{tripId}/detail', [ApiTripController::class, 'showTrip']);
     Route::post('/trip/close', [ApiTripController::class, 'close']);
+
+    // ✅ Force logout API route (new)
+    Route::post('/users/{user}/force-logout/{platform}', [ApiAuthController::class, 'forceLogout']);
 });

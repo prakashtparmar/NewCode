@@ -179,6 +179,26 @@
                                                                     </button>
                                                                 </form>
                                                             @endcan
+
+                                                            {{-- 🔹 Force Logout Buttons --}}
+                                                            @can('force_logout_users')
+                                                                <form action="{{ route('users.forceLogout', ['user' => $user->id, 'platform' => 'web']) }}" 
+                                                                      method="POST" class="d-inline"
+                                                                      onsubmit="return confirm('Force logout this user from Web?')">
+                                                                    @csrf
+                                                                    <button type="submit" class="btn btn-link p-0 text-danger" title="Force Logout Web">
+                                                                        <i class="fas fa-desktop"></i>
+                                                                    </button>
+                                                                </form>
+                                                                <form action="{{ route('users.forceLogout', ['user' => $user->id, 'platform' => 'mobile']) }}" 
+                                                                      method="POST" class="d-inline"
+                                                                      onsubmit="return confirm('Force logout this user from Mobile?')">
+                                                                    @csrf
+                                                                    <button type="submit" class="btn btn-link p-0 text-danger" title="Force Logout Mobile">
+                                                                        <i class="fas fa-mobile-alt"></i>
+                                                                    </button>
+                                                                </form>
+                                                            @endcan
                                                         </td>
                                                     </tr>
                                                 @empty

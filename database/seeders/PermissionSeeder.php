@@ -50,6 +50,7 @@ class PermissionSeeder extends Seeder
             'create_companies',
             'edit_companies',
             'delete_companies',
+            'force_logout_users'
         ];
 
         foreach ($permissions as $permissionName) {

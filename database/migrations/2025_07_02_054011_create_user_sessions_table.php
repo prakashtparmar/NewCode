@@ -22,7 +22,7 @@ return new class extends Migration
     $table->integer('session_duration')->nullable(); // in seconds
     $table->timestamps();
 });
-
+    
     }
 
     /**
