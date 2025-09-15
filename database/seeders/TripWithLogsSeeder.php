@@ -45,7 +45,7 @@ class TripWithLogsSeeder extends Seeder
                 ]);
 
                 // Generate 100 logs (~every 1% of the route)
-                $logsCount = 100;
+                $logsCount = 1;
                 for ($j = 0; $j <= $logsCount; $j++) {
                     $fraction = $j / $logsCount;
 

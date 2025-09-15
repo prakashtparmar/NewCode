@@ -77,50 +77,62 @@
 
 <script>
     function initMap() {
-        if (!tripLogs || tripLogs.length < 2) {
-            alert("Not enough trip logs to draw route.");
+        if (!tripLogs || tripLogs.length === 0) {
+            alert("No trip logs available.");
             return;
         }
+
         const pathCoordinates = tripLogs.map(l => ({
             lat: +l.latitude,
             lng: +l.longitude,
             recorded_at: l.recorded_at ?? ''
         }));
+
         const map = new google.maps.Map(document.getElementById("map"), {
             zoom: 13,
             center: pathCoordinates[0]
         });
-        const tripPath = new google.maps.Polyline({
-            path: pathCoordinates,
-            geodesic: true,
-            strokeColor: "#007bff",
-            strokeOpacity: 1,
-            strokeWeight: 4
-        });
-        tripPath.setMap(map);
-        const bounds = new google.maps.LatLngBounds();
-        pathCoordinates.forEach(c => bounds.extend(c));
-        map.fitBounds(bounds);
 
+        // Draw polyline only if 2 or more coordinates
+        if (pathCoordinates.length > 1) {
+            const tripPath = new google.maps.Polyline({
+                path: pathCoordinates,
+                geodesic: true,
+                strokeColor: "#007bff",
+                strokeOpacity: 1,
+                strokeWeight: 4
+            });
+            tripPath.setMap(map);
+
+            const bounds = new google.maps.LatLngBounds();
+            pathCoordinates.forEach(c => bounds.extend(c));
+            map.fitBounds(bounds);
+        } else {
+            // Center map nicely if only 1 coordinate
+            map.setCenter(pathCoordinates[0]);
+            map.setZoom(15);
+        }
+
+        // Add markers
         pathCoordinates.forEach((coord, index) => {
             let icon = {
-                url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png", // default
-                scaledSize: new google.maps.Size(32, 32) // default size
+                url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                scaledSize: new google.maps.Size(32, 32)
             };
             let labelSize = '12px';
 
             if (index === 0) {
-                icon.url = "http://maps.google.com/mapfiles/ms/icons/green-dot.png"; // first marker
-                icon.scaledSize = new google.maps.Size(48, 48); // bigger size
+                icon.url = "http://maps.google.com/mapfiles/ms/icons/green-dot.png";
+                icon.scaledSize = new google.maps.Size(48, 48);
                 labelSize = '16px';
-            } else if (index === pathCoordinates.length - 1) {
-                icon.url = "http://maps.google.com/mapfiles/ms/icons/red-dot.png"; // last marker
-                icon.scaledSize = new google.maps.Size(48, 48); // bigger size
+            } else if (index === pathCoordinates.length - 1 && pathCoordinates.length > 1) {
+                icon.url = "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
+                icon.scaledSize = new google.maps.Size(48, 48);
                 labelSize = '16px';
             }
 
             new google.maps.Marker({
-                position: coord,s
+                position: coord,
                 map,
                 label: {
                     text: `${index + 1}`,
@@ -132,10 +144,13 @@
             });
         });
 
-
+        // Calculate distance only if more than 1 point
         let distance = 0;
-        for (let i = 1; i < pathCoordinates.length; i++) distance += haversineDistance(pathCoordinates[i - 1],
-            pathCoordinates[i]);
+        if (pathCoordinates.length > 1) {
+            for (let i = 1; i < pathCoordinates.length; i++) {
+                distance += haversineDistance(pathCoordinates[i - 1], pathCoordinates[i]);
+            }
+        }
         document.getElementById("distance-display").innerText = distance.toFixed(2) + " km";
     }
 
@@ -152,6 +167,7 @@
         const a = Math.sin(dLat / 2) ** 2 + Math.sin(dLon / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
+
     document.addEventListener("DOMContentLoaded", initMap);
 </script>
 
