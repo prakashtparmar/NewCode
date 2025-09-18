@@ -32,7 +32,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 
 <!-- Google Maps API -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD9aLsgkoreyI0W-T7sh-DNjTxVLf_uK6k&libraries=places">
+<script src="https://maps.googleapis.com/maps/api/js?key=GCPKEY&libraries=places">
 </script>
 
 <!-- Custom JS -->
