@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\Middleware\EnsureTenantDatabase;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
@@ -27,7 +28,10 @@ class RouteServiceProvider extends ServiceProvider
 
         $this->routes(function () {
             $this->mapCentralRoutes();
-            $this->mapTenantRoutes();
+            if (request()->getHost() !== config('app.central_domain')) {
+    $this->mapTenantRoutes();
+}
+            // $this->mapTenantRoutes();
         });
     }
 
@@ -58,11 +62,11 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapTenantRoutes(): void
     {
         Route::middleware([
-                'web',
-                InitializeTenancyByDomain::class,
-                PreventAccessFromCentralDomains::class,
-                'ensure.tenant.db',
-            ])
-            ->group(base_path('routes/tenant.php'));
+            'web',
+            InitializeTenancyByDomain::class,
+            PreventAccessFromCentralDomains::class,
+            EnsureTenantDatabase::class,
+        ])->group(base_path('routes/tenant.php'));
+
     }
 }

@@ -8,11 +8,11 @@ use App\Listeners\SwitchTenantDatabase;
 
 class EventServiceProvider extends ServiceProvider
 {
-    protected $listen = [
-        TenancyInitialized::class => [
-            SwitchTenantDatabase::class,
-        ],
-    ];
+    // protected $listen = [
+    //     TenancyInitialized::class => [
+    //         SwitchTenantDatabase::class,
+    //     ],
+    // ];
 
     public function boot(): void
     {

@@ -27,74 +27,80 @@ class AdminController extends Controller
     }
 
     public function index()
-{
-    // $defaultDb = Config::get('database.default');
-    // $defaultDbName = DB::connection()->getDatabaseName();
+    {
+        $defaultDb = Config::get('database.default');
+        $defaultDbName = DB::connection()->getDatabaseName();
 
-    // $tenantDb = null;
-    // if (tenancy()->initialized) {
-    //     $tenantDb = DB::connection('tenant')->getDatabaseName();
-    // }
-    
-    // dd('test web admin');
-    $user = Auth::user();
-    $onlineTimeout = now()->subMinutes(10);
+        $tenantDb = null;
+        if (tenancy()->initialized) {
+            $tenantDb = DB::connection('tenant')->getDatabaseName();
+        }
+        
+        // dd('test web admin');
+        $user = Auth::user();
+        $onlineTimeout = now()->subMinutes(10);
 
-    $isMasterAdmin = $user->hasRole('master_admin');
+        $isMasterAdmin = $user->hasRole('master_admin');
 
-    if ($isMasterAdmin) {
-        $totalUsers       = User::count();
-        $totalRoles       = \Spatie\Permission\Models\Role::count();
-        $totalPermissions = \Spatie\Permission\Models\Permission::count();
-        $totalCustomers   = Customer::count();
+        if ($isMasterAdmin) {
+            $totalUsers       = User::count();
+            $totalRoles       = \Spatie\Permission\Models\Role::count();
+            $totalPermissions = \Spatie\Permission\Models\Permission::count();
+            $totalCustomers   = Customer::count();
 
-        $onlineUsers = User::whereHas('sessions', function ($query) {
-            $query->whereNull('logout_at')->whereIn('platform', ['web', 'mobile']);
-        })
-        ->with(['roles', 'permissions'])
-        ->get();
-
-        $sessionsQuery = UserSession::with('user')->whereDate('login_at', now());
-    } else {
-        $companyId        = $user->company_id;
-        $totalUsers       = User::where('company_id', $companyId)->count();
-        $totalRoles       = \Spatie\Permission\Models\Role::where('company_id', $companyId)->count();
-        $totalPermissions = \Spatie\Permission\Models\Permission::where('company_id', $companyId)->count();
-        $totalCustomers   = Customer::where('company_id', $companyId)->count();
-
-        $onlineUsers = User::where('company_id', $companyId)
-            ->whereHas('sessions', function ($query) {
+            $onlineUsers = User::whereHas('sessions', function ($query) {
                 $query->whereNull('logout_at')->whereIn('platform', ['web', 'mobile']);
             })
             ->with(['roles', 'permissions'])
             ->get();
 
-        $sessionsQuery = UserSession::with('user')
-            ->whereDate('login_at', now())
-            ->whereHas('user', function ($q) use ($companyId) {
-                $q->where('company_id', $companyId);
-            });
+            $sessionsQuery = UserSession::with('user')->whereDate('login_at', now());
+        } else {
+            $companyId        = $user->company_id;
+            $totalUsers       = User::where('company_id', $companyId)->count();
+            $totalRoles       = \Spatie\Permission\Models\Role::where('company_id', $companyId)->count();
+            $totalPermissions = \Spatie\Permission\Models\Permission::where('company_id', $companyId)->count();
+            $totalCustomers   = Customer::where('company_id', $companyId)->count();
+
+            $onlineUsers = User::where('company_id', $companyId)
+                ->whereHas('sessions', function ($query) {
+                    $query->whereNull('logout_at')->whereIn('platform', ['web', 'mobile']);
+                })
+                ->with(['roles', 'permissions'])
+                ->get();
+
+            $sessionsQuery = UserSession::with('user')
+                ->whereDate('login_at', now())
+                ->whereHas('user', function ($q) use ($companyId) {
+                    $q->where('company_id', $companyId);
+                });
+        }
+
+        $sessionsGrouped = $sessionsQuery->get()->groupBy('user_id');
+
+        
+
+        return view('admin.dashboard', compact(
+            'totalUsers',
+            'totalRoles',
+            'totalPermissions',
+            'totalCustomers',
+            'onlineUsers',
+            'sessionsGrouped',
+        ));
     }
-
-    $sessionsGrouped = $sessionsQuery->get()->groupBy('user_id');
-
-    
-
-    return view('admin.dashboard', compact(
-        'totalUsers',
-        'totalRoles',
-        'totalPermissions',
-        'totalCustomers',
-        'onlineUsers',
-        'sessionsGrouped',
-    ));
-}
 
 
     public function create()
     {
     
+        $defaultDb = Config::get('database.default');
+        $defaultDbName = DB::connection()->getDatabaseName();
 
+        $tenantDb = null;
+        if (tenancy()->initialized) {
+            $tenantDb = DB::connection('tenant')->getDatabaseName();
+        }
        
         return view('admin.login');
     }

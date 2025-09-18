@@ -12,72 +12,59 @@ class EnsureTenantDatabase
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function handle(Request $request, Closure $next)
     {
-        // Get the current domain
+        // Get current domain
         $domain = $request->getHost();
-        
-        // Skip for central domains
+
+        // Central domains (skip tenancy)
         $centralDomains = ['127.0.0.1', 'localhost'];
         if (in_array($domain, $centralDomains)) {
             return $next($request);
         }
-        
+
         // Find tenant by domain
-        $tenant = Tenant::whereHas('domains', function($query) use ($domain) {
+        $tenant = Tenant::whereHas('domains', function ($query) use ($domain) {
             $query->where('domain', $domain);
         })->first();
-        
+
         if ($tenant) {
-            $databaseName = $tenant->getDatabaseName();
-            
-            // Ensure the tenant database is set in the connection
-            if ($databaseName && $databaseName !== 'default_tenant_db') {
-                // Set the database name in the tenant connection
+            $databaseName = (string) $tenant->tenancy_db_name;
+
+            if ($databaseName) {
+                // Set tenant DB connection dynamically
                 Config::set("database.connections.tenant.database", $databaseName);
-                
-                // Purge and reconnect to ensure the new database is used
+
+                // Purge and reconnect to tenant
                 DB::purge('tenant');
                 DB::reconnect('tenant');
-                
-                // Initialize tenancy context
-                tenancy()->initialize($tenant);
-                
-                // Verify the connection is working
+
+                // ✅ Make tenant the default connection for this request
+                Config::set('database.default', 'tenant');
+
                 try {
-                    $pdo = DB::connection('tenant')->getPdo();
-                    $currentDb = DB::connection('tenant')->getDatabaseName();
-                    
-                    // Log for debugging
-                    \Log::info("Tenant database connected: {$currentDb} for domain: {$domain}");
-                    
+                    $currentDb = DB::connection()->getDatabaseName(); // now points to tenant
+                    \Log::info("✅ Tenant DB connected: {$currentDb} for domain: {$domain}");
                 } catch (\Exception $e) {
-                    // Log the error
-                    \Log::error("Failed to connect to tenant database '{$databaseName}' for domain '{$domain}': " . $e->getMessage());
-                    
-                    // Return error response
+                    \Log::error("❌ Tenant DB connection failed for {$databaseName}: " . $e->getMessage());
+
                     return response()->json([
                         'error' => 'Database connection failed',
                         'message' => "Cannot connect to tenant database: {$databaseName}",
                         'domain' => $domain,
-                        'tenant_id' => $tenant->id
+                        'tenant_id' => $tenant->id,
                     ], 500);
                 }
             }
         } else {
-            // If no tenant found for the domain, return error
             return response()->json([
                 'error' => 'Tenant not found',
                 'message' => "No tenant found for domain: {$domain}",
-                'domain' => $domain
+                'domain' => $domain,
             ], 404);
         }
-        
+
         return $next($request);
     }
 }

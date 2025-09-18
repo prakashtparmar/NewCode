@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CompanyController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\CustomerController;
@@ -24,6 +25,9 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Middleware\EnsureTenantDatabase;
+use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
+use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
 // ---------------- Tenant Domain Routes ----------------
 // These routes are automatically wrapped with tenancy middleware by RouteServiceProvider
@@ -53,7 +57,12 @@ Route::get('/debug-tenant', function () {
     ]);
 });
 
-Route::prefix('admin')->group(function () {
+Route::prefix('admin')->middleware([
+    InitializeTenancyByDomain::class,
+    PreventAccessFromCentralDomains::class,
+    EnsureTenantDatabase::class,
+])->group(function () {
+    
     // Public Login for Tenant
     Route::get('login', [AdminController::class, 'create'])->name('admin.login');
     Route::post('login', [AdminController::class, 'store'])->name('auth.login.request');
@@ -74,6 +83,10 @@ Route::prefix('admin')->group(function () {
         // HR (tenant database)
         Route::resource('/hr/designations', DesignationController::class)->names('hr.designations');
         Route::get('/hr/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+
+        Route::resource('companies', CompanyController::class);
+        Route::patch('companies/{id}/toggle', [CompanyController::class, 'toggle'])->name('companies.toggle');
+
 
         // Trips (tenant database)
         Route::prefix('trips')->group(function () {

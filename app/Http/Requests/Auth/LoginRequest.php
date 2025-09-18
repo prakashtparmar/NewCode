@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\Company;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\DB;
 
 class LoginRequest extends FormRequest
 {
@@ -22,13 +24,13 @@ class LoginRequest extends FormRequest
     {
         // Get the email from the request
         $email = $this->input('email');
-
+        dd(DB::connection()->getDatabaseName());
         // Step 1: Check if the user has the "master_admin" role
-        $isMasterUser = \App\Models\User::where('email', $email)
-                                        ->whereHas('roles', function ($query) {
-                                            $query->where('name', 'master_admin');  // Check for master_admin role
-                                        })
-                                        ->exists();
+        // $isMasterUser = \App\Models\User::where('email', $email)
+        //                                 ->whereHas('roles', function ($query) {
+        //                                     $query->where('name', 'master_admin');  // Check for master_admin role
+        //                                 })
+        //                                 ->exists();
 
         // Step 2: Define validation rules
         $rules = [
@@ -36,10 +38,12 @@ class LoginRequest extends FormRequest
             'password' => 'required|string|min:6',
         ];
 
+        dd(Company::all());
+
         // Step 3: Add conditional rule for company_id if the user is not a master user
-        if (!$isMasterUser) {
+        // if (!$isMasterUser) {
             $rules['company_id'] = 'required|string|exists:companies,code'; // Only required if not a master user
-        }
+        // }
 
         return $rules;
     }

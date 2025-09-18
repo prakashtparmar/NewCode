@@ -29,7 +29,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     public function getDatabaseName(): string
     {
         if (empty($this->tenancy_db_name)) {
-            return 'default_tenant_db'; // Default if tenancy_db_name is invalid
+            return 'default_tenant_db'; 
         }
 
         return $this->tenancy_db_name;

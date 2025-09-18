@@ -34,11 +34,12 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-    ];
-
-    protected $routeMiddleware = [
-        // Other middleware...
         'domain.redirect' => \App\Http\Middleware\DomainRedirectMiddleware::class,
         'ensure.tenant.db' => \App\Http\Middleware\EnsureTenantDatabase::class,
     ];
+
+    // protected $routeMiddleware = [
+    //     // Other middleware...
+    //     'domain.redirect' => \App\Http\Middleware\DomainRedirectMiddleware::class,
+    // ];
 }
