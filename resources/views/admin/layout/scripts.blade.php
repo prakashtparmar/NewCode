@@ -32,7 +32,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 
 <!-- Google Maps API -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB_-uOyQimLqBkDW_Vr8d88GX6Qk0lyksI&libraries=places">
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD9aLsgkoreyI0W-T7sh-DNjTxVLf_uK6k&libraries=places">
 </script>
 
 <!-- Custom JS -->
@@ -89,7 +89,7 @@
         }));
 
         const map = new google.maps.Map(document.getElementById("map"), {
-            zoom: 11,  // fixed zoom
+            zoom: 12,  // fixed zoom
             center: pathCoordinates[0] // always center at first log
         });
 
@@ -98,7 +98,7 @@
             const tripPath = new google.maps.Polyline({
                 path: pathCoordinates,
                 geodesic: true,
-                strokeColor: "#007bff",
+                strokeColor: "#f5f5f5",
                 strokeOpacity: 1,
                 strokeWeight: 4
             });
