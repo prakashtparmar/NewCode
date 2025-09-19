@@ -9,13 +9,13 @@ class StateSeeder extends Seeder
 {
     public function run()
     {
-        DB::table('states')->insert([
-            ['name' => 'Maharashtra'],
-            ['name' => 'Karnataka'],
-            ['name' => 'Gujarat'],
-            ['name' => 'Tamil Nadu'],
-        ]);
+        $states = ['Maharashtra', 'Karnataka', 'Gujarat', 'Tamil Nadu'];
 
-       
+        foreach ($states as $state) {
+            DB::table('states')->updateOrInsert(
+                ['name' => $state], // unique condition
+                ['name' => $state]  // update values if already exist
+            );
+        }
     }
 }

@@ -282,6 +282,8 @@ Route::middleware(['web'])->group(function () {
             Route::resource('districts', DistrictController::class);
             Route::resource('cities', CityController::class);
             Route::resource('tehsils', TehsilController::class);
+        Route::resource('roles', RoleController::class);
+
 
             Route::get('/get-districts/{state_id}', [UserController::class, 'getDistricts'])->name('get.districts');
             Route::get('/get-cities/{district_id}', [UserController::class, 'getCities'])->name('get.cities');

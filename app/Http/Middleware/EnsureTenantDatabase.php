@@ -23,12 +23,11 @@ class EnsureTenantDatabase
         if (in_array($domain, $centralDomains)) {
             return $next($request);
         }
-
         // Find tenant by domain
         $tenant = Tenant::whereHas('domains', function ($query) use ($domain) {
             $query->where('domain', $domain);
         })->first();
-
+        
         if ($tenant) {
             $databaseName = (string) $tenant->tenancy_db_name;
 

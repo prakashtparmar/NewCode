@@ -77,8 +77,7 @@ class AdminController extends Controller
         }
 
         $sessionsGrouped = $sessionsQuery->get()->groupBy('user_id');
-
-        
+    
 
         return view('admin.dashboard', compact(
             'totalUsers',

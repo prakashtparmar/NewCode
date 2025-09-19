@@ -40,7 +40,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                      </div>
                      @endif
-                     @can('view_roles')
+                     {{-- @can('view_roles') --}}
                      <table id="roles-table" class="table table-bordered table-striped align-middle">
                         <thead class="table-light">
                            <tr>
@@ -137,7 +137,7 @@
                            @endforelse
                         </tbody>
                      </table>
-                     @endcan
+                     {{-- @endcan --}}
                   </div>
                </div>
             </div>

@@ -9,15 +9,28 @@ class DistrictSeeder extends Seeder
 {
     public function run()
     {
-        
-        DB::table('districts')->insert([
-            ['name' => 'Pune', 'state_id' => 1],
-            ['name' => 'Mumbai', 'state_id' => 1],
-            ['name' => 'Bangalore', 'state_id' => 2],
-            ['name' => 'Ahmedabad', 'state_id' => 3],
-            ['name' => 'Chennai', 'state_id' => 4],
-            ['name' => 'Nagpur', 'state_id' => 1],
-        ]);
+        // Fetch state_id dynamically by name
+        $stateIds = DB::table('states')->pluck('id', 'name'); 
+        // Example: ['Maharashtra' => 5, 'Karnataka' => 6, ...]
 
+        $districts = [
+            ['name' => 'Pune', 'state' => 'Maharashtra'],
+            ['name' => 'Mumbai', 'state' => 'Maharashtra'],
+            ['name' => 'Bangalore', 'state' => 'Karnataka'],
+            ['name' => 'Ahmedabad', 'state' => 'Gujarat'],
+            ['name' => 'Chennai', 'state' => 'Tamil Nadu'],
+            ['name' => 'Nagpur', 'state' => 'Maharashtra'],
+        ];
+
+        foreach ($districts as $district) {
+            $stateId = $stateIds[$district['state']] ?? null;
+
+            if ($stateId) {
+                DB::table('districts')->updateOrInsert(
+                    ['name' => $district['name'], 'state_id' => $stateId],
+                    ['state_id' => $stateId]
+                );
+            }
+        }
     }
 }

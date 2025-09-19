@@ -14,167 +14,174 @@
     <div class="sidebar-wrapper">
         <nav class="mt-3">
             <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
-			
-				<li class="nav-item {{ request()->is('admin/budget*') || request()->is('admin/monthly*') || request()->is('admin/achievement*') ? 'menu-open' : '' }}">
-					<a href="#"
-					   class="nav-link {{ request()->is('admin/budget*') || request()->is('admin/monthly*') || request()->is('admin/achievement*') ? 'active' : '' }}">
-						<i class="bi bi-people-fill me-2"></i>
-						<p>
-							Planning
-							<i class="bi bi-chevron-right ms-auto"></i>
-						</p>
-					</a>
-					<ul class="nav nav-treeview">
-						<li class="nav-item">
-							<a href="{{ url('admin/budget') }}"
-							   class="nav-link {{ request()->is('admin/budget*') ? 'active' : '' }}">
-								<i class="bi bi-cash-stack me-2"></i>
-								<p>Budget Plan</p>
-							</a>
-						</li>
-						<li class="nav-item">
-							<a href="{{ url('admin/monthly') }}"
-							   class="nav-link {{ request()->is('admin/monthly*') ? 'active' : '' }}">
-								<i class="bi bi-calendar-month me-2"></i>
-								<p>Monthly Plan</p>
-							</a>
-						</li>
-						<li class="nav-item">
-							<a href="{{ url('admin/achievement') }}"
-							   class="nav-link {{ request()->is('admin/achievement*') ? 'active' : '' }}">
-								<i class="bi bi-graph-up-arrow me-2"></i>
-								<p>Plan Vs Achievement</p>
-							</a>
-						</li>
-					</ul>
-				</li>
 
-                <li class="nav-item {{ request()->is('admin/party*') || request()->is('admin/party*') || request()->is('admin/party*') ? 'menu-open' : '' }}">
-					<a href="#"
-					   class="nav-link {{ request()->is('admin/party*') || request()->is('admin/party*') || request()->is('admin/party*') ? 'active' : '' }}">
-						<i class="bi bi-people-fill me-2"></i>
-						<p>
-							Party
-							<i class="bi bi-chevron-right ms-auto"></i>
-						</p>
-					</a>
-					<ul class="nav nav-treeview">
-						<li class="nav-item">
-							<a href="{{ url('admin/budget') }}"
-							   class="nav-link {{ request()->is('admin/party*') ? 'active' : '' }}">
-								<i class="bi bi-cash-stack me-2"></i>
-								<p>Party Visit</p>
-							</a>
-						</li>
-						
-					</ul>
-				</li>
+                <li
+                    class="nav-item {{ request()->is('admin/budget*') || request()->is('admin/monthly*') || request()->is('admin/achievement*') ? 'menu-open' : '' }}">
+                    <a href="#"
+                        class="nav-link {{ request()->is('admin/budget*') || request()->is('admin/monthly*') || request()->is('admin/achievement*') ? 'active' : '' }}">
+                        <i class="bi bi-people-fill me-2"></i>
+                        <p>
+                            Planning
+                            <i class="bi bi-chevron-right ms-auto"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ url('admin/budget') }}"
+                                class="nav-link {{ request()->is('admin/budget*') ? 'active' : '' }}">
+                                <i class="bi bi-cash-stack me-2"></i>
+                                <p>Budget Plan</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url('admin/monthly') }}"
+                                class="nav-link {{ request()->is('admin/monthly*') ? 'active' : '' }}">
+                                <i class="bi bi-calendar-month me-2"></i>
+                                <p>Monthly Plan</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url('admin/achievement') }}"
+                                class="nav-link {{ request()->is('admin/achievement*') ? 'active' : '' }}">
+                                <i class="bi bi-graph-up-arrow me-2"></i>
+                                <p>Plan Vs Achievement</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
-                <li class="nav-item {{ request()->is('admin/order*') || request()->is('admin/order*') || request()->is('admin/order*') ? 'menu-open' : '' }}">
-					<a href="#"
-					   class="nav-link {{ request()->is('admin/order*') || request()->is('admin/order*') || request()->is('admin/order*') ? 'active' : '' }}">
-						<i class="bi bi-people-fill me-2"></i>
-						<p>
-							Order
-							<i class="bi bi-chevron-right ms-auto"></i>
-						</p>
-					</a>
-					<ul class="nav nav-treeview">
-						<li class="nav-item">
-							<a href="{{ url('admin/order') }}"
-							   class="nav-link {{ request()->is('admin/order*') ? 'active' : '' }}">
-								<i class="bi bi-cash-stack me-2"></i>
-								<p>Order</p>
-							</a>
-						</li>
-						
-					</ul>
-				</li>
+                <li
+                    class="nav-item {{ request()->is('admin/party*') || request()->is('admin/party*') || request()->is('admin/party*') ? 'menu-open' : '' }}">
+                    <a href="#"
+                        class="nav-link {{ request()->is('admin/party*') || request()->is('admin/party*') || request()->is('admin/party*') ? 'active' : '' }}">
+                        <i class="bi bi-people-fill me-2"></i>
+                        <p>
+                            Party
+                            <i class="bi bi-chevron-right ms-auto"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ url('admin/budget') }}"
+                                class="nav-link {{ request()->is('admin/party*') ? 'active' : '' }}">
+                                <i class="bi bi-cash-stack me-2"></i>
+                                <p>Party Visit</p>
+                            </a>
+                        </li>
 
-                <li class="nav-item {{ request()->is('admin/stock*') || request()->is('admin/stock*') || request()->is('admin/stock*') ? 'menu-open' : '' }}">
-					<a href="#"
-					   class="nav-link {{ request()->is('admin/stock*') || request()->is('admin/stock*') || request()->is('admin/stock*') ? 'active' : '' }}">
-						<i class="bi bi-people-fill me-2"></i>
-						<p>
-							Stock
-							<i class="bi bi-chevron-right ms-auto"></i>
-						</p>
-					</a>
-					<ul class="nav nav-treeview">
-						<li class="nav-item">
-							<a href="{{ url('admin/stock') }}"
-							   class="nav-link {{ request()->is('admin/stock*') ? 'active' : '' }}">
-								<i class="bi bi-cash-stack me-2"></i>
-								<p>Stock</p>
-							</a>
-						</li>
-						
-					</ul>
-				</li>
+                    </ul>
+                </li>
 
-                <li class="nav-item {{ request()->is('admin/tracking*') || request()->is('admin/tracking*') || request()->is('admin/tracking*') ? 'menu-open' : '' }}">
-					<a href="#"
-					   class="nav-link {{ request()->is('admin/tracking*') || request()->is('admin/tracking*') || request()->is('admin/tracking*') ? 'active' : '' }}">
-						<i class="bi bi-people-fill me-2"></i>
-						<p>
-							Tracking
-							<i class="bi bi-chevron-right ms-auto"></i>
-						</p>
-					</a>
-					<ul class="nav nav-treeview">
-						<li class="nav-item">
-							<a href="{{ url('admin/tracking') }}"
-							   class="nav-link {{ request()->is('admin/tracking*') ? 'active' : '' }}">
-								<i class="bi bi-cash-stack me-2"></i>
-								<p>Tracking</p>
-							</a>
-						</li>
-						
-					</ul>
-				</li>
+                <li
+                    class="nav-item {{ request()->is('admin/order*') || request()->is('admin/order*') || request()->is('admin/order*') ? 'menu-open' : '' }}">
+                    <a href="#"
+                        class="nav-link {{ request()->is('admin/order*') || request()->is('admin/order*') || request()->is('admin/order*') ? 'active' : '' }}">
+                        <i class="bi bi-people-fill me-2"></i>
+                        <p>
+                            Order
+                            <i class="bi bi-chevron-right ms-auto"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ url('admin/order') }}"
+                                class="nav-link {{ request()->is('admin/order*') ? 'active' : '' }}">
+                                <i class="bi bi-cash-stack me-2"></i>
+                                <p>Order</p>
+                            </a>
+                        </li>
 
-                <li class="nav-item {{ request()->is('admin/attendance*') || request()->is('admin/attendance*') || request()->is('admin/attendance*') ? 'menu-open' : '' }}">
-					<a href="#"
-					   class="nav-link {{ request()->is('admin/attendance*') || request()->is('admin/attendance*') || request()->is('admin/attendance*') ? 'active' : '' }}">
-						<i class="bi bi-people-fill me-2"></i>
-						<p>
-							Attendance
-							<i class="bi bi-chevron-right ms-auto"></i>
-						</p>
-					</a>
-					<ul class="nav nav-treeview">
-						<li class="nav-item">
-							<a href="{{ url('admin/attendance') }}"
-							   class="nav-link {{ request()->is('admin/attendance*') ? 'active' : '' }}">
-								<i class="bi bi-cash-stack me-2"></i>
-								<p>Attendance</p>
-							</a>
-						</li>
-						
-					</ul>
-				</li>
+                    </ul>
+                </li>
 
-                
-                <li class="nav-item {{ request()->is('admin/expense*') || request()->is('admin/expense*') || request()->is('admin/expense*') ? 'menu-open' : '' }}">
-					<a href="#"
-					   class="nav-link {{ request()->is('admin/expense*') || request()->is('admin/expense*') || request()->is('admin/expense*') ? 'active' : '' }}">
-						<i class="bi bi-people-fill me-2"></i>
-						<p>
-							Expense
-							<i class="bi bi-chevron-right ms-auto"></i>
-						</p>
-					</a>
-					<ul class="nav nav-treeview">
-						<li class="nav-item">
-							<a href="{{ url('admin/expense') }}"
-							   class="nav-link {{ request()->is('admin/expense*') ? 'active' : '' }}">
-								<i class="bi bi-cash-stack me-2"></i>
-								<p>Expense</p>
-							</a>
-						</li>
-						
-					</ul>
-				</li>
+                <li
+                    class="nav-item {{ request()->is('admin/stock*') || request()->is('admin/stock*') || request()->is('admin/stock*') ? 'menu-open' : '' }}">
+                    <a href="#"
+                        class="nav-link {{ request()->is('admin/stock*') || request()->is('admin/stock*') || request()->is('admin/stock*') ? 'active' : '' }}">
+                        <i class="bi bi-people-fill me-2"></i>
+                        <p>
+                            Stock
+                            <i class="bi bi-chevron-right ms-auto"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ url('admin/stock') }}"
+                                class="nav-link {{ request()->is('admin/stock*') ? 'active' : '' }}">
+                                <i class="bi bi-cash-stack me-2"></i>
+                                <p>Stock</p>
+                            </a>
+                        </li>
+
+                    </ul>
+                </li>
+
+                <li
+                    class="nav-item {{ request()->is('admin/tracking*') || request()->is('admin/tracking*') || request()->is('admin/tracking*') ? 'menu-open' : '' }}">
+                    <a href="#"
+                        class="nav-link {{ request()->is('admin/tracking*') || request()->is('admin/tracking*') || request()->is('admin/tracking*') ? 'active' : '' }}">
+                        <i class="bi bi-people-fill me-2"></i>
+                        <p>
+                            Tracking
+                            <i class="bi bi-chevron-right ms-auto"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ url('admin/tracking') }}"
+                                class="nav-link {{ request()->is('admin/tracking*') ? 'active' : '' }}">
+                                <i class="bi bi-cash-stack me-2"></i>
+                                <p>Tracking</p>
+                            </a>
+                        </li>
+
+                    </ul>
+                </li>
+
+                <li
+                    class="nav-item {{ request()->is('admin/attendance*') || request()->is('admin/attendance*') || request()->is('admin/attendance*') ? 'menu-open' : '' }}">
+                    <a href="#"
+                        class="nav-link {{ request()->is('admin/attendance*') || request()->is('admin/attendance*') || request()->is('admin/attendance*') ? 'active' : '' }}">
+                        <i class="bi bi-people-fill me-2"></i>
+                        <p>
+                            Attendance
+                            <i class="bi bi-chevron-right ms-auto"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ url('admin/attendance') }}"
+                                class="nav-link {{ request()->is('admin/attendance*') ? 'active' : '' }}">
+                                <i class="bi bi-cash-stack me-2"></i>
+                                <p>Attendance</p>
+                            </a>
+                        </li>
+
+                    </ul>
+                </li>
+
+
+                <li
+                    class="nav-item {{ request()->is('admin/expense*') || request()->is('admin/expense*') || request()->is('admin/expense*') ? 'menu-open' : '' }}">
+                    <a href="#"
+                        class="nav-link {{ request()->is('admin/expense*') || request()->is('admin/expense*') || request()->is('admin/expense*') ? 'active' : '' }}">
+                        <i class="bi bi-people-fill me-2"></i>
+                        <p>
+                            Expense
+                            <i class="bi bi-chevron-right ms-auto"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ url('admin/expense') }}"
+                                class="nav-link {{ request()->is('admin/expense*') ? 'active' : '' }}">
+                                <i class="bi bi-cash-stack me-2"></i>
+                                <p>Expense</p>
+                            </a>
+                        </li>
+
+                    </ul>
+                </li>
 
                 <!-- User Management Module -->
                 <li
@@ -303,36 +310,54 @@
                 </li>
 
                 <!-- Master Management -->
-                <li class="nav-item {{ request()->is('admin/states*') || request()->is('admin/districts*') || request()->is('admin/tehsils*') ? 'menu-open' : '' }}">
+                <li
+                    class="nav-item {{ request()->is('admin/states*') || request()->is('admin/districts*') || request()->is('admin/tehsils*') ? 'menu-open' : '' }}">
                     <a href="#"
                         class="nav-link {{ request()->is('admin/states*') || request()->is('admin/districts*') || request()->is('admin/tehsils*') ? 'active' : '' }}">
                         <i class="bi bi-geo-alt-fill me-2"></i>
-                        <p> Master <i class="bi bi-chevron-right ms-auto"></i></p>
+                        <p>
+                            Master
+                            <i class="bi bi-chevron-right ms-auto"></i>
+                        </p>
                     </a>
                     <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="{{ url('admin/states') }}"
-                                class="nav-link {{ request()->is('admin/states*') ? 'active' : '' }}">
+                        <li
+                            class="nav-item {{ request()->is('admin/states*') || request()->is('admin/districts*') || request()->is('admin/tehsils*') ? 'menu-open' : '' }}">
+                            <a href="#"
+                                class="nav-link {{ request()->is('admin/states*') || request()->is('admin/districts*') || request()->is('admin/tehsils*') ? 'active' : '' }}">
                                 <i class="bi bi-flag me-2"></i>
-                                <p>States</p>
+                                <p>
+                                    States
+                                    <i class="bi bi-chevron-right ms-auto"></i>
+                                </p>
                             </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ url('admin/districts') }}"
-                                class="nav-link {{ request()->is('admin/districts*') ? 'active' : '' }}">
-                                <i class="bi bi-building me-2"></i>
-                                <p>Districts</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ url('admin/tehsils') }}"
-                                class="nav-link {{ request()->is('admin/tehsils*') ? 'active' : '' }}">
-                                <i class="bi bi-diagram-3 me-2"></i>
-                                <p>Talukas</p>
-                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ url('admin/states') }}"
+                                        class="nav-link {{ request()->is('admin/states*') ? 'active' : '' }}">
+                                        <i class="bi bi-circle me-2"></i>
+                                        <p>States</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('admin/districts') }}"
+                                        class="nav-link {{ request()->is('admin/districts*') ? 'active' : '' }}">
+                                        <i class="bi bi-circle me-2"></i>
+                                        <p>Districts</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ url('admin/tehsils') }}"
+                                        class="nav-link {{ request()->is('admin/tehsils*') ? 'active' : '' }}">
+                                        <i class="bi bi-circle me-2"></i>
+                                        <p>Talukas</p>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                     </ul>
                 </li>
+
 
 
 

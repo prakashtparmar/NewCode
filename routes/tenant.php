@@ -34,6 +34,7 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 // They handle tenant-specific database operations
 
 Route::get('/', function () {
+    // dd('hello');
     return redirect()->route('admin.login');
 });
 
