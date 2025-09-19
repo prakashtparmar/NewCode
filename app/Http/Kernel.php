@@ -16,11 +16,11 @@ class Kernel extends HttpKernel
         'web' => [
             \App\Http\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class, // This MUST come before StartSession
             \Illuminate\Session\Middleware\StartSession::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            // Note: Tenancy middleware is applied per route group, not globally
         ],
         'api' => [
             'throttle:api',
@@ -36,6 +36,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'domain.redirect' => \App\Http\Middleware\DomainRedirectMiddleware::class,
         'ensure.tenant.db' => \App\Http\Middleware\EnsureTenantDatabase::class,
+        'prevent.central' => \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class,
     ];
 
     // protected $routeMiddleware = [

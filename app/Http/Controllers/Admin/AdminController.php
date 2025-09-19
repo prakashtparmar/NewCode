@@ -106,89 +106,60 @@ class AdminController extends Controller
     }
 
     public function store(LoginRequest $request)
-{
-    $credentials = $request->only('email', 'password', 'company_id');
+    {
 
-    $isMasterUser = User::where('email', $credentials['email'])
-        ->whereHas('roles', function ($query) {
-            $query->where('name', 'master_admin');
-        })->exists();
+        $credentials = $request->only('email', 'password');
 
-    if (!$isMasterUser) {
-        $company = \App\Models\Company::where('code', $credentials['company_id'])->first();
-    
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
 
-        if (!$company) {
-            return redirect()->back()->with('error_message', 'Invalid Company Code.');
-        }
-        if ($company->status !== 'Active') {
-            return redirect()->back()->with('error_message', 'Your company is currently inactive.');
-        }
-    } else {
-        $company = null;
-    }
+            if ($user->is_active == 0) {
+                Auth::logout();
+                return redirect()->back()->with('error_message', 'Your account is inactive. Please contact support.');
+            }
 
-    $userQuery = User::where('email', $credentials['email']);
-    if (!$isMasterUser) {
-        $userQuery->where('company_id', $company->id);
-    }
-    $user = $userQuery->first();
+            // if ($user->roles()->count() === 0) {
+            //     Auth::logout();
+            //     return redirect()->back()->with('error_message', 'You do not have any assigned role. Please contact the administrator.');
+            // }
 
-    if (!$user) {
-        
-        return redirect()->back()->with('error_message', 'Invalid Email or Password.');
-    }
+            if (!empty($request->remember)) {
+                setcookie("email", $credentials["email"], time() + 3600);
+                setcookie("password", $credentials["password"], time() + 3600);
+            } else {
+                setcookie("email", "", time() - 3600);
+                setcookie("password", "", time() - 3600);
+            }
 
-    if ($user->is_active == 0) {
-        return redirect()->back()->with('error_message', 'Your account is inactive. Please contact support.');
-    }
+            $request->session()->regenerate();
 
-    if ($user->roles()->count() === 0) {
-        return redirect()->back()->with('error_message', 'You do not have any assigned role. Please contact the administrator.');
-    }
+            // Log session logic...
+            $existingSession = \App\Models\UserSession::where('user_id', $user->id)
+                ->whereNull('logout_at')
+                ->where('platform', 'web')
+                ->latest()
+                ->first();
 
-    if (Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']])) {
+            if ($existingSession) {
+                $existingSession->update([
+                    'logout_at'        => now(),
+                    'session_duration' => $existingSession->login_at->diffInSeconds(now()),
+                ]);
+            }
 
-        if (!empty($request->remember)) {
-            setcookie("email", $credentials["email"], time() + 3600);
-            setcookie("password", $credentials["password"], time() + 3600);
-        } else {
-            setcookie("email", "", time() - 3600);
-            setcookie("password", "", time() - 3600);
-        }
-
-        $request->session()->regenerate();
-
-        // ✅ Check and close existing open session
-        $existingSession = \App\Models\UserSession::where('user_id', Auth::id())
-            ->whereNull('logout_at')
-            ->where('platform', 'web')
-            ->latest()
-            ->first();
-
-        if ($existingSession) {
-            $existingSession->update([
-                'logout_at'        => now(),
-                'session_duration' => $existingSession->login_at->diffInSeconds(now()),
+            \App\Models\UserSession::create([
+                'user_id'    => $user->id,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->header('User-Agent'),
+                'platform'   => 'web',
+                'login_at'   => now(),
             ]);
+
+            return redirect()->route('admin.dashboard');
+        } else {
+            return redirect()->back()->with('error_message', 'Invalid Email or Password.');
         }
-
-        // ✅ Log the new user login session
-        \App\Models\UserSession::create([
-            'user_id'    => Auth::id(),
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->header('User-Agent'),
-            'platform'   => 'web',
-            'login_at'   => now(),
-        ]);
-
-        
-
-        return redirect()->route('admin.dashboard');
-    } else {
-        return redirect()->back()->with('error_message', 'Invalid Email or Password.');
     }
-}
 
 
     public function edit(Admin $admin)

@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\TenantConnectionTrait;
 
 class City extends Model
 {
+    use TenantConnectionTrait;
     public function district()
     {
         return $this->belongsTo(District::class);

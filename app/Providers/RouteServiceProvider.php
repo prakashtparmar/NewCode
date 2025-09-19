@@ -28,10 +28,10 @@ class RouteServiceProvider extends ServiceProvider
 
         $this->routes(function () {
             $this->mapCentralRoutes();
-            if (request()->getHost() !== config('app.central_domain')) {
-    $this->mapTenantRoutes();
-}
-            // $this->mapTenantRoutes();
+
+            if (!in_array(request()->getHost(), config('tenancy.central_domains'))) {
+                $this->mapTenantRoutes();
+            }
         });
     }
 
@@ -63,9 +63,8 @@ class RouteServiceProvider extends ServiceProvider
     {
         Route::middleware([
             'web',
-            InitializeTenancyByDomain::class,
-            PreventAccessFromCentralDomains::class,
-            EnsureTenantDatabase::class,
+            \Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains::class,
+            \App\Http\Middleware\EnsureTenantDatabase::class,
         ])->group(base_path('routes/tenant.php'));
 
     }

@@ -275,69 +275,8 @@ Route::middleware(['web'])->group(function () {
         // Protected routes
         Route::middleware(['admin', 'last_seen'])->group(function () {
             Route::get('dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
-            Route::get('users/{userId}/sessions', [AdminController::class, 'getUserSessionHistory'])->name('admin.users.sessions');
-            Route::delete('/customers/bulk-delete', [CustomerController::class, 'bulkDelete'])->name('customers.bulk-delete');
-
-            // Multi-Tenant Group (Company specific)
-            Route::middleware(['company.access'])->group(function () {
-                // Role, Permission, User Management
-                Route::resource('roles', RoleController::class);
-                Route::resource('permissions', PermissionController::class);
-                Route::resource('users', UserController::class);
-                Route::post('/users/{user}/toggle', [UserController::class, 'toggle'])->name('users.toggle');
-
-                Route::resource('/hr/designations', DesignationController::class);
-                Route::get('/hr/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
-
-                Route::prefix('trips')->group(function () {
-                    Route::resource('travelmode', TravelModeController::class)->names('travelmode');
-                    Route::resource('tourtype', TourTypeController::class)->names('tourtype');
-                    Route::resource('purpose', PurposeController::class)->names('purpose');
-                });
-
-                // Companies
-                Route::resource('companies', CompanyController::class);
-                Route::patch('companies/{id}/toggle', [CompanyController::class, 'toggle'])->name('companies.toggle');
-
-                // Customers
-                Route::resource('customers', CustomerController::class);
-                Route::patch('/customers/{id}/toggle', [CustomerController::class, 'toggleStatus'])->name('customers.toggle');
-
-                // Trips
-                Route::resource('trips', TripController::class);
-                Route::post('/trips/{trip}/approve', [TripController::class, 'approve'])->name('trips.approve');
-                Route::post('/admin/trips/{id}/complete', [TripController::class, 'completeTrip'])->name('trips.complete');
-                Route::post('/trips/{trip}/toggle-status', [TripController::class, 'toggleStatus'])->name('trips.status.toggle');
-
-                // AJAX executives
-                Route::get('companies/{id}/executives', [CustomerController::class, 'getExecutives'])->name('company.executives');
-
-                // Budget
-                Route::resource('budget', BudgetController::class);
-
-                // Monthly
-                Route::resource('monthly', MonthlyController::class);
-
-                // Achievement
-                Route::resource('achievement', AchievementController::class);
-
-                // Party
-                Route::resource('party', PartyController::class);
-
-                // Order
-                Route::resource('order', OrderController::class);
-
-                // Stock
-                Route::resource('stock', StockController::class);
-
-                // Tracking
-                Route::resource('tracking', TrackingController::class);
-
-                // Expense
-                Route::resource('expense', ExpenseController::class);
-            });
-
-            // Cascading Dropdowns (for location)
+            Route::resource('companies', CompanyController::class);
+            Route::patch('companies/{id}/toggle', [CompanyController::class, 'toggle'])->name('companies.toggle');
             Route::resource('states', StateController::class);
             Route::post('/states/toggle-status', [StateController::class, 'toggleStatus'])->name('states.toggle-status');
             Route::resource('districts', DistrictController::class);
@@ -348,11 +287,6 @@ Route::middleware(['web'])->group(function () {
             Route::get('/get-cities/{district_id}', [UserController::class, 'getCities'])->name('get.cities');
             Route::get('/get-tehsils/{city_id}', [UserController::class, 'getTehsils'])->name('get.tehsils');
             Route::get('/get-pincodes/{city_id}', [UserController::class, 'getPincodes'])->name('get.pincodes');
-
-            // Trip logs
-            Route::post('/trip-logs', [TripController::class, 'logPoint'])->name('trip.log');
-            Route::get('/trips/{trip}/map', [TripController::class, 'showRoute'])->name('trip.map');
-            Route::get('/trips/{trip}/logs', [TripController::class, 'logs'])->name('trips.logs');
         });
     });
 });

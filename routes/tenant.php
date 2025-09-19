@@ -57,11 +57,7 @@ Route::get('/debug-tenant', function () {
     ]);
 });
 
-Route::prefix('admin')->middleware([
-    InitializeTenancyByDomain::class,
-    PreventAccessFromCentralDomains::class,
-    EnsureTenantDatabase::class,
-])->group(function () {
+Route::prefix('admin')->group(function () {
     
     // Public Login for Tenant
     Route::get('login', [AdminController::class, 'create'])->name('admin.login');
