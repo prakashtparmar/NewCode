@@ -91,10 +91,10 @@
                                                         <a href="{{ route('companies.show', $company) }}" class="text-info me-2" title="View">
                                                             <i class="fas fa-eye"></i></a>&nbsp;&nbsp;
 
-                                                        @can('edit_companies')
+                                                        {{-- @can('edit_companies') --}}
                                                             <a href="{{ route('companies.edit', $company) }}" class="text-warning me-2" title="Edit">
                                                                 <i class="fas fa-edit"></i></a>&nbsp;&nbsp;
-                                                        @endcan
+                                                        {{-- @endcan --}}
 
                                                         @can('delete_companies')
                                                             <form action="{{ route('companies.destroy', $company) }}" method="POST" class="d-inline"

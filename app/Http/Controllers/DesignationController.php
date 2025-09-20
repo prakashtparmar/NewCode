@@ -18,9 +18,10 @@ class DesignationController extends Controller
 
         $authUser = auth()->user();
 
-        $designations = $authUser->user_level === 'master_admin'
-            ? Designation::with('company')->latest()->get()
-            : Designation::with('company')->where('company_id', $authUser->company_id)->latest()->get();
+        // $designations = $authUser->user_level === 'master_admin'
+        //     ? Designation::with('company')->latest()->get()
+        //     : Designation::with('company')->where('company_id', $authUser->company_id)->latest()->get();
+        $designations = Designation::with('company')->latest()->get();
 
         return view('admin.hr.index', compact('designations'));
     }

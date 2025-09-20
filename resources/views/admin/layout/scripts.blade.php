@@ -244,17 +244,17 @@
             }
         });
     }
-    $(function() {
-        @if(!isset($trip))
-        loadDropdown('travel_mode', 'travel_mode');
-        loadDropdown('purpose', 'purpose');
-        loadDropdown('tour_type', 'tour_type');
-        @else
-        loadDropdown('travel_mode', 'travel_mode', "{{ old('travel_mode', $trip->travel_mode) }}");
-        loadDropdown('purpose', 'purpose', "{{ old('purpose', $trip->purpose) }}");
-        loadDropdown('tour_type', 'tour_type', "{{ old('tour_type', $trip->tour_type) }}");
-        @endif
-    });
+    // $(function() {
+    //     @if(!isset($trip))
+    //     loadDropdown('travel_mode', 'travel_mode');
+    //     loadDropdown('purpose', 'purpose');
+    //     loadDropdown('tour_type', 'tour_type');
+    //     @else
+    //     loadDropdown('travel_mode', 'travel_mode', "{{ old('travel_mode', $trip->travel_mode) }}");
+    //     loadDropdown('purpose', 'purpose', "{{ old('purpose', $trip->purpose) }}");
+    //     loadDropdown('tour_type', 'tour_type', "{{ old('tour_type', $trip->tour_type) }}");
+    //     @endif
+    // });
 </script>
 
 <!-- Select All Checkbox Control -->
@@ -276,36 +276,36 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const modalElement = document.getElementById("sessionHistoryModal");
-        const modal = new bootstrap.Modal(modalElement);
-        const modalContent = document.getElementById("sessionHistoryContent");
-        const modalTitle = document.getElementById("sessionHistoryModalLabel");
+    const modalElement = document.getElementById("sessionHistoryModal");
+    if (!modalElement) return; // stop if modal not on page
 
-        // Event delegation: handle future dynamically added elements too
-        document.body.addEventListener("click", function(e) {
-            if (e.target.classList.contains("view-sessions-link")) {
-                e.preventDefault();
-                const userId = e.target.getAttribute("data-user-id");
-                const userName = e.target.getAttribute("data-user-name");
+    const modal = new bootstrap.Modal(modalElement);
+    const modalContent = document.getElementById("sessionHistoryContent");
+    const modalTitle = document.getElementById("sessionHistoryModalLabel");
 
-                modalTitle.innerText = `Session History - ${userName}`;
-                modalContent.innerHTML = "Loading...";
+    document.body.addEventListener("click", function(e) {
+        if (e.target.classList.contains("view-sessions-link")) {
+            e.preventDefault();
+            const userId = e.target.getAttribute("data-user-id");
+            const userName = e.target.getAttribute("data-user-name");
 
-                fetch(`/admin/users/${userId}/sessions`)
-                    .then(response => {
-                        if (!response.ok) throw new Error("Network error");
-                        return response.text();
-                    })
-                    .then(data => {
-                        modalContent.innerHTML = data;
-                    })
-                    .catch(() => {
-                        modalContent.innerHTML =
-                            "<p class='text-danger'>Failed to load session history.</p>";
-                    });
+            modalTitle.innerText = `Session History - ${userName}`;
+            modalContent.innerHTML = "Loading...";
 
-                modal.show();
-            }
-        });
+            fetch(`/admin/users/${userId}/sessions`)
+                .then(response => {
+                    if (!response.ok) throw new Error("Network error");
+                    return response.text();
+                })
+                .then(data => modalContent.innerHTML = data)
+                .catch(() => modalContent.innerHTML =
+                    "<p class='text-danger'>Failed to load session history.</p>"
+                );
+
+            modal.show();
+        }
     });
+});
+
 </script>
+@stack('scripts')

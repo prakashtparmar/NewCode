@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Depo;
 use App\Models\User;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
@@ -59,8 +60,10 @@ class UserController extends Controller
             })->get();
 
         $designations = $authUser->user_level === 'master_admin'
-    ? Designation::all()
-    : Designation::where('company_id', $authUser->company_id)->get();
+        ? Designation::all()
+        : Designation::where('company_id', $authUser->company_id)->get();
+
+        $depos = Depo::where('status',1)->get();
 
         
         return view('admin.users.create', [
@@ -70,7 +73,8 @@ class UserController extends Controller
             'companies' => $companies,
             'authUser' => $authUser,
             'users' => $users, // ✅ added here
-            'designations' => $designations // ✅ passed to view
+            'designations' => $designations, // ✅ passed to view
+            'depos' => $depos
         ]);
     }
 

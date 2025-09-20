@@ -72,10 +72,16 @@
                                             <input type="email" name="email" class="form-control"
                                                 value="{{ old('email') }}" required>
                                         </div>
+                                        
                                         <div class="col-md-4">
                                             <label class="form-label">Mobile</label>
                                             <input type="text" name="mobile" class="form-control"
                                                 value="{{ old('mobile') }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Company Mobile</label>
+                                            <input type="text" name="company_mobile" class="form-control"
+                                                value="{{ old('company_mobile') }}">
                                         </div>
 
                                         {{-- DOB, Gender, Marital Status --}}
@@ -135,18 +141,24 @@
                                             </select>
                                         </div>
 
-                                        <div class="col-md-3">
+                                        {{-- <div class="col-md-3">
                                             <label class="form-label">City</label>
                                             <select name="city_id" id="city" class="form-select">
                                                 <option value="">Select City</option>
                                             </select>
+                                        </div> --}}
+
+                                        <div class="col-md-3">
+                                            <label class="form-label">Taluka</label>
+                                            <select name="tehsil_id" id="tehsil" class="form-select">
+                                                <option value="">Select Taluka</option>
+                                            </select>
                                         </div>
 
                                         <div class="col-md-3">
-                                            <label class="form-label">Tehsil</label>
-                                            <select name="tehsil_id" id="tehsil" class="form-select">
-                                                <option value="">Select Tehsil</option>
-                                            </select>
+                                            <label class="form-label">Village</label>
+                                            <input type="text" name="village" class="form-control"
+                                                value="{{ old('village') }}">
                                         </div>
 
                                         <div class="col-md-3">
@@ -263,6 +275,79 @@
                                                 <option value="0"
                                                     {{ old('is_allow_tracking') == '0' ? 'selected' : '' }}>No</option>
                                             </select>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label class="form-label">Depo Assign</label>
+                                            <select name="depo_id" class="form-select">
+                                                <option value="">Select Depo</option>
+                                                @foreach ($depos as $depo)
+                                                        <option value="{{ $depo->id }}"
+                                                            {{ old('depo_id') == $depo->id ? 'selected' : '' }}>
+                                                            {{ $depo->depo_name }}
+                                                        </option>
+                                                    @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label class="form-label">Is Web Login Access</label>
+                                            <select name="is_web_login_access" class="form-select">
+                                                <option value="1"
+                                                    {{ old('is_web_login_access') == '1' ? 'selected' : '' }}>Yes</option>
+                                                <option value="0"
+                                                    {{ old('is_web_login_access') == '0' ? 'selected' : '' }}>No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {{-- Other Info --}}
+                                    <h5 class="mb-3">Other Info</h5>
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-4">
+                                            <label class="form-label">A/C No. </label>
+                                            <input type="text" name="account_no" class="form-control"
+                                                value="{{ old('account_no') }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Branch Name</label>
+                                            <input type="text" name="branch_name" class="form-control"
+                                                value="{{ old('branch_name') }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">IFSC Code </label>
+                                            <input type="text" name="ifsc_code" class="form-control"
+                                                value="{{ old('ifsc_code') }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">PAN Card No. </label>
+                                            <input type="text" name="pan_card_no" class="form-control"
+                                                value="{{ old('pan_card_no') }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Aadhar No. </label>
+                                            <input type="text" name="aadhar_no" class="form-control"
+                                                value="{{ old('aadhar_no') }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Driving Lic No. </label>
+                                            <input type="text" name="driving_lic_no" class="form-control"
+                                                value="{{ old('driving_lic_no') }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Driving Expiry </label>
+                                            <input type="text" name="driving_expiry" class="form-control"
+                                                value="{{ old('driving_expiry') }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Passport No. </label>
+                                            <input type="text" name="passport_no" class="form-control"
+                                                value="{{ old('passport_no') }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Passport Expiry </label>
+                                            <input type="text" name="passport_expiry" class="form-control"
+                                                value="{{ old('passport_expiry') }}">
                                         </div>
                                     </div>
 

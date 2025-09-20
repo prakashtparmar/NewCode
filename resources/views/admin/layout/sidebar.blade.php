@@ -358,7 +358,13 @@
                     </ul>
                 </li>
 
-
+                <li class="nav-item">
+                    <a href="{{ url('admin/depos') }}"
+                        class="nav-link {{ request()->is('admin/depos*') ? 'active' : '' }}">
+                        <i class="bi bi-person-lines-fill me-2"></i>
+                        <p>Depo Master</p>
+                    </a>
+                </li>
 
 
                 <!-- Party Management -->

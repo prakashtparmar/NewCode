@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DepoController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\CustomerController;
@@ -282,8 +283,12 @@ Route::middleware(['web'])->group(function () {
             Route::resource('districts', DistrictController::class);
             Route::resource('cities', CityController::class);
             Route::resource('tehsils', TehsilController::class);
-        Route::resource('roles', RoleController::class);
+            Route::resource('roles', RoleController::class);
+            Route::resource('/hr/designations', DesignationController::class);
 
+            Route::resource('depos', DepoController::class);
+            Route::get('ajax/get-districts', [DepoController::class, 'getDistricts'])->name('depos.get-districts');
+            Route::get('ajax/get-tehsils', [DepoController::class, 'getTehsils'])->name('depos.get-tehsils');
 
             Route::get('/get-districts/{state_id}', [UserController::class, 'getDistricts'])->name('get.districts');
             Route::get('/get-cities/{district_id}', [UserController::class, 'getCities'])->name('get.cities');

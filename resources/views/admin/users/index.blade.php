@@ -25,11 +25,11 @@
                         <div class="card card-primary card-outline">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h3 class="card-title">User Control Panel</h3>
-                                @can('create_users')
-                                    <a href="{{ route('users.create') }}" class="btn btn-sm btn-primary">
+                                {{-- @can('create_users') --}}
+                                    <a href="{{ route('users.create') }}" style="float: right;" class="btn btn-sm btn-primary">
                                         <i class="fas fa-user-plus me-1"></i> Add New User
                                     </a>
-                                @endcan
+                                {{-- @endcan --}}
                             </div>
 
                             <div class="card-body">
@@ -41,7 +41,7 @@
                                     </div>
                                 @endif
 
-                                @can('view_users')
+                                {{-- @can('view_users') --}}
                                     @php $loggedInUserId = Auth::id(); @endphp
                                     <div class="table-responsive" style="max-height: 600px;">
                                         <table id="users-table"
@@ -152,25 +152,25 @@
                                                         <td>{{ $user->tehsil->name ?? '-' }}</td>
                                                         <td>{{ $user->city->name ?? '-' }}</td>
                                                         <td>
-                                                            @can('view_users')
+                                                            {{-- @can('view_users') --}}
                                                                 <a href="{{ route('users.show', $user) }}" class="text-info me-2" title="View User">
                                                                     <i class="fas fa-eye"></i>
                                                                 </a>
-                                                            @endcan
-                                                            @can('edit_users')
+                                                            {{-- @endcan --}}
+                                                            {{-- @can('edit_users') --}}
                                                                 <a href="{{ route('users.edit', $user) }}" class="text-warning me-2" title="Edit User">
                                                                     <i class="fas fa-edit"></i>
                                                                 </a>
-                                                            @endcan
-                                                            @can('toggle_users')
+                                                            {{-- @endcan --}}
+                                                            {{-- @can('toggle_users') --}}
                                                                 <form action="{{ route('users.toggle', $user) }}" method="POST" class="d-inline">
                                                                     @csrf
                                                                     <button type="submit" class="btn btn-link p-0 me-2 {{ $user->is_active ? 'text-danger' : 'text-success' }}" title="{{ $user->is_active ? 'Deactivate' : 'Activate' }} User">
                                                                         <i class="fas {{ $user->is_active ? 'fa-user-slash' : 'fa-user-check' }}"></i>
                                                                     </button>
                                                                 </form>
-                                                            @endcan
-                                                            @can('delete_users')
+                                                            {{-- @endcan --}}
+                                                            {{-- @can('delete_users') --}}
                                                                 <form action="{{ route('users.destroy', $user) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure to delete this user?')">
                                                                     @csrf
                                                                     @method('DELETE')
@@ -178,7 +178,7 @@
                                                                         <i class="fas fa-trash"></i>
                                                                     </button>
                                                                 </form>
-                                                            @endcan
+                                                            {{-- @endcan --}}
                                                         </td>
                                                     </tr>
                                                 @empty
@@ -189,7 +189,7 @@
                                             </tbody>
                                         </table>
                                     </div>
-                                @endcan
+                                {{-- @endcan --}}
                             </div>
                         </div>
                     </div>
